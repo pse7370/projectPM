@@ -1,0 +1,67 @@
+@CHARSET "UTF-8";
+
+@font-face {
+    font-family: 'IBMPlexSansKR-Regular';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-07@1.0/IBMPlexSansKR-Regular.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+* { 
+font-family: 'IBMPlexSansKR-Regular';
+}
+
+
+/*트리 틀*/
+.cl-tree{
+	padding-left: 13px;
+	padding-top: 13px;
+}
+
+/* 트리 아이콘 이미지 */
+.cl-tree .cl-tree-item .cl-tree-itemicon{
+	background-image: none;
+	width: 0;
+}
+
+/* 트리에서 선택된 아이템의 배경색 */
+.cl-tree .cl-tree-item.cl-selected {
+	background-color: none;
+}
+
+/* 트리에서 마우스 호버 배경색 */
+.cl-tree .cl-tree-item.cl-hover {
+	background-color: none;
+}
+
+/* 트리에서 마우스 호버 배경색 */
+.cl-tree .cl-tree-item.cl-hover :hover {
+	background-color: none;
+}
+
+.cl-tree:not(.cl-disabled) {
+	.cl-tree-item:not(.cl-disabled){
+
+		/* 트리 아이템 - hover */
+		&:not(.cl-selected).cl-hover, &:not(.cl-selected):hover {
+			background-color: none;
+		}
+
+		
+	}
+}
+
+/* 트리 다중 선택 */
+.cl-tree{
+	&.cl-multi-select{
+		.cl-tree-item{
+			&.cl-checked{
+				
+				&.cl-selected.cl-hover{
+					background-color: none;
+					color: black;
+				}
+			}
+		}
+	}
+}

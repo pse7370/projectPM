@@ -1,0 +1,9 @@
+{
+    "databaseType":"mssql",
+    "databaseIP":"127.0.0.1",
+    "databasePort":1433,
+    "userID":"sa",
+    "userPW":"12345",
+    "dataBaseName":"prac01"
+}
+
