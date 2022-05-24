@@ -15,6 +15,7 @@ func productMangementHandler(writer http.ResponseWriter, request *http.Request) 
 	switch request.Method {
 	case "GET":
 		getSideMenuContent(writer, request)
+
 	}
 
 }
@@ -124,5 +125,12 @@ func getSideMenuContent(writer http.ResponseWriter, request *http.Request) {
 		// request body
 		writer.Write(responseSideMenuData)
 	*/
+
+}
+
+func addDevice(writer http.ResponseWriter, request *http.Request) {
+	fmt.Println("addDevice()........")
+
+	//multipartReader, _ := request.MultipartReader()
 
 }

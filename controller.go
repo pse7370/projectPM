@@ -93,27 +93,6 @@ func DBConnect() {
 
 	defer db.Close() // DB 지연 종료
 
-	// DB 연결 확인을 위한 작업
-	/*
-		var label string
-		var value string
-		var parent string
-		var product_id int32
-		rows, err := db.Query("WITH TREE (label, value, parent, product_id) AS (SELECT DISTINCT product_type AS label, product_type AS value, '' AS parent, 0 AS product_id FROM product	UNION ALL SELECT p.product_name AS label, p.product_name AS value, p.product_type AS parent, p.product_id FROM product AS p) SELECT label, value, parent, product_id FROM TREE ORDER BY product_id DESC, parent ASC")
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer rows.Close()
-
-		for rows.Next() {
-			err := rows.Scan(&label, &value, &parent, &product_id)
-			if err != nil {
-				log.Fatal(err)
-			}
-			fmt.Printf("lable: %s / value: %s / parnet: %s / product_id: %d", label, value, parent, product_id)
-		}
-	*/
-
 }
 
 // 서버 연결 함수
@@ -147,6 +126,7 @@ func StartServer() {
 
 	//CustomHandleFunc("/productMangement/sideMenu", getSideMenuContent)
 	mux.HandleFunc("/productMangement/sideMenu", productMangementHandler)
+	mux.HandleFunc("/productMangement/addDevice", addDevice)
 
 	// http.ListenAndServe(mainServerAddress, mux)
 	// 웹서버를 실제로 동작시키기 위한 함수, 서버가 동작할 포트 번호 지정
