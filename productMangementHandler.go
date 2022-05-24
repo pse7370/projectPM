@@ -24,7 +24,7 @@ func getSideMenuContent(writer http.ResponseWriter, request *http.Request) {
 	renderObj := render.New()
 	var err error
 
-	//DB연결
+	// DB 설정 json 파일 읽어오기
 	dbConfig, _ = ReadDBSetting()
 
 	dbConnectionString := fmt.Sprintf("server=%s;user id=%s;password=%s;database=%s",
@@ -35,6 +35,7 @@ func getSideMenuContent(writer http.ResponseWriter, request *http.Request) {
 	// %s는 문자열 출력표현
 	// fmt.Sprintf는 문자열 값 반환, 원하는 문자열 형식으로 만들 때 사용. 화면에 출력되지 않음.
 
+	//DB연결
 	db, err := sql.Open(dbConfig.DatabaseType, dbConnectionString)
 	if err != nil {
 		log.Println("**********Fail to open DB***********")
@@ -53,7 +54,22 @@ func getSideMenuContent(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	//var getSideMenuContentQuery string = "WITH TREE (label, value, parent, product_id) AS (SELECT DISTINCT product_type AS label, product_type AS value, '' AS parent, 0 AS product_id FROM product	UNION ALL SELECT p.product_name AS label, p.product_name AS value, p.product_type AS parent, p.product_id FROM product AS p) SELECT label, value, parent, product_id FROM TREE ORDER BY product_id DESC, parent ASC"
-	var getSideMenuContentQuery string = "WITH TREE (label, value, parent, product_id) AS (SELECT DISTINCT product_type AS label, product_type AS value, '' AS parent, 0 AS product_id FROM product UNION ALL SELECT p.product_name AS label, p.product_name AS value, p.product_type AS parent, p.product_id FROM product AS p UNION ALL SELECT '커스터마이징' AS label, '커스터마이징' + CAST(product_id AS varchar) AS value, product_name AS parent, product_id FROM product UNION ALL SELECT '산출물' AS label, '산출물' + CAST(product_id AS varchar) AS value, product_name AS parent, product_id FROM product) SELECT label, value, parent, product_id FROM TREE ORDER BY product_id DESC, parent ASC"
+	//var getSideMenuContentQuery string = "WITH TREE (label, value, parent, product_id) AS (SELECT DISTINCT product_type AS label, product_type AS value, '' AS parent, 0 AS product_id FROM product UNION ALL SELECT p.product_name AS label, p.product_name AS value, p.product_type AS parent, p.product_id FROM product AS p UNION ALL SELECT '커스터마이징' AS label, '커스터마이징' + CAST(product_id AS varchar) AS value, product_name AS parent, product_id FROM product UNION ALL SELECT '산출물' AS label, '산출물' + CAST(product_id AS varchar) AS value, product_name AS parent, product_id FROM product) SELECT label, value, parent, product_id FROM TREE ORDER BY product_id DESC, parent ASC"
+	var getSideMenuContentQuery string = `WITH TREE (label, value, parent, product_id) AS
+	(SELECT DISTINCT product_type AS label, product_type AS value, '' AS parent, 0 AS product_id
+		FROM product	
+		UNION ALL
+		SELECT p.product_name AS label, p.product_name AS value, p.product_type AS parent, p.product_id
+		FROM product AS p
+		UNION ALL
+		SELECT '커스터마이징' AS label, '커스터마이징' + CAST(product_id AS varchar) AS value, product_name AS parent, product_id
+		FROM product
+		UNION ALL
+		SELECT '산출물' AS label, '산출물' + CAST(product_id AS varchar) AS value, product_name AS parent, product_id
+		FROM product)
+	SELECT label, value, parent, product_id
+	FROM TREE ORDER BY product_id DESC, parent ASC`
+
 	rows, err := db.Query(getSideMenuContentQuery)
 	if err != nil {
 		log.Println("########쿼리문 실행 오류########")
@@ -78,7 +94,8 @@ func getSideMenuContent(writer http.ResponseWriter, request *http.Request) {
 		if err != nil {
 			log.Println("사이드 트리메뉴 데이터 가져오기 실패 :", err)
 		}
-		fmt.Printf("\nlable: %s / value: %s / parnet: %s / product_id: %d", label, value, parent, product_id)
+		// DB에서 가져온 데이터 확인용
+		// fmt.Printf("\nlable: %s / value: %s / parnet: %s / product_id: %d", label, value, parent, product_id)
 
 		sideMenu.SideMenuList[count] = SideMenuContent{}
 		sideMenu.SideMenuList[count].Label = label
@@ -90,9 +107,13 @@ func getSideMenuContent(writer http.ResponseWriter, request *http.Request) {
 
 	}
 
-	fmt.Println("\n", sideMenu)
+	prettyJsonSideMenu, _ := PrettyJson(sideMenu)
+
+	fmt.Println("\n", prettyJsonSideMenu)
 
 	renderObj.JSON(writer, http.StatusOK, sideMenu)
+	// 아래와 같은 과정을 한번에 진행할 수 있는 render 패키지
+	// struct를 json으로 변환해 전달해준다.
 
 	/*
 		responseSideMenuData, _ := json.Marshal(sideMenu)

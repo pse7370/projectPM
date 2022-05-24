@@ -10,7 +10,6 @@ import (
 	"path/filepath"
 
 	_ "github.com/denisenkom/go-mssqldb"
-	"github.com/go-delve/delve/pkg/dwarf/reader"
 	"github.com/urfave/negroni" // http 미들웨어 negroni
 )
 
@@ -26,7 +25,6 @@ type Ms_sqlConfig struct {
 
 var dbConfig *Ms_sqlConfig = nil
 var mux *http.ServeMux = nil
-var renderObj *reader.Reader = nil
 
 //var db *sql.DB = nil
 

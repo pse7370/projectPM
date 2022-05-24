@@ -71,6 +71,33 @@
 				
 			
 				
+			}
+			
+			/*
+			 * "제품 등록" 버튼에서 click 이벤트 발생 시 호출.
+			 * 사용자가 컨트롤을 클릭할 때 발생하는 이벤트.
+			 */
+			function onButtonClick(/* cpr.events.CMouseEvent */ e){
+				/** 
+				 * @type cpr.controls.Button
+				 */
+				var button = e.control;
+				
+				app.getRootAppInstance().openDialog("addProduct", {width : 760, height : 700}, function(dialog){
+					dialog.ready(function(dialogApp){
+						// 필요한 경우, 다이얼로그의 앱이 초기화 된 후, 앱 속성을 전달하십시오.
+						dialog.style.css("border","solid 1px #555555");
+						dialog.style.css("border-radius","10px");
+						dialog.style.body.css("background-color", "white");
+						dialog.style.header.css("background-color", "#008000");
+						dialog.style.header.css("color", "white");
+						dialog.style.header.css("font-size", "12pt");
+						dialog.headerTitle = "상품 관리";
+						console.log(dialog.app.id);
+						
+					});
+				});
+				
 			};
 			// End - User Script
 			
@@ -186,17 +213,17 @@
 			(function(container){
 			})(group_2);
 			container.addChild(group_2, {
-				"top": "133px",
+				"top": "144px",
 				"left": "255px",
 				"width": "748px",
-				"height": "614px"
+				"height": "603px"
 			});
 			
 			var button_1 = new cpr.controls.Button();
 			button_1.value = "제품 등록";
 			button_1.style.css({
 				"border-right-style" : "none",
-				"background-color" : "#B8E6B8",
+				"background-color" : "#DAF2DA",
 				"border-radius" : "10px",
 				"color" : "black",
 				"border-left-style" : "none",
@@ -205,8 +232,11 @@
 				"background-image" : "none",
 				"border-top-style" : "none"
 			});
+			if(typeof onButtonClick == "function") {
+				button_1.addEventListener("click", onButtonClick);
+			}
 			container.addChild(button_1, {
-				"top": "91px",
+				"top": "104px",
 				"left": "893px",
 				"width": "95px",
 				"height": "30px"

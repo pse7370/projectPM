@@ -86,9 +86,8 @@ type Output_attachment struct {
 	Save_path      string `json:"save_path"`
 }
 
-//===============================================================================
+//==================사이드 메뉴(트리) 구성을 위한 구조체===============================
 
-// 사이드 메뉴(트리) 구성을 위한 구조체
 type SideMenuContent struct {
 	Label      string `json:"label"`
 	Value      string `json:"value"`
@@ -99,3 +98,5 @@ type SideMenuContent struct {
 type SideMenu struct {
 	SideMenuList []SideMenuContent `json:"sideMenuList"`
 }
+
+//====================출입통제기 등록을 위한 구조체==============================
