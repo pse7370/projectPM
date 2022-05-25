@@ -25,8 +25,7 @@ type Ms_sqlConfig struct {
 
 var dbConfig *Ms_sqlConfig = nil
 var mux *http.ServeMux = nil
-
-//var db *sql.DB = nil
+var db *sql.DB = nil
 
 // DB설정 json 파일(dbSetting.json) 읽어 Ms_sqlConfig 구조체의 포인터를 반환하는 함수
 func ReadDBSetting() (*Ms_sqlConfig, error) {
@@ -85,7 +84,10 @@ func DBConnect() {
 	// %s는 문자열 출력표현
 	// fmt.Sprintf는 문자열 값 반환, 원하는 문자열 형식으로 만들 때 사용. 화면에 출력되지 않음.
 
-	db, err := sql.Open(dbConfig.DatabaseType, dbConnectionString)
+	var err error
+	db, err = sql.Open(dbConfig.DatabaseType, dbConnectionString)
+	// := 는 생성자를 새로 만들어 주는 것이기 때문에 전역 변수로 생성한 db와는 다른 객체 생성
+
 	if err != nil {
 		log.Println("**********Fail to open DB***********")
 		panic(err)
@@ -98,7 +100,33 @@ func DBConnect() {
 // 서버 연결 함수
 func StartServer() {
 	// DB 연결
-	//DBConnect()
+	//var dbConfig *Ms_sqlConfig = new(Ms_sqlConfig)
+	// new()를 사용해 Ms_sqlConfigfmf 제로 값으로 초기화하고, 포인터를 dbConfig에 할당
+	// var dbConfig *Ms_sqlConfig = nil
+
+	dbConfig, _ = ReadDBSetting()
+
+	//fmt.Println(dbConfig.DataBaseName)
+	//fmt.Println(dbConfig.DatabaseIP)
+
+	dbConnectionString := fmt.Sprintf("server=%s;user id=%s;password=%s;database=%s",
+		dbConfig.DatabaseIP,
+		dbConfig.UserID,
+		dbConfig.UserPW,
+		dbConfig.DataBaseName)
+	// %s는 문자열 출력표현
+	// fmt.Sprintf는 문자열 값 반환, 원하는 문자열 형식으로 만들 때 사용. 화면에 출력되지 않음.
+
+	var err error
+	db, err = sql.Open(dbConfig.DatabaseType, dbConnectionString)
+	// := 는 생성자를 새로 만들어 주는 것이기 때문에 전역 변수로 생성한 db와는 다른 객체 생성
+
+	if err != nil {
+		log.Println("**********Fail to open DB***********")
+		panic(err)
+	}
+
+	defer db.Close() // DB 지연 종료
 
 	// port 번호 지정
 	const portNumber int = 5000

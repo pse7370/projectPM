@@ -7,6 +7,7 @@
 (function(){
 	var app = new cpr.core.App("product_management", {
 		onPrepare: function(loader){
+			loader.addCSS("theme/css/addProduct_style.css");
 			loader.addCSS("theme/css/main.css");
 		},
 		onCreate: function(/* cpr.core.AppInstance */ app, exports){
@@ -67,9 +68,7 @@
 				sideTree.redraw();
 				
 				console.log("getSideMenu 서브 미션 완료");
-				//console.log(sideTree.getItems());
-				
-			
+				console.log(sideTree.getItems());
 				
 			}
 			
@@ -86,14 +85,16 @@
 				app.getRootAppInstance().openDialog("addProduct", {width : 760, height : 700}, function(dialog){
 					dialog.ready(function(dialogApp){
 						// 필요한 경우, 다이얼로그의 앱이 초기화 된 후, 앱 속성을 전달하십시오.
+						dialog.headerTitle = "상품 관리";
+						console.log(dialog.app.id);
+						/*
 						dialog.style.css("border","solid 1px #555555");
 						dialog.style.css("border-radius","10px");
 						dialog.style.body.css("background-color", "white");
 						dialog.style.header.css("background-color", "#008000");
 						dialog.style.header.css("color", "white");
-						dialog.style.header.css("font-size", "12pt");
-						dialog.headerTitle = "상품 관리";
-						console.log(dialog.app.id);
+						dialog.style.header.css("font-size", "12pt");			
+						*/
 						
 					});
 				});

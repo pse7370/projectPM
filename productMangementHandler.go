@@ -1,10 +1,11 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/unrolled/render"
 )
@@ -15,7 +16,6 @@ func productMangementHandler(writer http.ResponseWriter, request *http.Request) 
 	switch request.Method {
 	case "GET":
 		getSideMenuContent(writer, request)
-
 	}
 
 }
@@ -23,27 +23,7 @@ func productMangementHandler(writer http.ResponseWriter, request *http.Request) 
 func getSideMenuContent(writer http.ResponseWriter, request *http.Request) {
 	fmt.Println("getSideMenuContent()........")
 	renderObj := render.New()
-	var err error
-
-	// DB 설정 json 파일 읽어오기
-	dbConfig, _ = ReadDBSetting()
-
-	dbConnectionString := fmt.Sprintf("server=%s;user id=%s;password=%s;database=%s",
-		dbConfig.DatabaseIP,
-		dbConfig.UserID,
-		dbConfig.UserPW,
-		dbConfig.DataBaseName)
-	// %s는 문자열 출력표현
-	// fmt.Sprintf는 문자열 값 반환, 원하는 문자열 형식으로 만들 때 사용. 화면에 출력되지 않음.
-
-	//DB연결
-	db, err := sql.Open(dbConfig.DatabaseType, dbConnectionString)
-	if err != nil {
-		log.Println("**********Fail to open DB***********")
-		panic(err)
-	}
-
-	defer db.Close()
+	var err error // 에러를 담기 위한 변수
 
 	var getRowCount string = "SELECT COUNT(product_id) * 3 + COUNT(DISTINCT product_type) FROM product"
 	var rowCount int = 0
@@ -129,8 +109,64 @@ func getSideMenuContent(writer http.ResponseWriter, request *http.Request) {
 }
 
 func addDevice(writer http.ResponseWriter, request *http.Request) {
-	fmt.Println("addDevice()........")
+	request.ParseMultipartForm(100)
+	log.Println("addDevice()........")
 
-	//multipartReader, _ := request.MultipartReader()
+	// 출입통제기 이미지 저장 위치
+	const deviceImageSaveDir string = "C:/deviceImage"
+
+	// 해당 경로에 폴더가 있는지 확인하고 없으면 생성하기
+	if _, err := os.Stat(deviceImageSaveDir); os.IsNotExist(err) {
+		err := os.Mkdir(deviceImageSaveDir, os.ModeDir)
+		if err != nil {
+			log.Println("------------폴더 생성 오류-------------")
+		}
+		fmt.Println("==========해당 경로에 폴더가 없어 새로 생성 : C:/deviceImage")
+	}
+
+	multipartForm := request.MultipartForm
+	// map 형태로 저장되어 있어, map[key]로 접근 가능
+	fmt.Println(multipartForm.Value)
+
+	for key, _ := range multipartForm.File {
+		file, fileHeader, err := request.FormFile(key)
+		if err != nil {
+			fmt.Println("FormFile ERROR : ", err)
+			return
+		}
+
+		defer file.Close()
+		fmt.Printf("upload file : name [%s], size [%d], header [%#v]\n",
+			fileHeader.Filename, fileHeader.Size, fileHeader.Header)
+
+		var imageSavePath string = deviceImageSaveDir + "/" + fileHeader.Filename
+
+		fileUpLoad, err := os.Create(imageSavePath)
+		if err != nil {
+			fmt.Println("파일 열기 실패 : ", err, "\n", imageSavePath)
+			return
+		}
+		defer fileUpLoad.Close()
+
+		_, err = io.Copy(fileUpLoad, file)
+		if err != nil {
+			fmt.Println("파일 복사 실패 : ", err)
+			return
+		}
+
+		fmt.Println("파일 저장 성공!", fileHeader.Filename)
+
+	} // end for
+
+	/*
+		// 전달된 데이터 맵과 셋의 데이터들을 변수에 할당
+		formData := multipartForm.Value
+
+		var product Product = Product{
+			Product_id: ,
+		}
+		var authentication_details Authentication_details = Authentication_details{}
+		var
+	*/
 
 }

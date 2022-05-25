@@ -11,6 +11,22 @@
 	font-family: 'IBMPlexSansKR-Regular';
 }
 
+.cl-dialog {
+	border-radius : 10px;
+	border: solid 1px #555555; 
+}	
+
+	/* 다이얼로그 헤더 */
+.cl-dialog-header {
+	background-color: #008000;
+	color : white;
+	font-size: 12pt;
+}
+
+.cl-dialog-body {
+	background-color: white;
+}	
+
 /* 그리드 수정 상태 행의 모든 컨트롤들 스타일 */
 .cl-grid .cl-modified .cl-grid-cell .cl-control {
 	color: black;
