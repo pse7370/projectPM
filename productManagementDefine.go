@@ -16,12 +16,12 @@ type Product struct {
 type ProductDevice struct {
 	Device_detail_id int32   `json:"device_detail_id"`
 	Product_id       int32   `json:"product_id"`
-	Width            float32 `json:"width"`
-	Height           float32 `json:"height"`
-	Depth            float32 `json:"depth"`
+	Width            float64 `json:"width"`
+	Height           float64 `json:"height"`
+	Depth            float64 `json:"depth"`
 	Ip_ratings       string  `json:"ip_ratings"`
 	Server           string  `json:"server"`
-	Wi_fi            byte    `json:"wi_fi"`
+	Wi_fi            string  `json:"wi_fi"`
 	Other            string  `json:"other"`
 }
 
@@ -100,3 +100,22 @@ type SideMenu struct {
 }
 
 //====================출입통제기 등록을 위한 구조체==============================
+
+// 인증 방식 표의 파라미터값 받기, 전달을 위한 구조체
+/*
+type Authentication_detailsList struct {
+	Authentication_detailsList []Authentication_details `json:"authentication_detailsList"`
+}
+
+type Product_developerList struct {
+	Product_developerList []Product_developer `json:"product_developerList"`
+}
+*/
+
+type Authentication_detailsList struct {
+	Auth_typeList            []string `json:"auth_typeList"`
+	One_to_one_max_user      []string `json:"one_to_one_max_user"`
+	One_to_many_max_user     []string `json:"one_to_many_max_user"`
+	One_to_one_max_template  []string `json:"one_to_one_max_template"`
+	One_to_many_max_template []string `json:"one_to_many_max_template"`
+}

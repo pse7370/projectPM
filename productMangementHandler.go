@@ -6,6 +6,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
+	"strings"
 
 	"github.com/unrolled/render"
 )
@@ -125,8 +127,8 @@ func addDevice(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	multipartForm := request.MultipartForm
-	// map 형태로 저장되어 있어, map[key]로 접근 가능
-	fmt.Println(multipartForm.Value)
+
+	var product Product
 
 	for key, _ := range multipartForm.File {
 		file, fileHeader, err := request.FormFile(key)
@@ -156,14 +158,96 @@ func addDevice(writer http.ResponseWriter, request *http.Request) {
 
 		fmt.Println("파일 저장 성공!", fileHeader.Filename)
 
+		product.Real_image_name = fileHeader.Filename
+		product.Save_image_name = fileHeader.Filename
+		product.Save_path = imageSavePath
+
 	} // end for
 
-	/*
-		// 전달된 데이터 맵과 셋의 데이터들을 변수에 할당
-		formData := multipartForm.Value
+	// 전달된 데이터 맵과 셋의 데이터들을 변수에 할당
+	formData := multipartForm.Value
+	// map 형태로 저장되어 있어, map[key]로 접근 가능
+	fmt.Println(formData)
+	fmt.Println(formData["@d#"])
+	fmt.Println(formData["@d1#"+"product_name"])
 
+	var product_device ProductDevice
+	var authentication_detailsList Authentication_detailsList
+	//var authentication_detailsList []Authentication_details
+	//var product_developerList []Product_developer
+
+	//var count int = 0
+	for key, value := range formData {
+		//fmt.Println(key, "/", value)
+
+		splitRealKey := strings.Split(key, "#")
+
+		if len(splitRealKey) >= 2 {
+			//fmt.Println(splitRealKey)
+
+			switch splitRealKey[1] {
+			case "product_type":
+				product.Product_type = value[0]
+
+			case "product_name":
+				product.Product_name = value[0]
+
+			case "product_version":
+				product.Product_version = value[0]
+
+			case "explanation":
+				product.Explanation = value[0]
+
+			case "width":
+				product_device.Width, _ = strconv.ParseFloat(value[0], 64)
+
+			case "height":
+				product_device.Height, _ = strconv.ParseFloat(value[0], 64)
+
+			case "depth":
+				product_device.Depth, _ = strconv.ParseFloat(value[0], 64)
+
+			case "ip_ratings":
+				product_device.Ip_ratings = value[0]
+
+			case "server":
+				product_device.Server = value[0]
+
+			case "wi_fi":
+				product_device.Wi_fi = value[0]
+
+			case "other":
+				product_device.Other = value[0]
+
+			case "auth_type":
+				authentication_detailsList.Auth_typeList = value
+
+			case "one_to_one_max_user":
+				authentication_detailsList.One_to_one_max_user = value
+
+			case "one_to_many_max_user":
+				authentication_detailsList.One_to_many_max_user = value
+
+			case "one_to_one_max_template":
+				authentication_detailsList.One_to_one_max_template = value
+
+			case "one_to_many_max_template":
+				authentication_detailsList.One_to_many_max_template = value
+
+			}
+
+		} // end if
+
+	} // end for
+
+	fmt.Println(product)
+	fmt.Println(product_device)
+	fmt.Println(authentication_detailsList)
+
+	/*
 		var product Product = Product{
-			Product_id: ,
+			Product_id: nil,
+			Product_type: formData[0][],
 		}
 		var authentication_details Authentication_details = Authentication_details{}
 		var

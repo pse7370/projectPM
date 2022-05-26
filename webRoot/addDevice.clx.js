@@ -28,6 +28,7 @@
 				
 				// 통신 방식 그리드 1행 추가
 				app.lookup("communication").insertRow(1, true);
+				
 			}
 			
 			
@@ -55,17 +56,69 @@
 				 */
 				var button = e.control;
 				var product_image = app.lookup("product_image");
-				console.log("출입통제기 이미지 파일명 :" + product_image.file);
-				console.log("출입통제기 파일 타입" + product_image.file.type);
 				
 				var addDevice = app.lookup("addDevice");
 				// 업로드한 파일 정보 서브미션에 저장
-				addDevice.addFileParameter("deviceImage", product_image.file);
+				if (product_image.file != null){
+					addDevice.addFileParameter("deviceImage", product_image.file);
+					console.log("출입통제기 이미지 파일명 :" + product_image.file);
+					console.log("출입통제기 파일 타입" + product_image.file.type);
+				}
 				
+				var product = app.lookup("product");
 				
+				product.setValue("product_type", "출입통제기");
+				
+				var authenticationList = app.lookup("authenticationList")
+				var authenticationDetailList = app.lookup("authenticationDetailList")
+				
+				console.log(authenticationList.getRowCount());
+				console.log(authenticationList.getRowData(0));
+				
+				/*
+				for(i = 0; i < authenticationList.getRowCount(); i++){
+					authenticationDetailList.clear();
+					authenticationDetailList.addRowData({
+															 "auth_type": authenticationList.getValue(i, "auth_type"), 
+															 "auth_method": "1:1",
+															 "max_users": authenticationList.getValue(i, "one_to_one_max_user"),
+															 "max_templates": authenticationList.getValue(i, "one_to_one_max_template")	
+														},
+														{
+															"auth_type": authenticationList.getValue(i+1, "auth_type"), 
+															 "auth_method": "1:N",
+															 "max_users": authenticationList.getValue(i+1, "one_to_many_max_user"),
+															 "max_templates": authenticationList.getValue(i+1, "one_to_many_max_template"),
+														});
+						console.log(authenticationDetailList.getRowData(i));	
+						console.log(authenticationDetailList.getRowData(i+1));							
+				}
+				* 	*/
 				
 				
 				addDevice.send();
+			}
+			
+			
+			/* 출입통제기 제품 등록 성공 후
+			 * 서브미션에서 submit-done 이벤트 발생 시 호출.
+			 * 응답처리가 모두 종료되면 발생합니다.
+			 */
+			function onAddDeviceSubmitDone(/* cpr.events.CSubmissionEvent */ e){
+				/** 
+				 * @type cpr.protocols.Submission
+				 */
+				var addDevice = e.control;
+				
+				var resultCode = app.lookup("result").getOriginalValue("resultCode");
+				
+				var returnValue; 
+				if(resultCode == "ok"){
+					returnValue = 1;
+					app.close(returnValue);
+					
+				}
+				
 			};
 			// End - User Script
 			
@@ -111,6 +164,23 @@
 				]
 			});
 			app.register(dataSet_2);
+			
+			var dataSet_3 = new cpr.data.DataSet("authenticationDetailList");
+			dataSet_3.parseData({
+				"columns" : [
+					{"name": "auth_type"},
+					{"name": "auth_method"},
+					{
+						"name": "max_users",
+						"dataType": "number"
+					},
+					{
+						"name": "max_templates",
+						"dataType": "number"
+					}
+				]
+			});
+			app.register(dataSet_3);
 			var dataMap_1 = new cpr.data.DataMap("product_device");
 			dataMap_1.parseData({
 				"columns" : [
@@ -158,6 +228,9 @@
 			submission_1.addRequestData(dataMap_1);
 			submission_1.addRequestData(dataSet_2);
 			submission_1.addResponseData(dataMap_3, false);
+			if(typeof onAddDeviceSubmitDone == "function") {
+				submission_1.addEventListener("submit-done", onAddDeviceSubmitDone);
+			}
 			app.register(submission_1);
 			
 			app.supportMedia("all and (min-width: 1024px)", "default");
@@ -968,6 +1041,7 @@
 										cell.columnName = "start_date";
 										cell.control = (function(){
 											var dateInput_1 = new cpr.controls.DateInput("dti1");
+											dateInput_1.format = "YYYY-MM-DD";
 											dateInput_1.bind("value").toDataColumn("start_date");
 											return dateInput_1;
 										})();
@@ -979,6 +1053,7 @@
 										cell.columnName = "end_date";
 										cell.control = (function(){
 											var dateInput_2 = new cpr.controls.DateInput("dti2");
+											dateInput_2.format = "YYYY-MM-DD";
 											dateInput_2.bind("value").toDataColumn("end_date");
 											return dateInput_2;
 										})();

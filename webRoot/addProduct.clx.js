@@ -32,6 +32,7 @@
 			 * 앱이 최초 구성된후 최초 랜더링 직후에 발생하는 이벤트 입니다.
 			 */
 			function onBodyLoad(/* cpr.events.CEvent */ e){
+				app.lookup("radio_productType").value = "출입통제기"
 				var embeddedApp = app.lookup("detailLayout");
 				cpr.core.App.load("addDevice", function(loadedApp){
 					if(loadedApp){
@@ -77,48 +78,32 @@
 			container.setLayout(xYLayout_1);
 			
 			// UI Configuration
-			var group_1 = new cpr.controls.Container();
-			// Layout
-			var xYLayout_2 = new cpr.controls.layouts.XYLayout();
-			group_1.setLayout(xYLayout_2);
-			(function(container){
-				var radioButton_1 = new cpr.controls.RadioButton("radio_productType");
-				radioButton_1.value = "출입통제기";
-				radioButton_1.style.css({
-					"white-space" : "nowrap",
-					"text-align" : "center"
-				});
-				radioButton_1.style.item.css({
-					"padding-left" : "0px",
-					"padding-right" : "0px"
-				});
-				(function(radioButton_1){
-					radioButton_1.addItem(new cpr.controls.Item("출입통제기", "출입통제기"));
-					radioButton_1.addItem(new cpr.controls.Item("SW", "SW"));
-				})(radioButton_1);
-				if(typeof onRadio_productTypeSelectionChange == "function") {
-					radioButton_1.addEventListener("selection-change", onRadio_productTypeSelectionChange);
-				}
-				container.addChild(radioButton_1, {
-					"top": "3px",
-					"left": "2px",
-					"width": "214px",
-					"height": "30px"
-				});
-			})(group_1);
-			container.addChild(group_1, {
-				"top": "18px",
-				"left": "20px",
-				"width": "249px",
-				"height": "34px"
-			});
-			
 			var embeddedApp_1 = new cpr.controls.EmbeddedApp("detailLayout");
 			container.addChild(embeddedApp_1, {
 				"top": "62px",
 				"left": "20px",
 				"width": "713px",
 				"height": "818px"
+			});
+			
+			var radioButton_1 = new cpr.controls.RadioButton("radio_productType");
+			radioButton_1.style.css({
+				"white-space" : "nowrap",
+				"text-align" : "center"
+			});
+			radioButton_1.style.item.css({
+				"padding-left" : "0px",
+				"padding-right" : "0px"
+			});
+			(function(radioButton_1){
+				radioButton_1.addItem(new cpr.controls.Item("출입통제기", "출입통제기"));
+				radioButton_1.addItem(new cpr.controls.Item("SW", "SW"));
+			})(radioButton_1);
+			container.addChild(radioButton_1, {
+				"top": "20px",
+				"left": "20px",
+				"width": "214px",
+				"height": "30px"
 			});
 			if(typeof onBodyLoad == "function"){
 				app.addEventListener("load", onBodyLoad);
