@@ -130,6 +130,7 @@ func addDevice(writer http.ResponseWriter, request *http.Request) {
 
 	var product Product
 
+	// 파일 저장하기
 	for key, _ := range multipartForm.File {
 		file, fileHeader, err := request.FormFile(key)
 		if err != nil {
@@ -167,13 +168,17 @@ func addDevice(writer http.ResponseWriter, request *http.Request) {
 	// 전달된 데이터 맵과 셋의 데이터들을 변수에 할당
 	formData := multipartForm.Value
 	// map 형태로 저장되어 있어, map[key]로 접근 가능
-	fmt.Println(formData)
-	fmt.Println(formData["@d#"])
-	fmt.Println(formData["@d1#"+"product_name"])
+
+	/*
+		fmt.Println(formData)
+		fmt.Println(formData["@d#"])
+		fmt.Println(formData["@d1#"+"product_name"])
+	*/
 
 	var product_device ProductDevice
+	//var authentication_detailsList Authentication_detailsList
+	var product_developerList Product_developerList
 	var authentication_detailsList Authentication_detailsList
-	//var authentication_detailsList []Authentication_details
 	//var product_developerList []Product_developer
 
 	//var count int = 0
@@ -220,19 +225,31 @@ func addDevice(writer http.ResponseWriter, request *http.Request) {
 				product_device.Other = value[0]
 
 			case "auth_type":
-				authentication_detailsList.Auth_typeList = value
+				authentication_detailsList.Auth_type = value
 
-			case "one_to_one_max_user":
-				authentication_detailsList.One_to_one_max_user = value
+			case "auth_method":
+				authentication_detailsList.Auth_method = value
 
-			case "one_to_many_max_user":
-				authentication_detailsList.One_to_many_max_user = value
+			case "max_users":
+				authentication_detailsList.Max_users = value
 
-			case "one_to_one_max_template":
-				authentication_detailsList.One_to_one_max_template = value
+			case "max_templates":
+				authentication_detailsList.Max_templates = value
 
-			case "one_to_many_max_template":
-				authentication_detailsList.One_to_many_max_template = value
+			case "department":
+				product_developerList.DepartmentList = value
+
+			case "employees_number":
+				product_developerList.Employees_numberList = value
+
+			case "employees_name":
+				product_developerList.Employees_nameList = value
+
+			case "start_date":
+				product_developerList.Start_dateList = value
+
+			case "end_date":
+				product_developerList.End_dateList = value
 
 			}
 
@@ -240,17 +257,109 @@ func addDevice(writer http.ResponseWriter, request *http.Request) {
 
 	} // end for
 
-	fmt.Println(product)
-	fmt.Println(product_device)
-	fmt.Println(authentication_detailsList)
+	fmt.Println("product : ", product)
+	fmt.Println("product_device : ", product_device)
+	fmt.Println("authentication_detailsList : ", authentication_detailsList)
+	fmt.Println("product_developerList : ", product_developerList)
 
-	/*
-		var product Product = Product{
-			Product_id: nil,
-			Product_type: formData[0][],
+	sliceLength_auth := len(authentication_detailsList.Auth_type)
+	var authentication_details = make([]Authentication_details, sliceLength_auth)
+	for i := 0; i < sliceLength_auth; i++ {
+		authentication_details[i].Auth_type = authentication_detailsList.Auth_type[i]
+		authentication_details[i].Auth_method = authentication_detailsList.Auth_method[i]
+
+		temp, _ := strconv.ParseInt(authentication_detailsList.Max_users[i], 10, 32)
+		authentication_details[i].Max_users = temp
+
+		temp2, _ := strconv.ParseInt(authentication_detailsList.Max_templates[i], 10, 32)
+		authentication_details[1].Max_templates = temp2
+
+	}
+
+	fmt.Println("authentication_details : ", authentication_details)
+
+	sliceLength_developer := len(product_developerList.Employees_numberList)
+	var product_developer = make([]Product_developer, sliceLength_developer)
+	for i := 0; i < sliceLength_developer; i++ {
+		product_developer[i].Department = product_developerList.DepartmentList[i]
+
+		temp, _ := strconv.ParseInt(product_developerList.Employees_numberList[i], 10, 32)
+		product_developer[i].Employees_number = temp
+
+		product_developer[i].Employees_name = product_developerList.Employees_nameList[i]
+		product_developer[i].Start_date = product_developerList.Start_dateList[i]
+		product_developer[i].End_date = product_developerList.End_dateList[i]
+	}
+
+	fmt.Println("product_developer : ", product_developer)
+
+	// 전달된 출입통제기 스펙을 DB에 insert하기
+
+	// 여러 테이블에 insert하는 과정을 하나의 트랜잭션으로 묶기
+	transaction, err := db.Begin()
+	if err != nil {
+		fmt.Println("--------트랜잭션 생성 오류---------")
+		log.Fatal(err)
+	}
+
+	// 에러 발생시 rollback 처리
+	defer transaction.Rollback()
+
+	_, err = db.Exec(`INSERT INTO product(product_type, product_name, product_version, real_image_name, save_image_name, save_path, explanation)
+			VALUES ("?", "?", "?", "?", "?", "?", "?")`,
+		product.Product_type, product.Product_name, product.Product_version, product.Real_image_name, product.Save_image_name, product.Save_path, product.Explanation)
+	if err != nil {
+		fmt.Println("===========product 테이블 insert 실패===========")
+		log.Fatal(err)
+	}
+
+	var product_id int
+	err = db.QueryRow("SELECT product_id FROM product WHERE product_name = %s", product.Product_name).Scan(&product_id)
+	if err != nil {
+		fmt.Println("===========product 테이블 porduct_id 가져오기 실패===========")
+		log.Fatal(err)
+	}
+	fmt.Println("product_id : ", product_id)
+
+	for i := 0; i < sliceLength_auth; i++ {
+		_, err = db.Exec(`INSERT INTO authentication_details(product_id, auth_type, auth_method, max_users, max_templates) 
+						VALUES ('%d', '%s', '%s', '%d', '%d')`,
+			product_id, authentication_details[i].Auth_type, authentication_details[i].Auth_method, authentication_details[i].Max_users, authentication_details[i].Max_templates)
+		if err != nil {
+			fmt.Printf("===========authentication_details 테이블 insert 실패 '%d'================\n", i)
+			log.Fatal(err)
 		}
-		var authentication_details Authentication_details = Authentication_details{}
-		var
-	*/
+	}
+
+	_, err = db.Exec(`INSERT INTO product_device(product_id, width, height, depth, ip_ratings, server, wi_fi, other) 
+					VALUES ('%d', '%f', '%f', '%f', '%s', '%s', '%s'. '%s')`,
+		product_id, product_device.Width, product_device.Height, product_device.Depth, product_device.Ip_ratings, product_device.Server, product_device.Wi_fi, product_device.Other)
+	if err != nil {
+		fmt.Println("===========product_device 테이블 insert 실패===========")
+		log.Fatal(err)
+	}
+
+	for i := 0; i < sliceLength_developer; i++ {
+		_, err = db.Exec(`INSERT INTO product_developer(product_id, department, employees_number, employees_name, start_date, end_date) 
+						VALUES ('%d', '%s', '%d', '%s', '%s', '%s')`,
+			product_id, product_developer[i].Department, product_developer[i].Employees_number, product_developer[i].Employees_name, product_developer[i].Start_date, product_developer[i].End_date)
+		if err != nil {
+			fmt.Printf("===========product_developer 테이블 insert 실패 '%d'================\n", i)
+			log.Fatal(err)
+		}
+	}
+
+	// 트랜잭션 종료
+	err = transaction.Commit()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var result Result
+	result.ResultCode = 1
+
+	renderObj := render.New()
+
+	renderObj.JSON(writer, http.StatusOK, result)
 
 }

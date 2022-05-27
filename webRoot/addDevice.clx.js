@@ -75,27 +75,29 @@
 				console.log(authenticationList.getRowCount());
 				console.log(authenticationList.getRowData(0));
 				
-				/*
-				for(i = 0; i < authenticationList.getRowCount(); i++){
-					authenticationDetailList.clear();
+				var authenGrid = app.lookup("authentication");
+				console.log("checkedRow : " + authenGrid.getCheckRowIndices());
+				
+				var checkedRow = authenGrid.getCheckRowIndices();
+				var i
+				authenticationDetailList.clear();
+				for(i = 0; i < checkedRow.length; i++){	
 					authenticationDetailList.addRowData({
-															 "auth_type": authenticationList.getValue(i, "auth_type"), 
+															 "auth_type": authenticationList.getValue(checkedRow[i], "auth_type"), 
 															 "auth_method": "1:1",
-															 "max_users": authenticationList.getValue(i, "one_to_one_max_user"),
-															 "max_templates": authenticationList.getValue(i, "one_to_one_max_template")	
-														},
-														{
-															"auth_type": authenticationList.getValue(i+1, "auth_type"), 
+															 "max_users": authenticationList.getValue(checkedRow[i], "one_to_one_max_user"),
+															 "max_templates": authenticationList.getValue(checkedRow[i], "one_to_one_max_template")	
+														}),
+					authenticationDetailList.addRowData({
+															"auth_type": authenticationList.getValue(checkedRow[i], "auth_type"), 
 															 "auth_method": "1:N",
-															 "max_users": authenticationList.getValue(i+1, "one_to_many_max_user"),
-															 "max_templates": authenticationList.getValue(i+1, "one_to_many_max_template"),
+															 "max_users": authenticationList.getValue(checkedRow[i], "one_to_many_max_user"),
+															 "max_templates": authenticationList.getValue(checkedRow[i], "one_to_many_max_template"),
 														});
-						console.log(authenticationDetailList.getRowData(i));	
-						console.log(authenticationDetailList.getRowData(i+1));							
+						console.log(authenticationDetailList.getRowData(checkedRow[i]));	
 				}
-				* 	*/
-				
-				
+			
+				addDevice.addRequestData(authenticationDetailList);
 				addDevice.send();
 			}
 			
@@ -224,9 +226,9 @@
 			submission_1.action = "/productMangement/addDevice";
 			submission_1.mediaType = "multipart/form-data";
 			submission_1.addRequestData(dataMap_2);
-			submission_1.addRequestData(dataSet_1);
 			submission_1.addRequestData(dataMap_1);
 			submission_1.addRequestData(dataSet_2);
+			submission_1.addRequestData(dataSet_3);
 			submission_1.addResponseData(dataMap_3, false);
 			if(typeof onAddDeviceSubmitDone == "function") {
 				submission_1.addEventListener("submit-done", onAddDeviceSubmitDone);
@@ -312,7 +314,8 @@
 					"dataSet": app.lookup("authenticationList"),
 					"columns": [
 						{"width": "25px"},
-						{"width": "80px"},
+						{"width": "25px"},
+						{"width": "100px"},
 						{"width": "100px"},
 						{"width": "100px"},
 						{"width": "100px"},
@@ -325,99 +328,68 @@
 						],
 						"cells": [
 							{
-								"constraint": {"rowIndex": 0, "colIndex": 0, "rowSpan": 2, "colSpan": 1},
+								"constraint": {"rowIndex": 0, "colIndex": 0, "rowSpan": 2, "colSpan": 2},
 								"configurator": function(cell){
 									cell.filterable = false;
 									cell.sortable = false;
 									cell.columnType = "checkbox";
-									cell.style.css({
-										"background-color" : "#eaf0ea"
-									});
 								}
 							},
 							{
-								"constraint": {"rowIndex": 0, "colIndex": 1, "rowSpan": 2, "colSpan": 1},
+								"constraint": {"rowIndex": 0, "colIndex": 2, "rowSpan": 2, "colSpan": 1},
 								"configurator": function(cell){
 									cell.targetColumnName = "auth_type";
 									cell.filterable = false;
 									cell.sortable = false;
 									cell.text = "인증 방식";
-									cell.style.css({
-										"background-color" : "#eaf0ea",
-										"font-weight" : "normal"
-									});
-								}
-							},
-							{
-								"constraint": {"rowIndex": 1, "colIndex": 2},
-								"configurator": function(cell){
-									cell.targetColumnName = "one_to_one_max_user";
-									cell.filterable = false;
-									cell.sortable = false;
-									cell.text = "1 : 1";
-									cell.style.css({
-										"background-color" : "#eaf0ea",
-										"font-weight" : "normal"
-									});
 								}
 							},
 							{
 								"constraint": {"rowIndex": 1, "colIndex": 3},
 								"configurator": function(cell){
-									cell.targetColumnName = "one_to_many_max_user";
+									cell.targetColumnName = "one_to_one_max_user";
 									cell.filterable = false;
 									cell.sortable = false;
-									cell.text = "1 : N";
-									cell.style.css({
-										"background-color" : "#eaf0ea",
-										"font-weight" : "normal"
-									});
+									cell.text = "1 : 1";
 								}
 							},
 							{
 								"constraint": {"rowIndex": 1, "colIndex": 4},
 								"configurator": function(cell){
-									cell.targetColumnName = "one_to_one_max_template";
+									cell.targetColumnName = "one_to_many_max_user";
 									cell.filterable = false;
 									cell.sortable = false;
-									cell.text = "1 : 1";
-									cell.style.css({
-										"background-color" : "#eaf0ea",
-										"font-weight" : "normal"
-									});
+									cell.text = "1 : N";
 								}
 							},
 							{
 								"constraint": {"rowIndex": 1, "colIndex": 5},
 								"configurator": function(cell){
+									cell.targetColumnName = "one_to_one_max_template";
+									cell.filterable = false;
+									cell.sortable = false;
+									cell.text = "1 : 1";
+								}
+							},
+							{
+								"constraint": {"rowIndex": 1, "colIndex": 6},
+								"configurator": function(cell){
 									cell.targetColumnName = "one_to_many_max_template";
 									cell.filterable = false;
 									cell.sortable = false;
 									cell.text = "1 : N";
-									cell.style.css({
-										"background-color" : "#eaf0ea",
-										"font-weight" : "normal"
-									});
 								}
 							},
 							{
-								"constraint": {"rowIndex": 0, "colIndex": 2, "rowSpan": 1, "colSpan": 2},
+								"constraint": {"rowIndex": 0, "colIndex": 3, "rowSpan": 1, "colSpan": 2},
 								"configurator": function(cell){
 									cell.text = "최대 등록 가능 사용자 수";
-									cell.style.css({
-										"background-color" : "#eaf0ea",
-										"font-weight" : "normal"
-									});
 								}
 							},
 							{
-								"constraint": {"rowIndex": 0, "colIndex": 4, "rowSpan": 1, "colSpan": 2},
+								"constraint": {"rowIndex": 0, "colIndex": 5, "rowSpan": 1, "colSpan": 2},
 								"configurator": function(cell){
 									cell.text = "최대 등록 가능 템플릿 수";
-									cell.style.css({
-										"background-color" : "#eaf0ea",
-										"font-weight" : "normal"
-									});
 								}
 							}
 						]
@@ -426,26 +398,26 @@
 						"rows": [{"height": "24px"}],
 						"cells": [
 							{
-								"constraint": {"rowIndex": 0, "colIndex": 0},
+								"constraint": {"rowIndex": 0, "colIndex": 0, "rowSpan": 1, "colSpan": 2},
 								"configurator": function(cell){
 									cell.columnType = "checkbox";
 								}
 							},
 							{
-								"constraint": {"rowIndex": 0, "colIndex": 1},
+								"constraint": {"rowIndex": 0, "colIndex": 2},
 								"configurator": function(cell){
 									cell.columnName = "auth_type";
+									cell.control = (function(){
+										var inputBox_2 = new cpr.controls.InputBox("ipb1");
+										inputBox_2.bind("value").toDataColumn("auth_type");
+										return inputBox_2;
+									})();
 								}
 							},
 							{
-								"constraint": {"rowIndex": 0, "colIndex": 2},
+								"constraint": {"rowIndex": 0, "colIndex": 3},
 								"configurator": function(cell){
 									cell.columnName = "one_to_one_max_user";
-									cell.style.css({
-										"padding-left" : "10px",
-										"vertical-align" : "middle",
-										"text-align" : "left"
-									});
 									cell.control = (function(){
 										var numberEditor_1 = new cpr.controls.NumberEditor("nbe1");
 										numberEditor_1.bind("value").toDataColumn("one_to_one_max_user");
@@ -454,14 +426,9 @@
 								}
 							},
 							{
-								"constraint": {"rowIndex": 0, "colIndex": 3},
+								"constraint": {"rowIndex": 0, "colIndex": 4},
 								"configurator": function(cell){
 									cell.columnName = "one_to_many_max_user";
-									cell.style.css({
-										"padding-left" : "10px",
-										"vertical-align" : "middle",
-										"text-align" : "left"
-									});
 									cell.control = (function(){
 										var numberEditor_2 = new cpr.controls.NumberEditor("nbe2");
 										numberEditor_2.bind("value").toDataColumn("one_to_many_max_user");
@@ -470,14 +437,9 @@
 								}
 							},
 							{
-								"constraint": {"rowIndex": 0, "colIndex": 4},
+								"constraint": {"rowIndex": 0, "colIndex": 5},
 								"configurator": function(cell){
 									cell.columnName = "one_to_one_max_template";
-									cell.style.css({
-										"padding-left" : "10px",
-										"vertical-align" : "middle",
-										"text-align" : "left"
-									});
 									cell.control = (function(){
 										var numberEditor_3 = new cpr.controls.NumberEditor("nbe3");
 										numberEditor_3.bind("value").toDataColumn("one_to_one_max_template");
@@ -486,14 +448,9 @@
 								}
 							},
 							{
-								"constraint": {"rowIndex": 0, "colIndex": 5},
+								"constraint": {"rowIndex": 0, "colIndex": 6},
 								"configurator": function(cell){
 									cell.columnName = "one_to_many_max_template";
-									cell.style.css({
-										"padding-left" : "10px",
-										"vertical-align" : "middle",
-										"text-align" : "left"
-									});
 									cell.control = (function(){
 										var numberEditor_4 = new cpr.controls.NumberEditor("nbe4");
 										numberEditor_4.bind("value").toDataColumn("one_to_many_max_template");
@@ -570,27 +527,27 @@
 						"colSpan": 1,
 						"rowSpan": 1
 					});
-					var inputBox_2 = new cpr.controls.InputBox("ipb4");
-					inputBox_2.inputFilter = "[\\d,\\.]";
-					inputBox_2.bind("value").toDataMap(app.lookup("product_device"), "height");
-					container.addChild(inputBox_2, {
+					var inputBox_3 = new cpr.controls.InputBox("ipb4");
+					inputBox_3.inputFilter = "[\\d,\\.]";
+					inputBox_3.bind("value").toDataMap(app.lookup("product_device"), "height");
+					container.addChild(inputBox_3, {
 						"colIndex": 3,
 						"rowIndex": 1
 					});
-					var inputBox_3 = new cpr.controls.InputBox("ipb5");
-					inputBox_3.inputFilter = "[\\d,\\.]";
-					inputBox_3.bind("value").toDataMap(app.lookup("product_device"), "depth");
-					container.addChild(inputBox_3, {
+					var inputBox_4 = new cpr.controls.InputBox("ipb5");
+					inputBox_4.inputFilter = "[\\d,\\.]";
+					inputBox_4.bind("value").toDataMap(app.lookup("product_device"), "depth");
+					container.addChild(inputBox_4, {
 						"colIndex": 5,
 						"rowIndex": 1
 					});
-					var inputBox_4 = new cpr.controls.InputBox("ipb3");
-					inputBox_4.inputFilter = "[\\d,\\.]";
-					inputBox_4.style.css({
+					var inputBox_5 = new cpr.controls.InputBox("ipb3");
+					inputBox_5.inputFilter = "[\\d,\\.]";
+					inputBox_5.style.css({
 						"background-color" : "#ffffff"
 					});
-					inputBox_4.bind("value").toDataMap(app.lookup("product_device"), "width");
-					container.addChild(inputBox_4, {
+					inputBox_5.bind("value").toDataMap(app.lookup("product_device"), "width");
+					container.addChild(inputBox_5, {
 						"colIndex": 1,
 						"rowIndex": 1
 					});
@@ -616,9 +573,9 @@
 				var xYLayout_4 = new cpr.controls.layouts.XYLayout();
 				group_5.setLayout(xYLayout_4);
 				(function(container){
-					var inputBox_5 = new cpr.controls.InputBox("ipb2");
-					inputBox_5.bind("value").toDataMap(app.lookup("product"), "product_version");
-					container.addChild(inputBox_5, {
+					var inputBox_6 = new cpr.controls.InputBox("ipb2");
+					inputBox_6.bind("value").toDataMap(app.lookup("product"), "product_version");
+					container.addChild(inputBox_6, {
 						"top": "0px",
 						"left": "68px",
 						"width": "131px",
@@ -729,9 +686,9 @@
 									"constraint": {"rowIndex": 0, "colIndex": 0},
 									"configurator": function(cell){
 										cell.control = (function(){
-											var inputBox_6 = new cpr.controls.InputBox("ipb6");
-											inputBox_6.bind("value").toDataMap(app.lookup("product_device"), "server");
-											return inputBox_6;
+											var inputBox_7 = new cpr.controls.InputBox("ipb6");
+											inputBox_7.bind("value").toDataMap(app.lookup("product_device"), "server");
+											return inputBox_7;
 										})();
 									}
 								},
@@ -758,9 +715,9 @@
 									"constraint": {"rowIndex": 0, "colIndex": 2},
 									"configurator": function(cell){
 										cell.control = (function(){
-											var inputBox_7 = new cpr.controls.InputBox("ipb7");
-											inputBox_7.bind("value").toDataMap(app.lookup("product_device"), "other");
-											return inputBox_7;
+											var inputBox_8 = new cpr.controls.InputBox("ipb7");
+											inputBox_8.bind("value").toDataMap(app.lookup("product_device"), "other");
+											return inputBox_8;
 										})();
 									}
 								}
@@ -822,9 +779,9 @@
 						"width": "96px",
 						"height": "25px"
 					});
-					var inputBox_8 = new cpr.controls.InputBox("ipb8");
-					inputBox_8.bind("value").toDataMap(app.lookup("product_device"), "ip_ratings");
-					container.addChild(inputBox_8, {
+					var inputBox_9 = new cpr.controls.InputBox("ipb8");
+					inputBox_9.bind("value").toDataMap(app.lookup("product_device"), "ip_ratings");
+					container.addChild(inputBox_9, {
 						"top": "41px",
 						"left": "101px",
 						"width": "150px",
@@ -1006,9 +963,9 @@
 									"configurator": function(cell){
 										cell.columnName = "department";
 										cell.control = (function(){
-											var inputBox_9 = new cpr.controls.InputBox("ipb9");
-											inputBox_9.bind("value").toDataColumn("department");
-											return inputBox_9;
+											var inputBox_10 = new cpr.controls.InputBox("ipb9");
+											inputBox_10.bind("value").toDataColumn("department");
+											return inputBox_10;
 										})();
 									}
 								},
@@ -1029,9 +986,9 @@
 									"configurator": function(cell){
 										cell.columnName = "employees_name";
 										cell.control = (function(){
-											var inputBox_10 = new cpr.controls.InputBox("ipb10");
-											inputBox_10.bind("value").toDataColumn("employees_name");
-											return inputBox_10;
+											var inputBox_11 = new cpr.controls.InputBox("ipb10");
+											inputBox_11.bind("value").toDataColumn("employees_name");
+											return inputBox_11;
 										})();
 									}
 								},

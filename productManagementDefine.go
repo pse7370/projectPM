@@ -31,8 +31,8 @@ type Authentication_details struct {
 	Product_id     int32  `json:"product_id"`
 	Auth_type      string `json:"auth_type"`
 	Auth_method    string `json:"auth_method"`
-	Max_users      int32  `json:"max_users"`
-	Max_templates  int32  `json:"max_templates"`
+	Max_users      int64  `json:"max_users"`
+	Max_templates  int64  `json:"max_templates"`
 }
 
 // SW 테이블 구조체
@@ -49,7 +49,7 @@ type Product_developer struct {
 	Developer_id     int32  `json:"developer_id"`
 	Product_id       int32  `json:"product_id"`
 	Department       string `json:"department"`
-	Employees_number int32  `json:"employees_number"`
+	Employees_number int64  `json:"employees_number"`
 	Employees_name   string `json:"Employees_name"`
 	Start_date       string `json:"start_date"`
 	End_date         string `json:"end_date"`
@@ -86,6 +86,11 @@ type Output_attachment struct {
 	Save_path      string `json:"save_path"`
 }
 
+//============ResultCode 전달 구조체
+type Result struct {
+	ResultCode int `json:"resultCode"`
+}
+
 //==================사이드 메뉴(트리) 구성을 위한 구조체===============================
 
 type SideMenuContent struct {
@@ -112,10 +117,28 @@ type Product_developerList struct {
 }
 */
 
+/*
 type Authentication_detailsList struct {
 	Auth_typeList            []string `json:"auth_typeList"`
 	One_to_one_max_user      []string `json:"one_to_one_max_user"`
 	One_to_many_max_user     []string `json:"one_to_many_max_user"`
 	One_to_one_max_template  []string `json:"one_to_one_max_template"`
 	One_to_many_max_template []string `json:"one_to_many_max_template"`
+}
+*/
+
+type Product_developerList struct {
+	DepartmentList       []string `json:"departmentList"`
+	Employees_numberList []string `json:"employees_numberList"`
+	Employees_nameList   []string `json:"employees_nameList"`
+	Start_dateList       []string `json:"start_dateList"`
+	End_dateList         []string `json:"end_dateList"`
+}
+
+// 인증 상세 테이블 구조체
+type Authentication_detailsList struct {
+	Auth_type     []string `json:"auth_type"`
+	Auth_method   []string `json:"auth_method"`
+	Max_users     []string `json:"max_users"`
+	Max_templates []string `json:"max_templates"`
 }
