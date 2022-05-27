@@ -306,7 +306,7 @@ func addDevice(writer http.ResponseWriter, request *http.Request) {
 	defer transaction.Rollback()
 
 	_, err = db.Exec(`INSERT INTO product(product_type, product_name, product_version, real_image_name, save_image_name, save_path, explanation)
-			VALUES ("?", "?", "?", "?", "?", "?", "?")`,
+			VALUES (?, ?, ?, ?, ?, ?, ?)`,
 		product.Product_type, product.Product_name, product.Product_version, product.Real_image_name, product.Save_image_name, product.Save_path, product.Explanation)
 	if err != nil {
 		fmt.Println("===========product 테이블 insert 실패===========")
@@ -314,7 +314,7 @@ func addDevice(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	var product_id int
-	err = db.QueryRow("SELECT product_id FROM product WHERE product_name = %s", product.Product_name).Scan(&product_id)
+	err = db.QueryRow("SELECT product_id FROM product WHERE product_name = ?", product.Product_name).Scan(&product_id)
 	if err != nil {
 		fmt.Println("===========product 테이블 porduct_id 가져오기 실패===========")
 		log.Fatal(err)
@@ -323,7 +323,7 @@ func addDevice(writer http.ResponseWriter, request *http.Request) {
 
 	for i := 0; i < sliceLength_auth; i++ {
 		_, err = db.Exec(`INSERT INTO authentication_details(product_id, auth_type, auth_method, max_users, max_templates) 
-						VALUES ('%d', '%s', '%s', '%d', '%d')`,
+						VALUES (?, ?, ?, ?, ?)`,
 			product_id, authentication_details[i].Auth_type, authentication_details[i].Auth_method, authentication_details[i].Max_users, authentication_details[i].Max_templates)
 		if err != nil {
 			fmt.Printf("===========authentication_details 테이블 insert 실패 '%d'================\n", i)
@@ -332,7 +332,7 @@ func addDevice(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	_, err = db.Exec(`INSERT INTO product_device(product_id, width, height, depth, ip_ratings, server, wi_fi, other) 
-					VALUES ('%d', '%f', '%f', '%f', '%s', '%s', '%s'. '%s')`,
+					VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
 		product_id, product_device.Width, product_device.Height, product_device.Depth, product_device.Ip_ratings, product_device.Server, product_device.Wi_fi, product_device.Other)
 	if err != nil {
 		fmt.Println("===========product_device 테이블 insert 실패===========")
@@ -341,7 +341,7 @@ func addDevice(writer http.ResponseWriter, request *http.Request) {
 
 	for i := 0; i < sliceLength_developer; i++ {
 		_, err = db.Exec(`INSERT INTO product_developer(product_id, department, employees_number, employees_name, start_date, end_date) 
-						VALUES ('%d', '%s', '%d', '%s', '%s', '%s')`,
+						VALUES (?, ?, ?, ?, ?, ?)`,
 			product_id, product_developer[i].Department, product_developer[i].Employees_number, product_developer[i].Employees_name, product_developer[i].Start_date, product_developer[i].End_date)
 		if err != nil {
 			fmt.Printf("===========product_developer 테이블 insert 실패 '%d'================\n", i)

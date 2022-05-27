@@ -73,28 +73,27 @@
 				var authenticationDetailList = app.lookup("authenticationDetailList")
 				
 				console.log(authenticationList.getRowCount());
-				console.log(authenticationList.getRowData(0));
 				
 				var authenGrid = app.lookup("authentication");
 				console.log("checkedRow : " + authenGrid.getCheckRowIndices());
 				
 				var checkedRow = authenGrid.getCheckRowIndices();
-				var i
+				var count
 				authenticationDetailList.clear();
-				for(i = 0; i < checkedRow.length; i++){	
+				for(count = 0; count < checkedRow.length; count++){	
 					authenticationDetailList.addRowData({
-															 "auth_type": authenticationList.getValue(checkedRow[i], "auth_type"), 
+															 "auth_type": authenticationList.getValue(checkedRow[count], "auth_type"), 
 															 "auth_method": "1:1",
-															 "max_users": authenticationList.getValue(checkedRow[i], "one_to_one_max_user"),
-															 "max_templates": authenticationList.getValue(checkedRow[i], "one_to_one_max_template")	
+															 "max_users": authenticationList.getValue(checkedRow[count], "one_to_one_max_user"),
+															 "max_templates": authenticationList.getValue(checkedRow[count], "one_to_one_max_template")	
 														}),
 					authenticationDetailList.addRowData({
-															"auth_type": authenticationList.getValue(checkedRow[i], "auth_type"), 
+															"auth_type": authenticationList.getValue(checkedRow[count], "auth_type"), 
 															 "auth_method": "1:N",
-															 "max_users": authenticationList.getValue(checkedRow[i], "one_to_many_max_user"),
-															 "max_templates": authenticationList.getValue(checkedRow[i], "one_to_many_max_template"),
+															 "max_users": authenticationList.getValue(checkedRow[count], "one_to_many_max_user"),
+															 "max_templates": authenticationList.getValue(checkedRow[count], "one_to_many_max_template"),
 														});
-						console.log(authenticationDetailList.getRowData(checkedRow[i]));	
+						console.log(authenticationDetailList.getRowData(checkedRow[count]));	
 				}
 			
 				addDevice.addRequestData(authenticationDetailList);
@@ -114,12 +113,9 @@
 				
 				var resultCode = app.lookup("result").getOriginalValue("resultCode");
 				
-				var returnValue; 
-				if(resultCode == "ok"){
-					returnValue = 1;
-					app.close(returnValue);
-					
-				}
+				app.setAppProperty("resultCode", resultCode);
+				
+				app.getRootAppInstance().close();
 				
 			};
 			// End - User Script
