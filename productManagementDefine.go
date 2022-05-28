@@ -26,6 +26,7 @@ type ProductDevice struct {
 }
 
 // 인증 상세 테이블 구조체
+/*
 type Authentication_details struct {
 	Auth_detail_id int32  `json:"auth_detail_id"`
 	Product_id     int32  `json:"product_id"`
@@ -33,6 +34,17 @@ type Authentication_details struct {
 	Auth_method    string `json:"auth_method"`
 	Max_users      int64  `json:"max_users"`
 	Max_templates  int64  `json:"max_templates"`
+}
+*/
+
+type Authentication_details struct {
+	Auth_detail_id           int32  `json:"auth_detail_id"`
+	Product_id               int32  `json:"product_id"`
+	Auth_type                string `json:"auth_type"`
+	One_to_one_max_user      int64  `json:"one_to_one_max_user"`
+	One_to_many_max_user     int64  `json:"one_to_many_max_user"`
+	One_to_one_max_template  int64  `json:"one_to_one_max_template"`
+	One_to_many_max_template int64  `json:"one_to_many_max_template"`
 }
 
 // SW 테이블 구조체
@@ -136,9 +148,20 @@ type Product_developerList struct {
 }
 
 // 인증 상세 테이블 구조체
+/*
 type Authentication_detailsList struct {
 	Auth_type     []string `json:"auth_type"`
 	Auth_method   []string `json:"auth_method"`
 	Max_users     []string `json:"max_users"`
 	Max_templates []string `json:"max_templates"`
+}
+*/
+
+type Authentication_detailsList struct {
+	Auth_type                []string `json:"auth_type"`
+	Auth_method              []string `json:"auth_method"`
+	One_to_one_max_user      []string `json:"one_to_one_max_user"`
+	One_to_many_max_user     []string `json:"one_to_many_max_user"`
+	One_to_one_max_template  []string `json:"one_to_one_max_template"`
+	One_to_many_max_template []string `json:"one_to_many_max_template"`
 }

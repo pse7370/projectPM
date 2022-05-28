@@ -227,14 +227,28 @@ func addDevice(writer http.ResponseWriter, request *http.Request) {
 			case "auth_type":
 				authentication_detailsList.Auth_type = value
 
-			case "auth_method":
-				authentication_detailsList.Auth_method = value
+			case "one_to_one_max_user":
+				authentication_detailsList.One_to_one_max_user = value
 
-			case "max_users":
-				authentication_detailsList.Max_users = value
+			case "one_to_many_max_user":
+				authentication_detailsList.One_to_many_max_user = value
 
-			case "max_templates":
-				authentication_detailsList.Max_templates = value
+			case "one_to_one_max_template":
+				authentication_detailsList.One_to_one_max_template = value
+
+			case "one_to_many_max_template":
+				authentication_detailsList.One_to_many_max_template = value
+
+			/*
+				case "auth_method":
+					authentication_detailsList.Auth_method = value
+
+				case "max_users":
+					authentication_detailsList.Max_users = value
+
+				case "max_templates":
+					authentication_detailsList.Max_templates = value
+			*/
 
 			case "department":
 				product_developerList.DepartmentList = value
@@ -266,17 +280,41 @@ func addDevice(writer http.ResponseWriter, request *http.Request) {
 	var authentication_details = make([]Authentication_details, sliceLength_auth)
 	for i := 0; i < sliceLength_auth; i++ {
 		authentication_details[i].Auth_type = authentication_detailsList.Auth_type[i]
-		authentication_details[i].Auth_method = authentication_detailsList.Auth_method[i]
 
-		temp, _ := strconv.ParseInt(authentication_detailsList.Max_users[i], 10, 32)
-		authentication_details[i].Max_users = temp
+		temp, _ := strconv.ParseInt(authentication_detailsList.One_to_one_max_user[i], 10, 32)
+		authentication_details[i].One_to_one_max_user = temp
 
-		temp2, _ := strconv.ParseInt(authentication_detailsList.Max_templates[i], 10, 32)
-		authentication_details[1].Max_templates = temp2
+		temp2, _ := strconv.ParseInt(authentication_detailsList.One_to_many_max_user[i], 10, 32)
+		authentication_details[1].One_to_many_max_user = temp2
+
+		temp3, _ := strconv.ParseInt(authentication_detailsList.One_to_one_max_template[i], 10, 32)
+		authentication_details[i].One_to_one_max_template = temp3
+
+		temp4, _ := strconv.ParseInt(authentication_detailsList.One_to_many_max_template[i], 10, 32)
+		authentication_details[1].One_to_many_max_template = temp4
 
 	}
 
 	fmt.Println("authentication_details : ", authentication_details)
+
+	/*
+		sliceLength_auth := len(authentication_detailsList.Auth_type)
+		var authentication_details = make([]Authentication_details, sliceLength_auth)
+		for i := 0; i < sliceLength_auth; i++ {
+			authentication_details[i].Auth_type = authentication_detailsList.Auth_type[i]
+			authentication_details[i].Auth_method = authentication_detailsList.Auth_method[i]
+
+			temp, _ := strconv.ParseInt(authentication_detailsList.Max_users[i], 10, 32)
+			authentication_details[i].Max_users = temp
+
+			temp2, _ := strconv.ParseInt(authentication_detailsList.Max_templates[i], 10, 32)
+			authentication_details[1].Max_templates = temp2
+
+		}
+
+
+		fmt.Println("authentication_details : ", authentication_details)
+	*/
 
 	sliceLength_developer := len(product_developerList.Employees_numberList)
 	var product_developer = make([]Product_developer, sliceLength_developer)
@@ -321,10 +359,22 @@ func addDevice(writer http.ResponseWriter, request *http.Request) {
 	}
 	fmt.Println("product_id : ", product_id)
 
+	/*
+		for i := 0; i < sliceLength_auth; i++ {
+			_, err = db.Exec(`INSERT INTO authentication_details(product_id, auth_type, auth_method, max_users, max_templates)
+							VALUES (?, ?, ?, ?, ?)`,
+				product_id, authentication_details[i].Auth_type, authentication_details[i].Auth_method, authentication_details[i].Max_users, authentication_details[i].Max_templates)
+			if err != nil {
+				fmt.Printf("===========authentication_details 테이블 insert 실패 '%d'================\n", i)
+				log.Fatal(err)
+			}
+		}
+	*/
+
 	for i := 0; i < sliceLength_auth; i++ {
-		_, err = db.Exec(`INSERT INTO authentication_details(product_id, auth_type, auth_method, max_users, max_templates) 
+		_, err = db.Exec(`INSERT INTO authentication_details(product_id, auth_type, one_to_one_max_user, one_to_many_max_user, one_to_one_max_template, one_to_many_max_template) 
 						VALUES (?, ?, ?, ?, ?)`,
-			product_id, authentication_details[i].Auth_type, authentication_details[i].Auth_method, authentication_details[i].Max_users, authentication_details[i].Max_templates)
+			product_id, authentication_details[i].Auth_type, authentication_details[i].One_to_one_max_user, authentication_details[i].One_to_many_max_user, authentication_details[i].One_to_one_max_template, authentication_details[i].One_to_one_max_template)
 		if err != nil {
 			fmt.Printf("===========authentication_details 테이블 insert 실패 '%d'================\n", i)
 			log.Fatal(err)

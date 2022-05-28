@@ -115,7 +115,7 @@
 				
 				app.setAppProperty("resultCode", resultCode);
 				
-				app.getRootAppInstance().close();
+				app.getRootAppInstance().dialogManager.getDialogByName("addProduct").close();
 				
 			};
 			// End - User Script
