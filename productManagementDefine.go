@@ -159,7 +159,6 @@ type Authentication_detailsList struct {
 
 type Authentication_detailsList struct {
 	Auth_type                []string `json:"auth_type"`
-	Auth_method              []string `json:"auth_method"`
 	One_to_one_max_user      []string `json:"one_to_one_max_user"`
 	One_to_many_max_user     []string `json:"one_to_many_max_user"`
 	One_to_one_max_template  []string `json:"one_to_one_max_template"`

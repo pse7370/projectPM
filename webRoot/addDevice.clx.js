@@ -78,6 +78,7 @@
 				console.log("checkedRow : " + authenGrid.getCheckRowIndices());
 				
 				var checkedRow = authenGrid.getCheckRowIndices();
+				/*
 				var count
 				authenticationDetailList.clear();
 				for(count = 0; count < checkedRow.length; count++){	
@@ -97,6 +98,7 @@
 				}
 			
 				addDevice.addRequestData(authenticationDetailList);
+				*/
 				addDevice.send();
 			}
 			
@@ -116,6 +118,7 @@
 				app.setAppProperty("resultCode", resultCode);
 				
 				app.getRootAppInstance().dialogManager.getDialogByName("addProduct").close();
+				//app.getRootAppInstance().close();
 				
 			};
 			// End - User Script
@@ -224,7 +227,7 @@
 			submission_1.addRequestData(dataMap_2);
 			submission_1.addRequestData(dataMap_1);
 			submission_1.addRequestData(dataSet_2);
-			submission_1.addRequestData(dataSet_3);
+			submission_1.addRequestData(dataSet_1);
 			submission_1.addResponseData(dataMap_3, false);
 			if(typeof onAddDeviceSubmitDone == "function") {
 				submission_1.addEventListener("submit-done", onAddDeviceSubmitDone);
@@ -329,6 +332,9 @@
 									cell.filterable = false;
 									cell.sortable = false;
 									cell.columnType = "checkbox";
+									cell.style.css({
+										"background-color" : "#eaf0ea"
+									});
 								}
 							},
 							{
@@ -338,6 +344,9 @@
 									cell.filterable = false;
 									cell.sortable = false;
 									cell.text = "인증 방식";
+									cell.style.css({
+										"background-color" : "#eaf0ea"
+									});
 								}
 							},
 							{
@@ -347,6 +356,9 @@
 									cell.filterable = false;
 									cell.sortable = false;
 									cell.text = "1 : 1";
+									cell.style.css({
+										"background-color" : "#eaf0ea"
+									});
 								}
 							},
 							{
@@ -356,6 +368,9 @@
 									cell.filterable = false;
 									cell.sortable = false;
 									cell.text = "1 : N";
+									cell.style.css({
+										"background-color" : "#eaf0ea"
+									});
 								}
 							},
 							{
@@ -365,6 +380,9 @@
 									cell.filterable = false;
 									cell.sortable = false;
 									cell.text = "1 : 1";
+									cell.style.css({
+										"background-color" : "#eaf0ea"
+									});
 								}
 							},
 							{
@@ -374,18 +392,27 @@
 									cell.filterable = false;
 									cell.sortable = false;
 									cell.text = "1 : N";
+									cell.style.css({
+										"background-color" : "#eaf0ea"
+									});
 								}
 							},
 							{
 								"constraint": {"rowIndex": 0, "colIndex": 3, "rowSpan": 1, "colSpan": 2},
 								"configurator": function(cell){
 									cell.text = "최대 등록 가능 사용자 수";
+									cell.style.css({
+										"background-color" : "#eaf0ea"
+									});
 								}
 							},
 							{
 								"constraint": {"rowIndex": 0, "colIndex": 5, "rowSpan": 1, "colSpan": 2},
 								"configurator": function(cell){
 									cell.text = "최대 등록 가능 템플릿 수";
+									cell.style.css({
+										"background-color" : "#eaf0ea"
+									});
 								}
 							}
 						]
@@ -405,6 +432,7 @@
 									cell.columnName = "auth_type";
 									cell.control = (function(){
 										var inputBox_2 = new cpr.controls.InputBox("ipb1");
+										inputBox_2.readOnly = true;
 										inputBox_2.bind("value").toDataColumn("auth_type");
 										return inputBox_2;
 									})();
@@ -416,6 +444,10 @@
 									cell.columnName = "one_to_one_max_user";
 									cell.control = (function(){
 										var numberEditor_1 = new cpr.controls.NumberEditor("nbe1");
+										numberEditor_1.style.css({
+											"text-align" : "right",
+											"padding-right" : "5px"
+										});
 										numberEditor_1.bind("value").toDataColumn("one_to_one_max_user");
 										return numberEditor_1;
 									})();
@@ -427,6 +459,10 @@
 									cell.columnName = "one_to_many_max_user";
 									cell.control = (function(){
 										var numberEditor_2 = new cpr.controls.NumberEditor("nbe2");
+										numberEditor_2.style.css({
+											"text-align" : "right",
+											"padding-right" : "5px"
+										});
 										numberEditor_2.bind("value").toDataColumn("one_to_many_max_user");
 										return numberEditor_2;
 									})();
@@ -438,6 +474,10 @@
 									cell.columnName = "one_to_one_max_template";
 									cell.control = (function(){
 										var numberEditor_3 = new cpr.controls.NumberEditor("nbe3");
+										numberEditor_3.style.css({
+											"text-align" : "right",
+											"padding-right" : "5px"
+										});
 										numberEditor_3.bind("value").toDataColumn("one_to_one_max_template");
 										return numberEditor_3;
 									})();
@@ -449,6 +489,10 @@
 									cell.columnName = "one_to_many_max_template";
 									cell.control = (function(){
 										var numberEditor_4 = new cpr.controls.NumberEditor("nbe4");
+										numberEditor_4.style.css({
+											"text-align" : "right",
+											"padding-right" : "5px"
+										});
 										numberEditor_4.bind("value").toDataColumn("one_to_many_max_template");
 										return numberEditor_4;
 									})();
@@ -697,7 +741,8 @@
 										});
 										cell.control = (function(){
 											var comboBox_1 = new cpr.controls.ComboBox("cmb1");
-											comboBox_1.preventInput = false;
+											comboBox_1.tabIndex = 0;
+											comboBox_1.preventInput = true;
 											comboBox_1.bind("value").toDataMap(app.lookup("product_device"), "wi_fi");
 											(function(comboBox_1){
 												comboBox_1.addItem(new cpr.controls.Item("O", "O"));
@@ -721,6 +766,7 @@
 						}
 					});
 					container.addChild(grid_2, {
+						"autoSize": "height",
 						"width": "400px",
 						"height": "74px"
 					});
@@ -743,7 +789,7 @@
 					});
 					container.addChild(output_8, {
 						"width": "100px",
-						"height": "20px"
+						"height": "25px"
 					});
 					var textArea_1 = new cpr.controls.TextArea("txa1");
 					textArea_1.bind("value").toDataMap(app.lookup("product"), "explanation");

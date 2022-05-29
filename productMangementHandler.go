@@ -90,9 +90,11 @@ func getSideMenuContent(writer http.ResponseWriter, request *http.Request) {
 
 	}
 
-	prettyJsonSideMenu, _ := PrettyJson(sideMenu)
+	/*
+		prettyJsonSideMenu, _ := PrettyJson(sideMenu)
 
-	fmt.Println("\n", prettyJsonSideMenu)
+		fmt.Println("\n", prettyJsonSideMenu)
+	*/
 
 	renderObj.JSON(writer, http.StatusOK, sideMenu)
 	// 아래와 같은 과정을 한번에 진행할 수 있는 render 패키지
@@ -277,6 +279,7 @@ func addDevice(writer http.ResponseWriter, request *http.Request) {
 	fmt.Println("product_developerList : ", product_developerList)
 
 	sliceLength_auth := len(authentication_detailsList.Auth_type)
+	fmt.Println("sliceLength_auth : ", sliceLength_auth)
 	var authentication_details = make([]Authentication_details, sliceLength_auth)
 	for i := 0; i < sliceLength_auth; i++ {
 		authentication_details[i].Auth_type = authentication_detailsList.Auth_type[i]
@@ -285,13 +288,13 @@ func addDevice(writer http.ResponseWriter, request *http.Request) {
 		authentication_details[i].One_to_one_max_user = temp
 
 		temp2, _ := strconv.ParseInt(authentication_detailsList.One_to_many_max_user[i], 10, 32)
-		authentication_details[1].One_to_many_max_user = temp2
+		authentication_details[i].One_to_many_max_user = temp2
 
 		temp3, _ := strconv.ParseInt(authentication_detailsList.One_to_one_max_template[i], 10, 32)
 		authentication_details[i].One_to_one_max_template = temp3
 
 		temp4, _ := strconv.ParseInt(authentication_detailsList.One_to_many_max_template[i], 10, 32)
-		authentication_details[1].One_to_many_max_template = temp4
+		authentication_details[i].One_to_many_max_template = temp4
 
 	}
 
@@ -317,6 +320,7 @@ func addDevice(writer http.ResponseWriter, request *http.Request) {
 	*/
 
 	sliceLength_developer := len(product_developerList.Employees_numberList)
+	fmt.Println("sliceLength_developer : ", sliceLength_developer)
 	var product_developer = make([]Product_developer, sliceLength_developer)
 	for i := 0; i < sliceLength_developer; i++ {
 		product_developer[i].Department = product_developerList.DepartmentList[i]
@@ -373,7 +377,7 @@ func addDevice(writer http.ResponseWriter, request *http.Request) {
 
 	for i := 0; i < sliceLength_auth; i++ {
 		_, err = db.Exec(`INSERT INTO authentication_details(product_id, auth_type, one_to_one_max_user, one_to_many_max_user, one_to_one_max_template, one_to_many_max_template) 
-						VALUES (?, ?, ?, ?, ?)`,
+						VALUES (?, ?, ?, ?, ?, ?)`,
 			product_id, authentication_details[i].Auth_type, authentication_details[i].One_to_one_max_user, authentication_details[i].One_to_many_max_user, authentication_details[i].One_to_one_max_template, authentication_details[i].One_to_one_max_template)
 		if err != nil {
 			fmt.Printf("===========authentication_details 테이블 insert 실패 '%d'================\n", i)
