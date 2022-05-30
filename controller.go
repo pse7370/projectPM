@@ -153,8 +153,15 @@ func StartServer() {
 	fmt.Println("====================Start Server======================")
 
 	//CustomHandleFunc("/productMangement/sideMenu", getSideMenuContent)
+
+	// 사이드 트리 메뉴 구성 값 가져오기
 	mux.HandleFunc("/productMangement/sideMenu", productMangementHandler)
+	// 출입통제기 등록하기
 	mux.HandleFunc("/productMangement/addDevice", addDevice)
+	// SW 등록하기
+	mux.HandleFunc("/productMangement/addSW", addSW)
+	// 출입통제기 상세 내역 불러오기
+	mux.HandleFunc("/productMangement/deviceContent", getDeviceContent)
 
 	// http.ListenAndServe(mainServerAddress, mux)
 	// 웹서버를 실제로 동작시키기 위한 함수, 서버가 동작할 포트 번호 지정

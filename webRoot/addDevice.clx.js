@@ -112,13 +112,24 @@
 				 * @type cpr.protocols.Submission
 				 */
 				var addDevice = e.control;
+				console.log(window.status);
 				
-				var resultCode = app.lookup("result").getOriginalValue("resultCode");
-				
+				var resultCode = app.lookup("result").getValue("resultCode");
+				console.log(resultCode);
 				app.setAppProperty("resultCode", resultCode);
 				
 				app.getRootAppInstance().dialogManager.getDialogByName("addProduct").close();
-				//app.getRootAppInstance().close();
+				
+				/*
+				if(resultCode == 1){
+					app.getRootAppInstance().dialogManager.getDialogByName("addProduct").close();
+				}else {
+					alert("상품 등록 실패");
+				}
+				*/
+				
+				//app.getRootAppInstance().dialogManager.getDialogByName("addProduct").close();
+				//app.getRootAppInstance()는 최상위 앱 호출
 				
 			};
 			// End - User Script

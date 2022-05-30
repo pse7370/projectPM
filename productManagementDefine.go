@@ -41,19 +41,19 @@ type Authentication_details struct {
 	Auth_detail_id           int32  `json:"auth_detail_id"`
 	Product_id               int32  `json:"product_id"`
 	Auth_type                string `json:"auth_type"`
-	One_to_one_max_user      int64  `json:"one_to_one_max_user"`
-	One_to_many_max_user     int64  `json:"one_to_many_max_user"`
-	One_to_one_max_template  int64  `json:"one_to_one_max_template"`
-	One_to_many_max_template int64  `json:"one_to_many_max_template"`
+	One_to_one_max_user      int32  `json:"one_to_one_max_user"`
+	One_to_many_max_user     int32  `json:"one_to_many_max_user"`
+	One_to_one_max_template  int32  `json:"one_to_one_max_template"`
+	One_to_many_max_template int32  `json:"one_to_many_max_template"`
 }
 
 // SW 테이블 구조체
 type ProductSW struct {
 	SW_detail_id int32 `json:"sw_detail_id"`
 	Product_id   int32 `json:"product_id"`
-	Simultaneous uint8 `json:"simultaneous"`
-	Available_db uint8 `json:"available_db"`
-	Available_os uint8 `json:"available_os"`
+	Simultaneous int32 `json:"simultaneous"`
+	Available_db int32 `json:"available_db"`
+	Available_os int32 `json:"available_os"`
 }
 
 // 담당 개발자 테이블 구조체
@@ -61,7 +61,7 @@ type Product_developer struct {
 	Developer_id     int32  `json:"developer_id"`
 	Product_id       int32  `json:"product_id"`
 	Department       string `json:"department"`
-	Employees_number int64  `json:"employees_number"`
+	Employees_number int32  `json:"employees_number"`
 	Employees_name   string `json:"Employees_name"`
 	Start_date       string `json:"start_date"`
 	End_date         string `json:"end_date"`
@@ -163,4 +163,11 @@ type Authentication_detailsList struct {
 	One_to_many_max_user     []string `json:"one_to_many_max_user"`
 	One_to_one_max_template  []string `json:"one_to_one_max_template"`
 	One_to_many_max_template []string `json:"one_to_many_max_template"`
+}
+
+type DeviceContent struct {
+	Product            Product                  `json:"product"`
+	AuthenticationList []Authentication_details `json:"authenticationList"`
+	Product_device     ProductDevice            `json:"product_device"`
+	DeveloperList      []Product_developer      `json:"developerList"`
 }

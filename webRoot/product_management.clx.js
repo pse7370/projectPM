@@ -133,8 +133,11 @@
 				var sideMenu = app.lookup("sideTree");
 				var sideMenuDataSet = sideTree.dataSet;
 				var clickParent = sideMenuDataSet.getValue(clickRow, "parent");
+				var clickProduct_id = sideMenuDataSet.getValue(clickRow, "product_id");
 				console.log("parent 컬럼 값 : " + clickParent);
+				console.log("clickProduct_id : " + clickProduct_id);
 				
+				app.setAppProperty("product_id", clickProduct_id);
 				
 				if(clickParent == "출입통제기"){
 					var embeddedApp = app.lookup("content_view");
@@ -154,7 +157,7 @@
 					});
 				}
 				
-				
+			
 			};
 			// End - User Script
 			
@@ -178,7 +181,7 @@
 				],
 				"rows": [
 					{"label": "출입통제기", "value": "출입통제기", "parent": "", "product_id": ""},
-					{"label": "face", "value": "face", "parent": "출입통제기", "product_id": ""},
+					{"label": "face", "value": "face", "parent": "출입통제기", "product_id": "1"},
 					{"label": "커스터마이징", "value": "커스터마이징1", "parent": "face", "product_id": ""},
 					{"label": "산출물", "value": "산출물1", "parent": "face", "product_id": ""},
 					{"label": "SW", "value": "SW", "parent": "", "product_id": "5"},

@@ -17,7 +17,53 @@
 			 * Created at 2022. 5. 29. 오전 3:27:55.
 			 *
 			 * @author PSE
-			 ************************************************/;
+			 ************************************************/
+			
+			/*
+			 * 루트 컨테이너에서 load 이벤트 발생 시 호출.
+			 * 앱이 최초 구성된후 최초 랜더링 직후에 발생하는 이벤트 입니다.
+			 */
+			
+			function onBodyLoad(/* cpr.events.CEvent */ e){
+				
+				var product_id = app.getRootAppInstance().getAppProperty("product_id"); // 부모화면 데이터 셋
+				console.log("product_id : " + product_id);
+				
+				var dataProduct_id = app.lookup("product_id");
+				dataProduct_id.setValue("product_id", Number(product_id));
+				console.log(dataProduct_id.getValue("product_id"));
+				
+				app.lookup("getDeviceContent").send();
+				console.log("getDeviceContent 서브미션 실행");
+			
+			}
+			
+			
+			
+			/*
+			 * 서브미션에서 submit-done 이벤트 발생 시 호출.
+			 * 응답처리가 모두 종료되면 발생합니다.
+			 */
+			function onGetDeviceContentSubmitDone(/* cpr.events.CSubmissionEvent */ e){
+				/** 
+				 * @type cpr.protocols.Submission
+				 */
+				var getDeviceContent = e.control;
+				
+				var product = app.lookup("product");
+				var product_device = app.lookup("product_device");
+				
+				app.lookup("productName").value = product.getValue("product_name");
+				app.lookup("productVersion").value = product.getValue("product_version");
+				app.lookup("productSize").value = product.getValue("width") + '(W) x' 
+												+ product.getValue("height") + '(H) x'
+												+ product.getValue("depth") + '(D)';
+				
+				app.lookup("communication").redraw();								
+				
+				
+				
+			};
 			// End - User Script
 			
 			// Header
@@ -91,6 +137,26 @@
 				]
 			});
 			app.register(dataMap_2);
+			
+			var dataMap_3 = new cpr.data.DataMap("product_id");
+			dataMap_3.parseData({
+				"columns" : [{
+					"name": "product_id",
+					"dataType": "number"
+				}]
+			});
+			app.register(dataMap_3);
+			var submission_1 = new cpr.protocols.Submission("getDeviceContent");
+			submission_1.action = "/productMangement/deviceContent";
+			submission_1.addRequestData(dataMap_3);
+			submission_1.addResponseData(dataMap_2, false);
+			submission_1.addResponseData(dataSet_1, false);
+			submission_1.addResponseData(dataMap_1, false);
+			submission_1.addResponseData(dataSet_2, false);
+			if(typeof onGetDeviceContentSubmitDone == "function") {
+				submission_1.addEventListener("submit-done", onGetDeviceContentSubmitDone);
+			}
+			app.register(submission_1);
 			
 			app.supportMedia("all and (min-width: 1024px)", "default");
 			app.supportMedia("all and (min-width: 748px) and (max-width: 1023px)", "deatilView");
@@ -214,7 +280,7 @@
 					"colIndex": 0,
 					"rowIndex": 3
 				});
-				var output_5 = new cpr.controls.Output();
+				var output_5 = new cpr.controls.Output("productName");
 				output_5.style.css({
 					"border-right-style" : "solid",
 					"border-top-width" : "1px",
@@ -229,7 +295,7 @@
 					"colIndex": 1,
 					"rowIndex": 0
 				});
-				var output_6 = new cpr.controls.Output();
+				var output_6 = new cpr.controls.Output("productVersion");
 				output_6.style.css({
 					"border-right-style" : "solid",
 					"border-top-width" : "1px",
@@ -247,8 +313,8 @@
 					"colIndex": 1,
 					"rowIndex": 1
 				});
-				var output_7 = new cpr.controls.Output();
-				output_7.value = "Output";
+				var output_7 = new cpr.controls.Output("productSize");
+				output_7.value = "";
 				output_7.style.css({
 					"border-right-style" : "solid",
 					"border-right-width" : "1px",
@@ -259,7 +325,7 @@
 					"colIndex": 1,
 					"rowIndex": 2
 				});
-				var output_8 = new cpr.controls.Output();
+				var output_8 = new cpr.controls.Output("ipRatings");
 				output_8.style.css({
 					"border-right-style" : "solid",
 					"border-top-width" : "1px",
@@ -578,7 +644,7 @@
 					"width": "100px",
 					"height": "25px"
 				});
-				var textArea_1 = new cpr.controls.TextArea("txa1");
+				var textArea_1 = new cpr.controls.TextArea("explanation");
 				textArea_1.readOnly = true;
 				textArea_1.bind("value").toDataMap(app.lookup("product"), "explanation");
 				container.addChild(textArea_1, {
@@ -596,8 +662,21 @@
 			
 			var group_5 = new cpr.controls.Container();
 			// Layout
+			var xYLayout_2 = new cpr.controls.layouts.XYLayout();
+			group_5.setLayout(xYLayout_2);
+			(function(container){
+			})(group_5);
+			container.addChild(group_5, {
+				"top": "0px",
+				"left": "5px",
+				"width": "730px",
+				"height": "970px"
+			});
+			
+			var group_6 = new cpr.controls.Container();
+			// Layout
 			var verticalLayout_4 = new cpr.controls.layouts.VerticalLayout();
-			group_5.setLayout(verticalLayout_4);
+			group_6.setLayout(verticalLayout_4);
 			(function(container){
 				var output_10 = new cpr.controls.Output();
 				output_10.value = "담당 개발자";
@@ -778,25 +857,12 @@
 					"width": "400px",
 					"height": "164px"
 				});
-			})(group_5);
-			container.addChild(group_5, {
+			})(group_6);
+			container.addChild(group_6, {
 				"top": "721px",
 				"left": "20px",
 				"width": "696px",
 				"height": "200px"
-			});
-			
-			var group_6 = new cpr.controls.Container();
-			// Layout
-			var xYLayout_2 = new cpr.controls.layouts.XYLayout();
-			group_6.setLayout(xYLayout_2);
-			(function(container){
-			})(group_6);
-			container.addChild(group_6, {
-				"top": "0px",
-				"left": "5px",
-				"width": "730px",
-				"height": "970px"
 			});
 			
 			var button_1 = new cpr.controls.Button();
@@ -834,6 +900,12 @@
 				"width": "80px",
 				"height": "25px"
 			});
+			if(typeof onBodyLoad == "function"){
+				app.addEventListener("load", onBodyLoad);
+			}
+			if(typeof onBodyInit == "function"){
+				app.addEventListener("init", onBodyInit);
+			}
 		}
 	});
 	app.title = "deviceDetailView";
