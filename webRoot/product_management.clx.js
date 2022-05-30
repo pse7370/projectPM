@@ -138,9 +138,13 @@
 				console.log("clickProduct_id : " + clickProduct_id);
 				
 				app.setAppProperty("product_id", clickProduct_id);
+				app.setAppProperty("product_type", clickParent);
 				
+				var embeddedApp = app.lookup("content_view");
+				
+				/*
 				if(clickParent == "출입통제기"){
-					var embeddedApp = app.lookup("content_view");
+					
 					cpr.core.App.load("deviceDetailView", function(loadedApp){
 						if(loadedApp){
 				    		embeddedApp.app = loadedApp;
@@ -149,15 +153,45 @@
 				}
 				
 				if(clickParent == "SW"){
-					var embeddedApp = app.lookup("content_view");
+					embeddedApp.redraw();
 					cpr.core.App.load("swDetailView", function(loadedApp){
 						if(loadedApp){
 				    		embeddedApp.app = loadedApp;
 				  		}
 					});
 				}
-				
+				*/
 			
+			}	
+			
+			
+			/*
+			 * 루트 컨테이너에서 property-change 이벤트 발생 시 호출.
+			 * 앱의 속성이 변경될 때 발생하는 이벤트 입니다.
+			 */
+			function onBodyPropertyChange(/* cpr.events.CPropertyChangeEvent */ e){
+				var product_id = app.getAppProperty("product_id");
+				var product_type = app.getAppProperty("product_type");
+				
+				var embeddedApp = app.lookup("content_view");
+				
+				if(product_type == "출입통제기"){
+					
+					cpr.core.App.load("deviceDetailView", function(loadedApp){
+						if(loadedApp){
+				    		embeddedApp.app = loadedApp;
+				  		}
+					});
+				}
+				
+				if(product_type == "SW"){
+					embeddedApp.redraw();
+					cpr.core.App.load("swDetailView", function(loadedApp){
+						if(loadedApp){
+				    		embeddedApp.app = loadedApp;
+				  		}
+					});
+				}
 			};
 			// End - User Script
 			
@@ -179,14 +213,7 @@
 						"dataType": "number"
 					}
 				],
-				"rows": [
-					{"label": "출입통제기", "value": "출입통제기", "parent": "", "product_id": ""},
-					{"label": "face", "value": "face", "parent": "출입통제기", "product_id": "1"},
-					{"label": "커스터마이징", "value": "커스터마이징1", "parent": "face", "product_id": ""},
-					{"label": "산출물", "value": "산출물1", "parent": "face", "product_id": ""},
-					{"label": "SW", "value": "SW", "parent": "", "product_id": "5"},
-					{"label": "alpeta", "value": "alpeta", "parent": "SW", "product_id": "6"}
-				]
+				"rows": []
 			});
 			app.register(dataSet_1);
 			var submission_1 = new cpr.protocols.Submission("getSideMenu");
