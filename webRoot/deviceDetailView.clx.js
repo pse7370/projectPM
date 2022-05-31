@@ -39,7 +39,6 @@
 			}
 			
 			
-			
 			/*
 			 * 서브미션에서 submit-done 이벤트 발생 시 호출.
 			 * 응답처리가 모두 종료되면 발생합니다.
@@ -53,25 +52,102 @@
 				var product = app.lookup("product");
 				var product_device = app.lookup("product_device");
 				
-				app.lookup("productName").value = product.getValue("product_name");
+				app.lookup("productImage").src = product.getValue("save_path");
 				
-				app.lookup("productVersion").value = product.getValue("product_version");
+				app.lookup("productName").redraw();
+				app.lookup("productVersion").redraw();
+				app.lookup("server").redraw();
+				app.lookup("wi_fi").redraw();
+				app.lookup("other").redraw();
+				app.lookup("ipRatings").redraw();
+				app.lookup("explanation").redraw();
 				
 				app.lookup("productSize").value = product_device.getValue("width") + '(W) x ' 
 												+ product_device.getValue("height") + '(H) x '
-												+ product_device.getValue("depth") + '(D)';
-				
-				app.lookup("server").value = product_device.getValue("server");
-				app.lookup("wi_fi").value = product_device.getValue("wi_fi");
-				app.lookup("other").value = product_device.getValue("other");								
-												
-				app.lookup("ipRatings").value = product_device.getValue("ip_ratings");	
-				
-				app.lookup("explanation").value = product.getValue("explanation");							
+												+ product_device.getValue("depth") + '(D)';			
 											
 				app.lookup("authentication").redraw();
 				app.lookup("grid_developer").redraw();
 				
+				
+			}
+			
+			/*
+			 * "삭제" 버튼(deleteButton)에서 click 이벤트 발생 시 호출.
+			 * 사용자가 컨트롤을 클릭할 때 발생하는 이벤트.
+			 */
+			function onDeleteButtonClick(/* cpr.events.CMouseEvent */ e){
+				/** 
+				 * @type cpr.controls.Button
+				 */
+				var deleteButton = e.control;
+				
+				var confirmText = "제품 삭제시 등록한 커스터마이징 이력과 산출물들이 같이 삭제 됩니다.\n삭제하시겠습니까?";
+				if(confirm(confirmText)){
+					app.lookup("deleteDevice").send();
+					console.log("deleteDevice 서브미션 실행");
+				}	
+				
+				/*
+				app.openDialog("udc/alter", {
+						width: 310,
+						height: 170,
+						headerVisible: false
+					}, function(dialog) {dialog.ready(function(dialogApp) {
+								// 필요한 경우, 다이얼로그의 앱이 초기화 된 후, 앱 속성을 전달하십시오.
+								dialogApp.setAppProperty("text", "제품 삭제시 등록한 커스터마이징 이력과 산출물들이 같이 삭제 됩니다.\n삭제하시겠습니까?");
+								dialogApp.addEventListener("onNoClick", function(e) {
+									dialog.close(0);
+								}); 
+								dialogApp.addEventListener("onYesClick", function(e) {
+									dialog.close(1);
+								});
+						});
+				}).then(function(returnValue) {
+						if(returnValue == 1){
+							app.lookup("deleteDevice").send();
+							console.log("deleteDevice 서브미션 실행");
+						}
+					});
+				
+				*/
+					
+			}
+			
+			/*
+			 * deleteDevice 서브미션에서 submit-done 이벤트 발생 시 호출.
+			 * 응답처리가 모두 종료되면 발생합니다.
+			 */
+			function onDeleteDeviceSubmitDone(/* cpr.events.CSubmissionEvent */ e){
+				/** 
+				 * @type cpr.protocols.Submission
+				 */
+				var deleteDevice = e.control;
+				
+				alert("제품을 삭제했습니다.");
+				window.location.reload();
+				
+				var resultCode = app.lookup("result").getValue("resultCode");
+				console.log(resultCode);
+				/*
+				if(resultCode == '1'){
+					alert("제품을 삭제했습니다.");
+					window.location.reload(true);
+				}
+				*/
+				
+			}
+			
+			
+			/*
+			 * "수정" 버튼(modifyButton)에서 click 이벤트 발생 시 호출.
+			 * 사용자가 컨트롤을 클릭할 때 발생하는 이벤트.
+			 */
+			function onModifyButtonClick(/* cpr.events.CMouseEvent */ e){
+				/** 
+				 * @type cpr.controls.Button
+				 */
+				var modifyButton = e.control;
 				
 			};
 			// End - User Script
@@ -156,6 +232,15 @@
 				}]
 			});
 			app.register(dataMap_3);
+			
+			var dataMap_4 = new cpr.data.DataMap("result");
+			dataMap_4.parseData({
+				"columns" : [{
+					"name": "resultCode",
+					"dataType": "number"
+				}]
+			});
+			app.register(dataMap_4);
 			var submission_1 = new cpr.protocols.Submission("getDeviceContent");
 			submission_1.action = "/productMangement/deviceContent";
 			submission_1.addRequestData(dataMap_3);
@@ -167,6 +252,15 @@
 				submission_1.addEventListener("submit-done", onGetDeviceContentSubmitDone);
 			}
 			app.register(submission_1);
+			
+			var submission_2 = new cpr.protocols.Submission("deleteDevice");
+			submission_2.action = "/productMangement/deleteDevice";
+			submission_2.addRequestData(dataMap_3);
+			submission_2.addResponseData(dataMap_4, false);
+			if(typeof onDeleteDeviceSubmitDone == "function") {
+				submission_2.addEventListener("submit-done", onDeleteDeviceSubmitDone);
+			}
+			app.register(submission_2);
 			
 			app.supportMedia("all and (min-width: 1024px)", "default");
 			app.supportMedia("all and (min-width: 748px) and (max-width: 1023px)", "deatilView");
@@ -188,7 +282,8 @@
 			container.setLayout(xYLayout_1);
 			
 			// UI Configuration
-			var image_1 = new cpr.controls.Image();
+			var image_1 = new cpr.controls.Image("productImage");
+			image_1.alt = "\"제품 이미지\"";
 			(function(image_1){
 			})(image_1);
 			container.addChild(image_1, {
@@ -537,7 +632,7 @@
 				container.addChild(grid_1, {
 					"autoSize": "height",
 					"width": "400px",
-					"height": "177px"
+					"height": "84px"
 				});
 			})(group_2);
 			container.addChild(group_2, {
@@ -714,6 +809,12 @@
 				});
 				var textArea_1 = new cpr.controls.TextArea("explanation");
 				textArea_1.readOnly = true;
+				textArea_1.style.css({
+					"padding-top" : "5px",
+					"padding-left" : "10px",
+					"padding-bottom" : "5px",
+					"padding-right" : "10px"
+				});
 				textArea_1.bind("value").toDataMap(app.lookup("product"), "explanation");
 				container.addChild(textArea_1, {
 					"autoSize": "none",
@@ -730,21 +831,8 @@
 			
 			var group_5 = new cpr.controls.Container();
 			// Layout
-			var xYLayout_2 = new cpr.controls.layouts.XYLayout();
-			group_5.setLayout(xYLayout_2);
-			(function(container){
-			})(group_5);
-			container.addChild(group_5, {
-				"top": "0px",
-				"left": "5px",
-				"width": "730px",
-				"height": "970px"
-			});
-			
-			var group_6 = new cpr.controls.Container();
-			// Layout
 			var verticalLayout_3 = new cpr.controls.layouts.VerticalLayout();
-			group_6.setLayout(verticalLayout_3);
+			group_5.setLayout(verticalLayout_3);
 			(function(container){
 				var output_17 = new cpr.controls.Output();
 				output_17.value = "담당 개발자";
@@ -925,15 +1013,15 @@
 					"width": "400px",
 					"height": "164px"
 				});
-			})(group_6);
-			container.addChild(group_6, {
+			})(group_5);
+			container.addChild(group_5, {
 				"top": "721px",
 				"left": "20px",
 				"width": "696px",
 				"height": "200px"
 			});
 			
-			var button_1 = new cpr.controls.Button();
+			var button_1 = new cpr.controls.Button("modifyButton");
 			button_1.value = "수정";
 			button_1.style.css({
 				"background-color" : "#DAF2DA",
@@ -944,6 +1032,9 @@
 				"background-image" : "none",
 				"border-top-style" : "none"
 			});
+			if(typeof onModifyButtonClick == "function") {
+				button_1.addEventListener("click", onModifyButtonClick);
+			}
 			container.addChild(button_1, {
 				"top": "931px",
 				"left": "539px",
@@ -951,7 +1042,7 @@
 				"height": "25px"
 			});
 			
-			var button_2 = new cpr.controls.Button();
+			var button_2 = new cpr.controls.Button("deleteButton");
 			button_2.value = "삭제";
 			button_2.style.css({
 				"background-color" : "#DAF2DA",
@@ -962,6 +1053,9 @@
 				"background-image" : "none",
 				"border-top-style" : "none"
 			});
+			if(typeof onDeleteButtonClick == "function") {
+				button_2.addEventListener("click", onDeleteButtonClick);
+			}
 			container.addChild(button_2, {
 				"top": "931px",
 				"left": "636px",
@@ -970,12 +1064,6 @@
 			});
 			if(typeof onBodyLoad == "function"){
 				app.addEventListener("load", onBodyLoad);
-			}
-			if(typeof onBodyInit == "function"){
-				app.addEventListener("init", onBodyInit);
-			}
-			if(typeof onBodyPropertyChange == "function"){
-				app.addEventListener("property-change", onBodyPropertyChange);
 			}
 		}
 	});

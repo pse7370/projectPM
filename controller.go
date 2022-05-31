@@ -162,6 +162,12 @@ func StartServer() {
 	mux.HandleFunc("/productMangement/addSW", addSW)
 	// 출입통제기 상세 내역 불러오기
 	mux.HandleFunc("/productMangement/deviceContent", getDeviceContent)
+	// SW 상세 내역 불러오기
+	mux.HandleFunc("/productMangement/SWcontent", getSWcontent)
+	// 출입통제기 삭제하기
+	mux.HandleFunc("/productMangement/deleteDevice", deleteDevice)
+	// SW 삭제하기
+	mux.HandleFunc("/productMangement/deleteSW", deleteSW)
 
 	// http.ListenAndServe(mainServerAddress, mux)
 	// 웹서버를 실제로 동작시키기 위한 함수, 서버가 동작할 포트 번호 지정

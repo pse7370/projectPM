@@ -143,7 +143,7 @@
 				"rows": [
 					{"available_db": "Oracle", "db_binary_numbers": "1"},
 					{"available_db": "MySQL", "db_binary_numbers": "10"},
-					{"available_db": "MS Server", "db_binary_numbers": "100"},
+					{"available_db": "MS-SQL", "db_binary_numbers": "100"},
 					{"available_db": "MariaDB", "db_binary_numbers": "1000"}
 				]
 			});

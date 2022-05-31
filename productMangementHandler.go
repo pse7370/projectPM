@@ -41,19 +41,19 @@ func getSideMenuContent(writer http.ResponseWriter, request *http.Request) {
 	//var getSideMenuContentQuery string = "WITH TREE (label, value, parent, product_id) AS (SELECT DISTINCT product_type AS label, product_type AS value, '' AS parent, 0 AS product_id FROM product	UNION ALL SELECT p.product_name AS label, p.product_name AS value, p.product_type AS parent, p.product_id FROM product AS p) SELECT label, value, parent, product_id FROM TREE ORDER BY product_id DESC, parent ASC"
 	//var getSideMenuContentQuery string = "WITH TREE (label, value, parent, product_id) AS (SELECT DISTINCT product_type AS label, product_type AS value, '' AS parent, 0 AS product_id FROM product UNION ALL SELECT p.product_name AS label, p.product_name AS value, p.product_type AS parent, p.product_id FROM product AS p UNION ALL SELECT '커스터마이징' AS label, '커스터마이징' + CAST(product_id AS varchar) AS value, product_name AS parent, product_id FROM product UNION ALL SELECT '산출물' AS label, '산출물' + CAST(product_id AS varchar) AS value, product_name AS parent, product_id FROM product) SELECT label, value, parent, product_id FROM TREE ORDER BY product_id DESC, parent ASC"
 	var getSideMenuContentQuery string = `WITH TREE (label, value, parent, product_id) AS
-	(SELECT DISTINCT product_type AS label, product_type AS value, '' AS parent, 0 AS product_id
-		FROM product	
-		UNION ALL
-		SELECT p.product_name AS label, p.product_name AS value, p.product_type AS parent, p.product_id
-		FROM product AS p
-		UNION ALL
-		SELECT '커스터마이징' AS label, '커스터마이징' + CAST(product_id AS varchar) AS value, product_name AS parent, product_id
-		FROM product
-		UNION ALL
-		SELECT '산출물' AS label, '산출물' + CAST(product_id AS varchar) AS value, product_name AS parent, product_id
-		FROM product)
-	SELECT label, value, parent, product_id
-	FROM TREE ORDER BY product_id DESC, parent ASC`
+											(SELECT DISTINCT product_type AS label, product_type AS value, '' AS parent, 0 AS product_id
+												FROM product	
+												UNION ALL
+												SELECT p.product_name AS label, p.product_name AS value, p.product_type AS parent, p.product_id
+												FROM product AS p
+												UNION ALL
+												SELECT '커스터마이징' AS label, '커스터마이징' + CAST(product_id AS varchar) AS value, product_name AS parent, product_id
+												FROM product
+												UNION ALL
+												SELECT '산출물' AS label, '산출물' + CAST(product_id AS varchar) AS value, product_name AS parent, product_id
+												FROM product)
+											SELECT label, value, parent, product_id
+											FROM TREE ORDER BY product_id DESC, parent ASC`
 
 	rows, err := db.Query(getSideMenuContentQuery)
 	if err != nil {
@@ -666,12 +666,24 @@ func getDeviceContent(writer http.ResponseWriter, request *http.Request) {
 	*/
 
 	var getDeviceDetailsQuery string = `SELECT
-											p.product_id, p.product_type, p.product_name, 
-											p.product_version, p.save_path, p.explanation,
-											ad.auth_type, ad.one_to_one_max_user, ad.one_to_many_max_user,
-											ad.one_to_one_max_template, ad.one_to_many_max_template,
-											pd.width, pd.height, pd.depth, pd.ip_ratings, 
-											pd.server, pd.wi_fi, pd.other
+											p.product_id, 
+											p.product_type, 
+											p.product_name, 
+											p.product_version, 
+											p.save_path, 
+											p.explanation,
+											ad.auth_type, 
+											ad.one_to_one_max_user, 
+											ad.one_to_many_max_user,
+											ad.one_to_one_max_template, 
+											ad.one_to_many_max_template,
+											pd.width, 
+											pd.height, 
+											pd.depth, 
+											pd.ip_ratings, 
+											pd.server, 
+											pd.wi_fi, 
+											pd.other
 										FROM product p
 										LEFT JOIN authentication_details ad
 										ON p.product_id = ad.product_id
@@ -810,9 +822,12 @@ func getDeviceContent(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	var getDeveloperInfoQuery string = `SELECT
-											dev.developer_id, dev.department, dev.employees_number, 
-											dev.employees_name, convert(varchar(10), dev.start_date, 20) AS start_date, 
-											convert(varchar(10), dev.end_date, 20)
+											dev.developer_id, 
+											dev.department, 
+											dev.employees_number, 
+											dev.employees_name, 
+											convert(varchar(10), dev.start_date, 20) AS start_date, 
+											convert(varchar(10), dev.end_date, 20) AS end_date
 										FROM product_developer dev
 										WHERE dev.product_id = ?`
 
@@ -859,4 +874,324 @@ func getDeviceContent(writer http.ResponseWriter, request *http.Request) {
 
 	renderObj.JSON(writer, http.StatusOK, deviceContent)
 
+}
+
+func getSWcontent(writer http.ResponseWriter, request *http.Request) {
+	fmt.Println("getSWcontent()........")
+	request.ParseForm()
+
+	formData := request.Form
+
+	formDataKey := "@d1#" + "product_id"
+	product_id, _ := (strconv.ParseInt(formData[formDataKey][0], 10, 32))
+	fmt.Println("product_id : ", product_id)
+
+	var product Product
+	var product_sw ProductSW
+	var developerList []Product_developer = []Product_developer{}
+
+	var getSwDetailsQuery string = `SELECT
+										p.product_id, 
+										p.product_type, 
+										p.product_name, 
+										p.product_version, 
+										p.save_path, 
+										p.explanation,
+										ps.simultaneous_connection, 
+										ps.available_db,
+										ps.available_os
+									FROM product p
+									LEFT JOIN product_sw ps
+									ON p.product_id = ps.product_id
+									WHERE p.product_id = ?`
+
+	rows, err := db.Query(getSwDetailsQuery, product_id)
+	if err != nil {
+		log.Fatalf("==========product_id = %d인 제품의 상세 내역 DB에서 가져오기 실패===========\n", product_id)
+		log.Println(err)
+	}
+
+	fmt.Println(getSwDetailsQuery)
+	defer rows.Close()
+
+	var developer_id int32
+	var department string
+	var employees_number int32
+	var employees_name string
+	var start_date sql.NullString
+	var end_date sql.NullString
+
+	for rows.Next() {
+		err := rows.Scan(&product.Product_id, &product.Product_type,
+			&product.Product_name, &product.Product_version,
+			&product.Save_path, &product.Explanation,
+			&product_sw.Simultaneous, &product_sw.Available_db,
+			&product_sw.Available_os)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	var getDeveloperInfoQuery string = `SELECT
+											dev.developer_id, 
+											dev.department, 
+											dev.employees_number, 
+											dev.employees_name, 
+											convert(varchar(10), dev.start_date, 20) AS start_date, 
+											convert(varchar(10), dev.end_date, 20) AS end_date
+										FROM product_developer dev
+										WHERE dev.product_id = ?`
+
+	rows, err = db.Query(getDeveloperInfoQuery, product_id)
+	if err != nil {
+		log.Fatalf("==========product_id = %d인 제품의 담당 개발자 DB에서 가져오기 실패===========\n", product_id)
+		log.Println(err)
+	}
+
+	for rows.Next() {
+		err := rows.Scan(&developer_id, &department,
+			&employees_number, &employees_name,
+			&start_date, &end_date)
+
+		developerList = append(developerList,
+			Product_developer{
+				Developer_id:     developer_id,
+				Department:       department,
+				Employees_number: employees_number,
+				Employees_name:   employees_name,
+				Start_date:       start_date.String,
+				End_date:         end_date.String,
+			},
+		)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	fmt.Println(product)
+	fmt.Println(product_sw)
+	fmt.Println(developerList)
+
+	var swContent = SwContent{
+		Product:       product,
+		Product_sw:    product_sw,
+		DeveloperList: developerList,
+	}
+
+	renderObj := render.New()
+
+	renderObj.JSON(writer, http.StatusOK, swContent)
+
+}
+
+func deleteDevice(writer http.ResponseWriter, request *http.Request) {
+	fmt.Println("deleteDevice()........")
+	request.ParseForm()
+
+	formData := request.Form
+
+	//fmt.Println(formData)
+
+	formDataKey := "@d1#" + "product_id"
+	product_id, _ := (strconv.ParseInt(formData[formDataKey][0], 10, 32))
+	fmt.Println("product_id : ", product_id)
+
+	transaction, err := db.Begin()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer transaction.Rollback()
+
+	var deleteProductQuery string = `DELETE FROM product WHERE product_id = ?`
+	fmt.Println(deleteProductQuery)
+	_, err = db.Exec(deleteProductQuery, product_id)
+	if err != nil {
+		fmt.Printf("-------------product_id가 %d인 제품 삭제 실패--------------", product_id)
+		log.Fatal(err)
+	}
+
+	var deleteDeviceQuery string = `DELETE FROM product_device WHERE product_id = ?`
+	fmt.Println(deleteDeviceQuery)
+	_, err = db.Exec(deleteDeviceQuery, product_id)
+	if err != nil {
+		fmt.Printf("-------------product_id가 %d인 제품 삭제 실패--------------", product_id)
+		log.Fatal(err)
+	}
+
+	var deleteAuthenticationQuery string = `DELETE FROM authentication_details WHERE product_id = ?`
+	fmt.Println(deleteAuthenticationQuery)
+	_, err = db.Exec(deleteAuthenticationQuery, product_id)
+	if err != nil {
+		fmt.Printf("-------------product_id가 %d인 제품 삭제 실패--------------", product_id)
+		log.Fatal(err)
+	}
+
+	var deleteDeveloperQuery string = `DELETE FROM product_developer WHERE product_id = ?`
+	fmt.Println(deleteDeveloperQuery)
+	_, err = db.Exec(deleteDeveloperQuery, product_id)
+	if err != nil {
+		fmt.Printf("-------------product_id가 %d인 제품 삭제 실패--------------", product_id)
+		log.Fatal(err)
+	}
+
+	var deleteCustomizingQuery string = `DELETE FROM product_customizing WHERE product_id = ?`
+	fmt.Println(deleteCustomizingQuery)
+	_, err = db.Exec(deleteCustomizingQuery, product_id)
+	if err != nil {
+		fmt.Printf("-------------product_id가 %d인 제품 삭제 실패--------------", product_id)
+		log.Fatal(err)
+	}
+
+	var outPutID int32
+	var outPutIdList = []int32{}
+	var getOutPutIdQuery string = `SELECT output_id FROM product_output WHERE product_id = ?`
+	rows, err := db.Query(getOutPutIdQuery, product_id)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err := rows.Scan(&outPutID)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		outPutIdList = append(outPutIdList, outPutID)
+	}
+
+	fmt.Println("outPutIdList", outPutIdList)
+
+	var deleteOutputQuery string = `DELETE FROM product_output WHERE product_id = ?`
+	fmt.Println(deleteOutputQuery)
+	_, err = db.Exec(deleteOutputQuery, product_id)
+	if err != nil {
+		fmt.Printf("-------------product_id가 %d인 제품 삭제 실패--------------", product_id)
+		log.Fatal(err)
+	}
+
+	for i := 0; i < len(outPutIdList); i++ {
+		var deleteAttachmentQuery string = `DELETE FROM output_attachment WHERE output_id = ?`
+		fmt.Println(deleteAttachmentQuery)
+		_, err = db.Exec(deleteAttachmentQuery, outPutIdList[i])
+		if err != nil {
+			fmt.Printf("-------------product_id가 %d인 제품 삭제 실패--------------", product_id)
+			log.Fatal(err)
+		}
+	}
+
+	err = transaction.Commit()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var result Result
+	result.ResultCode = 1
+
+	renderObj := render.New()
+
+	renderObj.JSON(writer, http.StatusOK, result)
+
+}
+
+func deleteSW(writer http.ResponseWriter, request *http.Request) {
+	fmt.Println("deleteSW()........")
+	request.ParseForm()
+
+	formData := request.Form
+
+	//fmt.Println(formData)
+
+	formDataKey := "@d1#" + "product_id"
+	product_id, _ := (strconv.ParseInt(formData[formDataKey][0], 10, 32))
+	fmt.Println("product_id : ", product_id)
+
+	transaction, err := db.Begin()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer transaction.Rollback()
+
+	var deleteProductQuery string = `DELETE FROM product WHERE product_id = ?`
+	fmt.Println(deleteProductQuery)
+	_, err = db.Exec(deleteProductQuery, product_id)
+	if err != nil {
+		fmt.Printf("-------------product_id가 %d인 제품 삭제 실패--------------", product_id)
+		log.Fatal(err)
+	}
+
+	var deleteSwQuery string = `DELETE FROM product_sw WHERE product_id = ?`
+	fmt.Println(deleteSwQuery)
+	_, err = db.Exec(deleteSwQuery, product_id)
+	if err != nil {
+		fmt.Printf("-------------product_id가 %d인 제품 삭제 실패--------------", product_id)
+		log.Fatal(err)
+	}
+
+	var deleteDeveloperQuery string = `DELETE FROM product_developer WHERE product_id = ?`
+	fmt.Println(deleteDeveloperQuery)
+	_, err = db.Exec(deleteDeveloperQuery, product_id)
+	if err != nil {
+		fmt.Printf("-------------product_id가 %d인 제품 삭제 실패--------------", product_id)
+		log.Fatal(err)
+	}
+
+	var deleteCustomizingQuery string = `DELETE FROM product_customizing WHERE product_id = ?`
+	fmt.Println(deleteCustomizingQuery)
+	_, err = db.Exec(deleteCustomizingQuery, product_id)
+	if err != nil {
+		fmt.Printf("-------------product_id가 %d인 제품 삭제 실패--------------", product_id)
+		log.Fatal(err)
+	}
+
+	var outPutID int32
+	var outPutIdList = []int32{}
+	var getOutPutIdQuery string = `SELECT output_id FROM product_output WHERE product_id = ?`
+	rows, err := db.Query(getOutPutIdQuery, product_id)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err := rows.Scan(&outPutID)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		outPutIdList = append(outPutIdList, outPutID)
+	}
+
+	fmt.Println("outPutIdList", outPutIdList)
+
+	var deleteOutputQuery string = `DELETE FROM product_output WHERE product_id = ?`
+	fmt.Println(deleteOutputQuery)
+	_, err = db.Exec(deleteOutputQuery, product_id)
+	if err != nil {
+		fmt.Printf("-------------product_id가 %d인 제품 삭제 실패--------------", product_id)
+		log.Fatal(err)
+	}
+
+	for i := 0; i < len(outPutIdList); i++ {
+		var deleteAttachmentQuery string = `DELETE FROM output_attachment WHERE output_id = ?`
+		fmt.Println(deleteAttachmentQuery)
+		_, err = db.Exec(deleteAttachmentQuery, outPutIdList[i])
+		if err != nil {
+			fmt.Printf("-------------product_id가 %d인 제품 삭제 실패--------------", product_id)
+			log.Fatal(err)
+		}
+	}
+
+	err = transaction.Commit()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var result Result
+	result.ResultCode = 1
+
+	renderObj := render.New()
+
+	renderObj.JSON(writer, http.StatusOK, result)
 }

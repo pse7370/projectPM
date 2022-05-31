@@ -25,7 +25,7 @@ type ProductDevice struct {
 	Other            string  `json:"other"`
 }
 
-// 인증 상세 테이블 구조체
+// 인증 상세 테이블 구조체 (DB 변경 전)
 /*
 type Authentication_details struct {
 	Auth_detail_id int32  `json:"auth_detail_id"`
@@ -37,6 +37,7 @@ type Authentication_details struct {
 }
 */
 
+// 인증 상세 테이블 구조체 (DB변경 후)
 type Authentication_details struct {
 	Auth_detail_id           int32  `json:"auth_detail_id"`
 	Product_id               int32  `json:"product_id"`
@@ -62,7 +63,7 @@ type Product_developer struct {
 	Product_id       int32  `json:"product_id"`
 	Department       string `json:"department"`
 	Employees_number int32  `json:"employees_number"`
-	Employees_name   string `json:"Employees_name"`
+	Employees_name   string `json:"employees_name"`
 	Start_date       string `json:"start_date"`
 	End_date         string `json:"end_date"`
 }
@@ -98,7 +99,7 @@ type Output_attachment struct {
 	Save_path      string `json:"save_path"`
 }
 
-//============ResultCode 전달 구조체
+//============ResultCode 전달 구조체================
 type Result struct {
 	ResultCode int `json:"resultCode"`
 }
@@ -119,26 +120,6 @@ type SideMenu struct {
 //====================출입통제기 등록을 위한 구조체==============================
 
 // 인증 방식 표의 파라미터값 받기, 전달을 위한 구조체
-/*
-type Authentication_detailsList struct {
-	Authentication_detailsList []Authentication_details `json:"authentication_detailsList"`
-}
-
-type Product_developerList struct {
-	Product_developerList []Product_developer `json:"product_developerList"`
-}
-*/
-
-/*
-type Authentication_detailsList struct {
-	Auth_typeList            []string `json:"auth_typeList"`
-	One_to_one_max_user      []string `json:"one_to_one_max_user"`
-	One_to_many_max_user     []string `json:"one_to_many_max_user"`
-	One_to_one_max_template  []string `json:"one_to_one_max_template"`
-	One_to_many_max_template []string `json:"one_to_many_max_template"`
-}
-*/
-
 type Product_developerList struct {
 	DepartmentList       []string `json:"departmentList"`
 	Employees_numberList []string `json:"employees_numberList"`
@@ -170,4 +151,10 @@ type DeviceContent struct {
 	AuthenticationList []Authentication_details `json:"authenticationList"`
 	Product_device     ProductDevice            `json:"product_device"`
 	DeveloperList      []Product_developer      `json:"developerList"`
+}
+
+type SwContent struct {
+	Product       Product             `json:"product"`
+	Product_sw    ProductSW           `json:"product_sw"`
+	DeveloperList []Product_developer `json:"developerList"`
 }
