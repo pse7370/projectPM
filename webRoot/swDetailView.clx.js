@@ -312,6 +312,19 @@
 			container.setLayout(xYLayout_1);
 			
 			// UI Configuration
+			var group_1 = new cpr.controls.Container();
+			// Layout
+			var xYLayout_2 = new cpr.controls.layouts.XYLayout();
+			group_1.setLayout(xYLayout_2);
+			(function(container){
+			})(group_1);
+			container.addChild(group_1, {
+				"top": "669px",
+				"left": "510px",
+				"width": "201px",
+				"height": "49px"
+			});
+			
 			var image_1 = new cpr.controls.Image("productImage");
 			image_1.alt = "\"제품 이미지\"";
 			(function(image_1){
@@ -323,7 +336,7 @@
 				"height": "180px"
 			});
 			
-			var group_1 = new cpr.controls.Container();
+			var group_2 = new cpr.controls.Container();
 			// Layout
 			var formLayout_1 = new cpr.controls.layouts.FormLayout();
 			formLayout_1.topMargin = "0px";
@@ -334,7 +347,7 @@
 			formLayout_1.verticalSpacing = "0px";
 			formLayout_1.setColumns(["180px", "1fr"]);
 			formLayout_1.setRows(["1fr", "1fr", "1fr", "1fr", "1fr"]);
-			group_1.setLayout(formLayout_1);
+			group_2.setLayout(formLayout_1);
 			(function(container){
 				var output_1 = new cpr.controls.Output();
 				output_1.value = "제품명";
@@ -518,18 +531,18 @@
 					"colIndex": 1,
 					"rowIndex": 0
 				});
-			})(group_1);
-			container.addChild(group_1, {
+			})(group_2);
+			container.addChild(group_2, {
 				"top": "20px",
 				"left": "219px",
 				"width": "492px",
 				"height": "175px"
 			});
 			
-			var group_2 = new cpr.controls.Container();
+			var group_3 = new cpr.controls.Container();
 			// Layout
 			var verticalLayout_1 = new cpr.controls.layouts.VerticalLayout();
-			group_2.setLayout(verticalLayout_1);
+			group_3.setLayout(verticalLayout_1);
 			(function(container){
 				var output_11 = new cpr.controls.Output();
 				output_11.value = "설명";
@@ -554,18 +567,18 @@
 					"width": "100px",
 					"height": "182px"
 				});
-			})(group_2);
-			container.addChild(group_2, {
+			})(group_3);
+			container.addChild(group_3, {
 				"top": "223px",
 				"left": "20px",
 				"width": "691px",
 				"height": "221px"
 			});
 			
-			var group_3 = new cpr.controls.Container();
+			var group_4 = new cpr.controls.Container();
 			// Layout
 			var verticalLayout_2 = new cpr.controls.layouts.VerticalLayout();
-			group_3.setLayout(verticalLayout_2);
+			group_4.setLayout(verticalLayout_2);
 			(function(container){
 				var output_12 = new cpr.controls.Output();
 				output_12.value = "담당 개발자";
@@ -710,8 +723,8 @@
 					"width": "400px",
 					"height": "178px"
 				});
-			})(group_3);
-			container.addChild(group_3, {
+			})(group_4);
+			container.addChild(group_4, {
 				"top": "454px",
 				"left": "20px",
 				"width": "691px",

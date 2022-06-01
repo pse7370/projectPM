@@ -73,7 +73,7 @@
 				app.dialogManager.openDialog("addProduct", "addProduct", {width : 760, height : 700}, function(dialog){
 					dialog.ready(function(dialogApp){
 						// 필요한 경우, 다이얼로그의 앱이 초기화 된 후, 앱 속성을 전달하십시오.
-						dialog.headerTitle = "상품 관리";
+						dialog.headerTitle = "제품 등록";
 						console.log(dialog.app.id);
 						/*
 						dialog.style.css("border","solid 1px #555555");
@@ -85,7 +85,7 @@
 						*/
 						dialog.addEventListener("close", function(e){
 							// 이곳에서 원하는 동작 처리
-							window.location.reload();
+							//window.location.reload();
 						});
 					});
 				}).then(function(returnValue){
@@ -308,7 +308,7 @@
 				});
 				container.addChild(embeddedApp_1, {
 					"width": "753px",
-					"height": "573px"
+					"height": "596px"
 				});
 			})(group_2);
 			container.addChild(group_2, {

@@ -149,6 +149,16 @@
 				 */
 				var modifyButton = e.control;
 				
+				var embeddedApp = app.getHost();
+				
+				cpr.core.App.load("modifyDevice", function(loadedApp){
+						if(loadedApp){
+							
+				    		embeddedApp.app = loadedApp;	    		
+				  		}
+					});
+				
+				
 			};
 			// End - User Script
 			
@@ -282,6 +292,19 @@
 			container.setLayout(xYLayout_1);
 			
 			// UI Configuration
+			var group_1 = new cpr.controls.Container();
+			// Layout
+			var xYLayout_2 = new cpr.controls.layouts.XYLayout();
+			group_1.setLayout(xYLayout_2);
+			(function(container){
+			})(group_1);
+			container.addChild(group_1, {
+				"top": "920px",
+				"left": "516px",
+				"width": "200px",
+				"height": "49px"
+			});
+			
 			var image_1 = new cpr.controls.Image("productImage");
 			image_1.alt = "\"제품 이미지\"";
 			(function(image_1){
@@ -293,7 +316,7 @@
 				"height": "180px"
 			});
 			
-			var group_1 = new cpr.controls.Container();
+			var group_2 = new cpr.controls.Container();
 			// Layout
 			var formLayout_1 = new cpr.controls.layouts.FormLayout();
 			formLayout_1.topMargin = "0px";
@@ -304,7 +327,7 @@
 			formLayout_1.verticalSpacing = "0px";
 			formLayout_1.setColumns(["150px", "1fr"]);
 			formLayout_1.setRows(["35px", "35px", "35px", "35px"]);
-			group_1.setLayout(formLayout_1);
+			group_2.setLayout(formLayout_1);
 			(function(container){
 				var output_1 = new cpr.controls.Output();
 				output_1.value = "제품명";
@@ -448,18 +471,18 @@
 					"colIndex": 1,
 					"rowIndex": 3
 				});
-			})(group_1);
-			container.addChild(group_1, {
+			})(group_2);
+			container.addChild(group_2, {
 				"top": "35px",
 				"left": "222px",
 				"width": "494px",
 				"height": "146px"
 			});
 			
-			var group_2 = new cpr.controls.Container();
+			var group_3 = new cpr.controls.Container();
 			// Layout
 			var verticalLayout_1 = new cpr.controls.layouts.VerticalLayout();
-			group_2.setLayout(verticalLayout_1);
+			group_3.setLayout(verticalLayout_1);
 			(function(container){
 				var grid_1 = new cpr.controls.Grid("authentication");
 				grid_1.readOnly = true;
@@ -634,15 +657,15 @@
 					"width": "400px",
 					"height": "84px"
 				});
-			})(group_2);
-			container.addChild(group_2, {
+			})(group_3);
+			container.addChild(group_3, {
 				"top": "218px",
 				"left": "20px",
 				"width": "696px",
 				"height": "187px"
 			});
 			
-			var group_3 = new cpr.controls.Container();
+			var group_4 = new cpr.controls.Container();
 			// Layout
 			var formLayout_2 = new cpr.controls.layouts.FormLayout();
 			formLayout_2.topMargin = "0px";
@@ -653,7 +676,7 @@
 			formLayout_2.verticalSpacing = "0px";
 			formLayout_2.setColumns(["1fr", "1fr", "1fr"]);
 			formLayout_2.setRows(["1fr", "1fr", "1fr"]);
-			group_3.setLayout(formLayout_2);
+			group_4.setLayout(formLayout_2);
 			(function(container){
 				var output_9 = new cpr.controls.Output();
 				output_9.value = "통신방식";
@@ -785,18 +808,18 @@
 					"colIndex": 2,
 					"rowIndex": 1
 				});
-			})(group_3);
-			container.addChild(group_3, {
+			})(group_4);
+			container.addChild(group_4, {
 				"top": "418px",
 				"left": "20px",
 				"width": "586px",
 				"height": "102px"
 			});
 			
-			var group_4 = new cpr.controls.Container();
+			var group_5 = new cpr.controls.Container();
 			// Layout
 			var verticalLayout_2 = new cpr.controls.layouts.VerticalLayout();
-			group_4.setLayout(verticalLayout_2);
+			group_5.setLayout(verticalLayout_2);
 			(function(container){
 				var output_16 = new cpr.controls.Output();
 				output_16.value = "설명";
@@ -821,18 +844,18 @@
 					"width": "100px",
 					"height": "143px"
 				});
-			})(group_4);
-			container.addChild(group_4, {
+			})(group_5);
+			container.addChild(group_5, {
 				"top": "530px",
 				"left": "20px",
 				"width": "696px",
 				"height": "181px"
 			});
 			
-			var group_5 = new cpr.controls.Container();
+			var group_6 = new cpr.controls.Container();
 			// Layout
 			var verticalLayout_3 = new cpr.controls.layouts.VerticalLayout();
-			group_5.setLayout(verticalLayout_3);
+			group_6.setLayout(verticalLayout_3);
 			(function(container){
 				var output_17 = new cpr.controls.Output();
 				output_17.value = "담당 개발자";
@@ -1013,8 +1036,8 @@
 					"width": "400px",
 					"height": "164px"
 				});
-			})(group_5);
-			container.addChild(group_5, {
+			})(group_6);
+			container.addChild(group_6, {
 				"top": "721px",
 				"left": "20px",
 				"width": "696px",
