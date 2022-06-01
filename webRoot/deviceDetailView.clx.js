@@ -153,7 +153,12 @@
 				
 				cpr.core.App.load("modifyDevice", function(loadedApp){
 						if(loadedApp){
-							
+							embeddedApp.initValue = {
+								"product" : app.lookup("product"),
+								"authenticationList" : app.lookup("authenticationList"),
+								"product_device" : app.lookup("product_device"),
+								"developerList" : app.lookup("developerList")
+							}
 				    		embeddedApp.app = loadedApp;	    		
 				  		}
 					});

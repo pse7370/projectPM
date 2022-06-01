@@ -24,6 +24,13 @@
 			 * 앱이 최초 구성된후 최초 랜더링 직후에 발생하는 이벤트 입니다.
 			 */
 			function onBodyLoad(/* cpr.events.CEvent */ e){
+				console.log(app.getHost().initValue);
+				
+				var initValue = app.getHost().initValue;
+				app.lookup("product") = initValue.product;
+				app.lookup("product_device") = initValue.product_device;
+				app.lookup("authenticationList") = initValue.authenticationList;
+				app.lookup("developerList") = initValue.developerList;
 				
 			}
 			
@@ -201,54 +208,50 @@
 						"colIndex": 1,
 						"rowIndex": 0
 					});
+					var group_4 = new cpr.controls.Container();
+					// Layout
+					var xYLayout_4 = new cpr.controls.layouts.XYLayout();
+					group_4.setLayout(xYLayout_4);
+					(function(container){
+						var inputBox_2 = new cpr.controls.InputBox("ipb2");
+						inputBox_2.bind("value").toDataMap(app.lookup("product"), "product_version");
+						container.addChild(inputBox_2, {
+							"top": "0px",
+							"left": "68px",
+							"width": "131px",
+							"height": "25px"
+						});
+						var output_2 = new cpr.controls.Output();
+						output_2.value = "버전";
+						output_2.style.css({
+							"vertical-align" : "middle",
+							"text-align" : "center"
+						});
+						container.addChild(output_2, {
+							"top": "0px",
+							"left": "7px",
+							"width": "62px",
+							"height": "25px"
+						});
+					})(group_4);
+					container.addChild(group_4, {
+						"colIndex": 2,
+						"rowIndex": 0
+					});
+					var fileInput_1 = new cpr.controls.FileInput("product_image");
+					fileInput_1.showClearButton = true;
+					fileInput_1.placeholder = "제품 이미지 선택";
+					fileInput_1.acceptFile = "image/*";
+					container.addChild(fileInput_1, {
+						"colIndex": 0,
+						"rowIndex": 0
+					});
 				})(group_2);
 				container.addChild(group_2, {
-					"top": "20px",
+					"top": "24px",
 					"left": "13px",
 					"width": "704px",
 					"height": "27px"
-				});
-				var fileInput_1 = new cpr.controls.FileInput("product_image");
-				fileInput_1.showClearButton = true;
-				fileInput_1.placeholder = "제품 이미지 선택";
-				fileInput_1.acceptFile = "image/*";
-				container.addChild(fileInput_1, {
-					"top": "21px",
-					"left": "14px",
-					"width": "227px",
-					"height": "25px"
-				});
-				var group_4 = new cpr.controls.Container();
-				// Layout
-				var xYLayout_4 = new cpr.controls.layouts.XYLayout();
-				group_4.setLayout(xYLayout_4);
-				(function(container){
-					var inputBox_2 = new cpr.controls.InputBox("ipb2");
-					inputBox_2.bind("value").toDataMap(app.lookup("product"), "product_version");
-					container.addChild(inputBox_2, {
-						"top": "0px",
-						"left": "68px",
-						"width": "131px",
-						"height": "25px"
-					});
-					var output_2 = new cpr.controls.Output();
-					output_2.value = "버전";
-					output_2.style.css({
-						"vertical-align" : "middle",
-						"text-align" : "center"
-					});
-					container.addChild(output_2, {
-						"top": "0px",
-						"left": "7px",
-						"width": "62px",
-						"height": "25px"
-					});
-				})(group_4);
-				container.addChild(group_4, {
-					"top": "21px",
-					"left": "511px",
-					"width": "209px",
-					"height": "25px"
 				});
 				var grid_1 = new cpr.controls.Grid("authentication");
 				grid_1.init({
@@ -447,7 +450,7 @@
 					"text-align" : "center"
 				});
 				container.addChild(grid_1, {
-					"top": "69px",
+					"top": "68px",
 					"left": "13px",
 					"width": "704px",
 					"height": "146px"
@@ -550,177 +553,213 @@
 					});
 				})(group_5);
 				container.addChild(group_5, {
-					"top": "230px",
+					"top": "228px",
 					"left": "14px",
 					"width": "522px",
 					"height": "54px"
 				});
 				var group_6 = new cpr.controls.Container();
 				// Layout
-				var flowLayout_1 = new cpr.controls.layouts.FlowLayout();
-				flowLayout_1.scrollable = false;
-				flowLayout_1.lineWrap = true;
-				group_6.setLayout(flowLayout_1);
+				var formLayout_3 = new cpr.controls.layouts.FormLayout();
+				formLayout_3.topMargin = "0px";
+				formLayout_3.rightMargin = "0px";
+				formLayout_3.bottomMargin = "0px";
+				formLayout_3.leftMargin = "0px";
+				formLayout_3.horizontalSpacing = "0px";
+				formLayout_3.verticalSpacing = "0px";
+				formLayout_3.setColumns(["127px", "151px", "127px"]);
+				formLayout_3.setRows(["1fr", "1fr", "1fr"]);
+				group_6.setLayout(formLayout_3);
 				(function(container){
-					var grid_2 = new cpr.controls.Grid("communication");
-					grid_2.init({
-						"columns": [
-							{"width": "92px"},
-							{"width": "128px"},
-							{"width": "89px"}
-						],
-						"header": {
-							"rows": [
-								{"height": "24px"},
-								{"height": "24px"}
-							],
-							"cells": [
-								{
-									"constraint": {"rowIndex": 1, "colIndex": 0},
-									"configurator": function(cell){
-										cell.filterable = false;
-										cell.sortable = false;
-										cell.text = "Server";
-										cell.style.css({
-											"background-color" : "#eaf0ea"
-										});
-									}
-								},
-								{
-									"constraint": {"rowIndex": 1, "colIndex": 1},
-									"configurator": function(cell){
-										cell.filterable = false;
-										cell.sortable = false;
-										cell.text = "Wireless LAN(Wi-Fi)";
-										cell.style.css({
-											"background-color" : "#eaf0ea"
-										});
-									}
-								},
-								{
-									"constraint": {"rowIndex": 1, "colIndex": 2},
-									"configurator": function(cell){
-										cell.filterable = false;
-										cell.sortable = false;
-										cell.text = "Other";
-										cell.style.css({
-											"background-color" : "#eaf0ea"
-										});
-									}
-								},
-								{
-									"constraint": {"rowIndex": 0, "colIndex": 0, "rowSpan": 1, "colSpan": 3},
-									"configurator": function(cell){
-										cell.text = "통신 방식";
-										cell.style.css({
-											"background-color" : "#eaf0ea"
-										});
-									}
-								}
-							]
-						},
-						"detail": {
-							"rows": [{"height": "24px"}],
-							"cells": [
-								{
-									"constraint": {"rowIndex": 0, "colIndex": 0},
-									"configurator": function(cell){
-										cell.control = (function(){
-											var inputBox_7 = new cpr.controls.InputBox("ipb6");
-											inputBox_7.bind("value").toDataMap(app.lookup("product_device"), "server");
-											return inputBox_7;
-										})();
-									}
-								},
-								{
-									"constraint": {"rowIndex": 0, "colIndex": 1},
-									"configurator": function(cell){
-										cell.style.css({
-											"vertical-align" : "middle",
-											"text-align" : "center"
-										});
-										cell.control = (function(){
-											var comboBox_1 = new cpr.controls.ComboBox("cmb1");
-											comboBox_1.preventInput = true;
-											comboBox_1.bind("value").toDataMap(app.lookup("product_device"), "wi_fi");
-											(function(comboBox_1){
-												comboBox_1.addItem(new cpr.controls.Item("O", "O"));
-												comboBox_1.addItem(new cpr.controls.Item("X", "X"));
-											})(comboBox_1);
-											return comboBox_1;
-										})();
-									}
-								},
-								{
-									"constraint": {"rowIndex": 0, "colIndex": 2},
-									"configurator": function(cell){
-										cell.control = (function(){
-											var inputBox_8 = new cpr.controls.InputBox("ipb7");
-											inputBox_8.bind("value").toDataMap(app.lookup("product_device"), "other");
-											return inputBox_8;
-										})();
-									}
-								}
-							]
-						}
+					var output_8 = new cpr.controls.Output();
+					output_8.value = "통신방식";
+					output_8.style.css({
+						"border-right-style" : "solid",
+						"border-top-width" : "1px",
+						"border-bottom-color" : "#b4b4b4",
+						"border-right-width" : "1px",
+						"border-left-color" : "#b4b4b4",
+						"vertical-align" : "middle",
+						"border-right-color" : "#b4b4b4",
+						"border-left-width" : "1px",
+						"border-top-style" : "solid",
+						"background-color" : "#eaf0ea",
+						"border-left-style" : "solid",
+						"border-bottom-width" : "1px",
+						"border-top-color" : "#b4b4b4",
+						"border-bottom-style" : "solid",
+						"background-image" : "none",
+						"text-align" : "center"
 					});
-					container.addChild(grid_2, {
-						"autoSize": "height",
-						"width": "400px",
-						"height": "74px"
+					container.addChild(output_8, {
+						"colIndex": 0,
+						"rowIndex": 0,
+						"colSpan": 3,
+						"rowSpan": 1
+					});
+					var output_9 = new cpr.controls.Output();
+					output_9.value = "Server";
+					output_9.style.css({
+						"border-right-style" : "solid",
+						"background-color" : "#eaf0ea",
+						"border-right-width" : "1px",
+						"border-left-style" : "solid",
+						"border-left-color" : "#b4b4b4",
+						"vertical-align" : "middle",
+						"border-right-color" : "#b4b4b4",
+						"background-image" : "none",
+						"border-left-width" : "1px",
+						"text-align" : "center"
+					});
+					container.addChild(output_9, {
+						"colIndex": 0,
+						"rowIndex": 1
+					});
+					var output_10 = new cpr.controls.Output();
+					output_10.style.css({
+						"border-right-style" : "solid",
+						"border-top-width" : "1px",
+						"border-bottom-color" : "#b4b4b4",
+						"border-right-width" : "1px",
+						"border-left-color" : "#b4b4b4",
+						"vertical-align" : "middle",
+						"border-right-color" : "#b4b4b4",
+						"border-left-width" : "1px",
+						"border-top-style" : "solid",
+						"border-left-style" : "solid",
+						"border-bottom-width" : "1px",
+						"border-top-color" : "#b4b4b4",
+						"border-bottom-style" : "solid",
+						"text-align" : "center"
+					});
+					output_10.bind("value").toDataMap(app.lookup("product_device"), "server");
+					container.addChild(output_10, {
+						"colIndex": 0,
+						"rowIndex": 2
+					});
+					var output_11 = new cpr.controls.Output();
+					output_11.value = "Wireless LAN(Wi-Fi)";
+					output_11.style.css({
+						"background-color" : "#eaf0ea",
+						"vertical-align" : "middle",
+						"background-image" : "none",
+						"text-align" : "center"
+					});
+					container.addChild(output_11, {
+						"colIndex": 1,
+						"rowIndex": 1
+					});
+					var output_12 = new cpr.controls.Output();
+					output_12.value = "Other";
+					output_12.style.css({
+						"border-right-style" : "solid",
+						"background-color" : "#eaf0ea",
+						"border-right-width" : "1px",
+						"border-left-style" : "solid",
+						"border-left-color" : "#b4b4b4",
+						"vertical-align" : "middle",
+						"border-right-color" : "#b4b4b4",
+						"background-image" : "none",
+						"border-left-width" : "1px",
+						"text-align" : "center"
+					});
+					container.addChild(output_12, {
+						"colIndex": 2,
+						"rowIndex": 1
+					});
+					var output_13 = new cpr.controls.Output();
+					output_13.style.css({
+						"border-right-style" : "solid",
+						"border-top-width" : "1px",
+						"border-bottom-color" : "#b4b4b4",
+						"border-right-width" : "1px",
+						"border-left-color" : "#b4b4b4",
+						"vertical-align" : "middle",
+						"border-right-color" : "#b4b4b4",
+						"border-left-width" : "1px",
+						"border-top-style" : "solid",
+						"border-left-style" : "solid",
+						"border-bottom-width" : "1px",
+						"border-top-color" : "#b4b4b4",
+						"border-bottom-style" : "solid",
+						"text-align" : "center"
+					});
+					output_13.bind("value").toDataMap(app.lookup("product_device"), "other");
+					container.addChild(output_13, {
+						"colIndex": 2,
+						"rowIndex": 2
+					});
+					var linkedComboBox_1 = new cpr.controls.LinkedComboBox("lcb1");
+					linkedComboBox_1.preventInput = true;
+					linkedComboBox_1.style.css({
+						"border-bottom-color" : "#b4b4b4",
+						"border-bottom-width" : "1px",
+						"border-bottom-style" : "solid"
+					});
+					(function(linkedComboBox_1){
+						linkedComboBox_1.addItem(new cpr.controls.TreeItem("O", "O", null));
+						linkedComboBox_1.addItem(new cpr.controls.TreeItem("X", "X", null));
+					})(linkedComboBox_1);
+					linkedComboBox_1.placeholders = [
+					];
+					container.addChild(linkedComboBox_1, {
+						"colIndex": 1,
+						"rowIndex": 2,
+						"colSpan": 1,
+						"rowSpan": 1
 					});
 				})(group_6);
 				container.addChild(group_6, {
-					"top": "295px",
+					"top": "292px",
 					"left": "13px",
-					"width": "404px",
-					"height": "76px"
+					"width": "415px",
+					"height": "82px"
 				});
 				var group_7 = new cpr.controls.Container();
 				// Layout
 				var xYLayout_5 = new cpr.controls.layouts.XYLayout();
 				group_7.setLayout(xYLayout_5);
 				(function(container){
-					var output_8 = new cpr.controls.Output();
-					output_8.value = "방수/방진";
-					output_8.style.css({
+					var output_14 = new cpr.controls.Output();
+					output_14.value = "방수/방진";
+					output_14.style.css({
 						"vertical-align" : "middle",
 						"text-align" : "center"
 					});
-					container.addChild(output_8, {
+					container.addChild(output_14, {
 						"top": "41px",
-						"left": "6px",
+						"left": "20px",
 						"width": "96px",
 						"height": "25px"
 					});
-					var inputBox_9 = new cpr.controls.InputBox("ipb8");
-					inputBox_9.bind("value").toDataMap(app.lookup("product_device"), "ip_ratings");
-					container.addChild(inputBox_9, {
+					var inputBox_7 = new cpr.controls.InputBox("ipb8");
+					inputBox_7.bind("value").toDataMap(app.lookup("product_device"), "ip_ratings");
+					container.addChild(inputBox_7, {
 						"top": "41px",
-						"left": "101px",
+						"left": "115px",
 						"width": "150px",
 						"height": "25px"
 					});
 				})(group_7);
 				container.addChild(group_7, {
 					"top": "295px",
-					"left": "427px",
-					"width": "290px",
+					"left": "450px",
+					"width": "267px",
 					"height": "73px"
 				});
-				var output_9 = new cpr.controls.Output();
-				output_9.value = "방수/방진 등급을 작성해 주세요.\r\n해당되지 않을 경우 공란으로 유지";
-				output_9.style.css({
+				var output_15 = new cpr.controls.Output();
+				output_15.value = "방수/방진 등급을 작성해 주세요.\r\n해당되지 않을 경우 공란으로 유지";
+				output_15.style.css({
 					"color" : "#dd4545",
 					"padding-left" : "10px",
 					"vertical-align" : "middle",
 					"font-size" : "9pt",
 					"text-align" : "left"
 				});
-				container.addChild(output_9, {
+				container.addChild(output_15, {
 					"top": "295px",
-					"left": "442px",
-					"width": "275px",
+					"left": "463px",
+					"width": "254px",
 					"height": "38px"
 				});
 				var group_8 = new cpr.controls.Container();
@@ -728,12 +767,12 @@
 				var verticalLayout_1 = new cpr.controls.layouts.VerticalLayout();
 				group_8.setLayout(verticalLayout_1);
 				(function(container){
-					var output_10 = new cpr.controls.Output();
-					output_10.value = "설명";
-					output_10.style.css({
+					var output_16 = new cpr.controls.Output();
+					output_16.value = "설명";
+					output_16.style.css({
 						"padding-left" : "10px"
 					});
-					container.addChild(output_10, {
+					container.addChild(output_16, {
 						"width": "100px",
 						"height": "25px"
 					});
@@ -745,30 +784,30 @@
 					});
 				})(group_8);
 				container.addChild(group_8, {
-					"top": "382px",
+					"top": "386px",
 					"left": "13px",
 					"width": "704px",
 					"height": "172px"
 				});
 				var group_9 = new cpr.controls.Container();
 				// Layout
-				var formLayout_3 = new cpr.controls.layouts.FormLayout();
-				formLayout_3.topMargin = "0px";
-				formLayout_3.rightMargin = "0px";
-				formLayout_3.bottomMargin = "0px";
-				formLayout_3.leftMargin = "0px";
-				formLayout_3.horizontalSpacing = "0px";
-				formLayout_3.verticalSpacing = "8px";
-				formLayout_3.setColumns(["16fr", "34px"]);
-				formLayout_3.setRows(["25px", "1fr"]);
-				group_9.setLayout(formLayout_3);
+				var formLayout_4 = new cpr.controls.layouts.FormLayout();
+				formLayout_4.topMargin = "0px";
+				formLayout_4.rightMargin = "0px";
+				formLayout_4.bottomMargin = "0px";
+				formLayout_4.leftMargin = "0px";
+				formLayout_4.horizontalSpacing = "0px";
+				formLayout_4.verticalSpacing = "8px";
+				formLayout_4.setColumns(["16fr", "34px"]);
+				formLayout_4.setRows(["25px", "1fr"]);
+				group_9.setLayout(formLayout_4);
 				(function(container){
-					var output_11 = new cpr.controls.Output();
-					output_11.value = "담당 개발자";
-					output_11.style.css({
+					var output_17 = new cpr.controls.Output();
+					output_17.value = "담당 개발자";
+					output_17.style.css({
 						"padding-left" : "10px"
 					});
-					container.addChild(output_11, {
+					container.addChild(output_17, {
 						"colIndex": 0,
 						"rowIndex": 0
 					});
@@ -791,8 +830,8 @@
 						"colSpan": 1,
 						"rowSpan": 1
 					});
-					var grid_3 = new cpr.controls.Grid("grid_developer");
-					grid_3.init({
+					var grid_2 = new cpr.controls.Grid("grid_developer");
+					grid_2.init({
 						"dataSet": app.lookup("developerList"),
 						"columns": [
 							{"width": "33px"},
@@ -904,9 +943,9 @@
 									"configurator": function(cell){
 										cell.columnName = "department";
 										cell.control = (function(){
-											var inputBox_10 = new cpr.controls.InputBox("ipb9");
-											inputBox_10.bind("value").toDataColumn("department");
-											return inputBox_10;
+											var inputBox_8 = new cpr.controls.InputBox("ipb9");
+											inputBox_8.bind("value").toDataColumn("department");
+											return inputBox_8;
 										})();
 									}
 								},
@@ -927,9 +966,9 @@
 									"configurator": function(cell){
 										cell.columnName = "employees_name";
 										cell.control = (function(){
-											var inputBox_11 = new cpr.controls.InputBox("ipb10");
-											inputBox_11.bind("value").toDataColumn("employees_name");
-											return inputBox_11;
+											var inputBox_9 = new cpr.controls.InputBox("ipb10");
+											inputBox_9.bind("value").toDataColumn("employees_name");
+											return inputBox_9;
 										})();
 									}
 								},
@@ -960,7 +999,7 @@
 							]
 						}
 					});
-					container.addChild(grid_3, {
+					container.addChild(grid_2, {
 						"colIndex": 0,
 						"rowIndex": 1,
 						"colSpan": 2,
@@ -968,7 +1007,7 @@
 					});
 				})(group_9);
 				container.addChild(group_9, {
-					"top": "564px",
+					"top": "570px",
 					"left": "13px",
 					"width": "704px",
 					"height": "225px"
@@ -985,7 +1024,7 @@
 					"border-top-style" : "none"
 				});
 				container.addChild(button_2, {
-					"top": "805px",
+					"top": "810px",
 					"left": "632px",
 					"width": "85px",
 					"height": "25px"
