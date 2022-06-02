@@ -117,8 +117,12 @@ func addDevice(writer http.ResponseWriter, request *http.Request) {
 	request.ParseMultipartForm(100)
 	log.Println("addDevice()........")
 
+	basePath, _ := os.Getwd()
+
 	// 출입통제기 이미지 저장 위치
-	const deviceImageSaveDir string = "C:/deviceImage"
+	// const deviceImageSaveDir string = "C:/deviceImage"
+	// 로컬 경로는 보안상의 문제로 크롬에서 이미지를 불러오지 못함
+	var deviceImageSaveDir string = basePath + "/deviceImage"
 
 	// 해당 경로에 폴더가 있는지 확인하고 없으면 생성하기
 	if _, err := os.Stat(deviceImageSaveDir); os.IsNotExist(err) {
@@ -127,7 +131,7 @@ func addDevice(writer http.ResponseWriter, request *http.Request) {
 			log.Println("------------폴더 생성 오류-------------")
 			log.Fatalln(err)
 		}
-		fmt.Println("==========해당 경로에 폴더가 없어 새로 생성 : C:/deviceImage")
+		fmt.Printf("==========해당 경로에 폴더가 없어 새로 생성 : %s", deviceImageSaveDir)
 	}
 
 	multipartForm := request.MultipartForm
@@ -425,8 +429,11 @@ func addSW(writer http.ResponseWriter, request *http.Request) {
 	request.ParseMultipartForm(100)
 	log.Println("addSW()........")
 
+	basePath, _ := os.Getwd()
+
 	// 출입통제기 이미지 저장 위치
-	const swImageSaveDir string = "C:/SWimage"
+	// const swImageSaveDir string = "C:/SWimage"
+	var swImageSaveDir string = basePath + "/SWimage"
 
 	// 해당 경로에 폴더가 있는지 확인하고 없으면 생성하기
 	if _, err := os.Stat(swImageSaveDir); os.IsNotExist(err) {
@@ -435,7 +442,7 @@ func addSW(writer http.ResponseWriter, request *http.Request) {
 			log.Println("------------폴더 생성 오류-------------")
 			log.Fatalln(err)
 		}
-		fmt.Println("==========해당 경로에 폴더가 없어 새로 생성 : C:/SWimage")
+		fmt.Printf("==========해당 경로에 폴더가 없어 새로 생성 : %s/SWimage\n", basePath)
 	}
 
 	multipartForm := request.MultipartForm
@@ -670,7 +677,8 @@ func getDeviceContent(writer http.ResponseWriter, request *http.Request) {
 											p.product_type, 
 											p.product_name, 
 											p.product_version, 
-											p.save_path, 
+											p.save_image_name, 
+											p.save_path,
 											p.explanation,
 											ad.auth_type, 
 											ad.one_to_one_max_user, 
@@ -797,8 +805,8 @@ func getDeviceContent(writer http.ResponseWriter, request *http.Request) {
 	for rows.Next() {
 		err := rows.Scan(&product.Product_id, &product.Product_type,
 			&product.Product_name, &product.Product_version,
-			&product.Save_path, &product.Explanation,
-			&auth_type, &one_to_one_max_user,
+			&product.Save_image_name, &product.Save_path,
+			&product.Explanation, &auth_type, &one_to_one_max_user,
 			&one_to_many_max_user, &one_to_one_max_template,
 			&one_to_many_max_template, &product_device.Width,
 			&product_device.Height, &product_device.Depth,
@@ -987,14 +995,31 @@ func getSWcontent(writer http.ResponseWriter, request *http.Request) {
 
 func deleteDevice(writer http.ResponseWriter, request *http.Request) {
 	fmt.Println("deleteDevice()........")
-	request.ParseForm()
+	/*
+		request.ParseForm()
 
-	formData := request.Form
+		formData := request.Form
 
-	//fmt.Println(formData)
+		//fmt.Println(formData)
 
-	formDataKey := "@d1#" + "product_id"
-	product_id, _ := (strconv.ParseInt(formData[formDataKey][0], 10, 32))
+		formDataKey := "@d1#" + "product_id"
+		product_id, _ := (strconv.ParseInt(formData[formDataKey][0], 10, 32))
+		fmt.Println("product_id : ", product_id)
+	*/
+
+	requestURL := request.RequestURI
+	// /productMangement/deleteDevice/(product_id) 형태
+
+	splitURL := strings.Split(requestURL, "?")
+	// '/'로 문자열 분리
+
+	var product_id int32
+	// 분리한 문자열 배열 중 제일 마지막 값 가져오기
+	if len(splitURL) > 1 || splitURL[len(splitURL)-1] != "" {
+		stringProduct_id := splitURL[len(splitURL)-1]
+		int64product_id, _ := strconv.ParseInt(stringProduct_id, 10, 32)
+		product_id = int32(int64product_id)
+	}
 	fmt.Println("product_id : ", product_id)
 
 	transaction, err := db.Begin()
@@ -1097,14 +1122,31 @@ func deleteDevice(writer http.ResponseWriter, request *http.Request) {
 
 func deleteSW(writer http.ResponseWriter, request *http.Request) {
 	fmt.Println("deleteSW()........")
-	request.ParseForm()
+	/*
+		request.ParseForm()
 
-	formData := request.Form
+		formData := request.Form
 
-	//fmt.Println(formData)
+		//fmt.Println(formData)
 
-	formDataKey := "@d1#" + "product_id"
-	product_id, _ := (strconv.ParseInt(formData[formDataKey][0], 10, 32))
+		formDataKey := "@d1#" + "product_id"
+		product_id, _ := (strconv.ParseInt(formData[formDataKey][0], 10, 32))
+		fmt.Println("product_id : ", product_id)
+	*/
+
+	requestURL := request.RequestURI
+	// /productMangement/deleteDevice/(product_id) 형태
+
+	splitURL := strings.Split(requestURL, "?")
+	// '/'로 문자열 분리
+
+	var product_id int32
+	// 분리한 문자열 배열 중 제일 마지막 값 가져오기
+	if len(splitURL) > 1 || splitURL[len(splitURL)-1] != "" {
+		stringProduct_id := splitURL[len(splitURL)-1]
+		int64product_id, _ := strconv.ParseInt(stringProduct_id, 10, 32)
+		product_id = int32(int64product_id)
+	}
 	fmt.Println("product_id : ", product_id)
 
 	transaction, err := db.Begin()
@@ -1194,4 +1236,13 @@ func deleteSW(writer http.ResponseWriter, request *http.Request) {
 	renderObj := render.New()
 
 	renderObj.JSON(writer, http.StatusOK, result)
+}
+
+func modifyDevice(writer http.ResponseWriter, request *http.Request) {
+	fmt.Println("getDeviceContent()........")
+	request.ParseMultipartForm(100)
+
+	multipartForm := request.MultipartForm
+	fmt.Println(multipartForm)
+
 }

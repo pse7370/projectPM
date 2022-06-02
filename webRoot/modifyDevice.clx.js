@@ -7,6 +7,8 @@
 (function(){
 	var app = new cpr.core.App("modifyDevice", {
 		onPrepare: function(loader){
+			loader.addCSS("theme/css/addProduct_style.css");
+			loader.addCSS("theme/css/main.css");
 		},
 		onCreate: function(/* cpr.core.AppInstance */ app, exports){
 			var linker = {};
@@ -24,20 +26,20 @@
 			 * 앱이 최초 구성된후 최초 랜더링 직후에 발생하는 이벤트 입니다.
 			 */
 			function onBodyLoad(/* cpr.events.CEvent */ e){
-				console.log(app.getHost().initValue);
+				app.lookup("product_id").setValue("product_id", app.getHost().initValue.product_id);
+				console.log(app.lookup("product_id").getValue("product_id"));
 				
-				var initValue = app.getHost().initValue;
-				app.lookup("product") = initValue.product;
-				app.lookup("product_device") = initValue.product_device;
-				app.lookup("authenticationList") = initValue.authenticationList;
-				app.lookup("developerList") = initValue.developerList;
+				if(app.lookup("product_id").getValue("product_id") != 0){
+					app.lookup("getDeviceContent").send();
+					console.log("getDeviceContent 서브미션 실행");
+				}
 				
 			}
 			
 			
 			/*
-			 * 담당 개발자 "+" 버튼에서 click 이벤트 발생 시 호출.
-			 * 사용자가 컨트롤을 클릭할 때 발생하는 이벤트.
+			 * 담당 롤을 클릭할 때 발생하는 이벤트.
+			 * 개발자 "+" 버튼에서 click 이벤트 발생 시 호출.
 			 */
 			function onButtonClick(/* cpr.events.CMouseEvent */ e){
 				/** 
@@ -47,6 +49,113 @@
 				var grid_developer = app.lookup("grid_developer");
 				var insertRow = grid_developer.insertRow(1, true);
 				// + 버튼 클릭시 그리드 행 추가
+				
+			}
+			
+			
+			/*
+			 * getDeviceContent 서브미션에서 submit-done 이벤트 발생 시 호출.
+			 * 응답처리가 모두 종료되면 발생합니다.
+			 */
+			function onGetDeviceContentSubmitDone(/* cpr.events.CSubmissionEvent */ e){
+				/** 
+				 * @type cpr.protocols.Submission
+				 */
+				var getDeviceContent = e.control;
+				
+				app.lookup("productImage").value = app.lookup("product").getValue("save_image_name");
+				
+				app.lookup("input_productName").redraw();
+				app.lookup("input_productVersion").redraw();
+				app.lookup("width").redraw();
+				app.lookup("height").redraw();
+				app.lookup("depth").redraw();
+				app.lookup("input_server").redraw();
+				app.lookup("selectWi_fi").value = app.lookup("product_device").getValue("wi_fi");
+				app.lookup("input_other").redraw();
+				app.lookup("input_IpRatings").redraw();
+				app.lookup("explanation").redraw();		
+				
+				var authenticationList = app.lookup("authenticationList");
+				var i;
+				var j;
+				var auth_types = ["카드", "지문", "얼굴", "홍채"]; // 인증 방식은 카드, 지문, 얼굴, 홍채 총 4가지
+				//var dataSetAuthLength = app.lookup("authenticationList").getRowCount();
+				var beforeModifyAuthTypes = app.lookup("authenticationList").getColumnData("auth_type");
+				console.log("beforeModifyAuthTypes : " + beforeModifyAuthTypes);
+					// 수정하기 전 기존 데이터에 있던 인증 방식은 auth_types에서 제외
+					// 기존에 가지고 있지 않은 인증 방식 값들이 어떤 것인지 가져오기 위한 과정	
+					for(i = 0; i < beforeModifyAuthTypes.length; i++){
+			
+						switch(beforeModifyAuthTypes[i]){
+							case "카드" :
+								auth_types[0] = "";
+								break;
+							case "지문" :
+								auth_types[1] = "";
+								break;
+							case "얼굴" :
+								auth_types[2] = "";
+								break;
+							case "홍채" :
+								auth_types[3] = "";
+								break;			
+						}
+						
+					} // end for j
+			
+				
+				console.log("auth_types : " + auth_types);
+				// 그리드에 표시된 수정 전 기존 데이터의 체크박스 체크하기
+				app.lookup("authentication").checkAllRow();
+				
+				// 기존에 가지고 있던 인증 타입에 없는 인증 타입을  카드, 기준, 얼굴, 홍채 순으로 정렬해 추가하기.
+				for(i = 0; i < 4; i++){
+					//authenticationList.addRowData({"auth_type" : auth_types[i]});
+					if(auth_types[i] != ""){
+						switch(auth_types[i]){
+							case "카드" :
+								app.lookup("authentication").insertRowData(0, false, {"auth_type" : auth_types[i]}, false);
+								break;
+							case "지문" :
+								app.lookup("authentication").insertRowData(1, false, {"auth_type" : auth_types[i]}, false);
+								break;
+							case "얼굴" :
+								app.lookup("authentication").insertRowData(2, false, {"auth_type" : auth_types[i]}, false);
+								break;
+							case "홍채" :
+								app.lookup("authentication").insertRowData(3, false, {"auth_type" : auth_types[i]}, false);
+								break;
+						}			
+						
+					}			
+				}
+				
+				
+				
+				
+			}
+			
+			
+			/*
+			 * "수정" 버튼에서 click 이벤트 발생 시 호출.
+			 * 사용자가 컨트롤을 클릭할 때 발생하는 이벤트.
+			 */
+			function onButtonClick2(/* cpr.events.CMouseEvent */ e){
+				/** 
+				 * @type cpr.controls.Button
+				 */
+				var button = e.control;
+				
+				var product_image = app.lookup("productImage");
+				if (product_image.file != null){
+					app.lookup("modifyDevice").addFileParameter("deviceImage", product_image.file);
+					console.log("출입통제기 이미지 파일명 :" + product_image.file);
+					console.log("출입통제기 파일 타입" + product_image.file.type);
+				}
+				
+				app.lookup("modifyDevice").send();
+				console.log("modifyDevice 서브미션 실행"); 
 				
 			};
 			// End - User Script
@@ -122,6 +231,8 @@
 					{"name": "product_type"},
 					{"name": "product_name"},
 					{"name": "product_version"},
+					{"name": "save_path"},
+					{"name": "save_image_name"},
 					{"name": "explanation"}
 				]
 			});
@@ -132,14 +243,37 @@
 				"columns" : [{"name": "resultCode"}]
 			});
 			app.register(dataMap_3);
+			
+			var dataMap_4 = new cpr.data.DataMap("product_id");
+			dataMap_4.parseData({
+				"columns" : [{
+					"name": "product_id",
+					"dataType": "number"
+				}]
+			});
+			app.register(dataMap_4);
 			var submission_1 = new cpr.protocols.Submission("modifyDevice");
+			submission_1.method = "put";
 			submission_1.action = "/productMangement/modifyDevice";
+			submission_1.mediaType = "multipart/form-data";
 			submission_1.addRequestData(dataMap_2);
 			submission_1.addRequestData(dataSet_1);
 			submission_1.addRequestData(dataMap_1);
 			submission_1.addRequestData(dataSet_2);
 			submission_1.addResponseData(dataMap_3, false);
 			app.register(submission_1);
+			
+			var submission_2 = new cpr.protocols.Submission("getDeviceContent");
+			submission_2.action = "/productMangement/deviceContent";
+			submission_2.addRequestData(dataMap_4);
+			submission_2.addResponseData(dataMap_2, false);
+			submission_2.addResponseData(dataSet_1, false);
+			submission_2.addResponseData(dataMap_1, false);
+			submission_2.addResponseData(dataSet_2, false);
+			if(typeof onGetDeviceContentSubmitDone == "function") {
+				submission_2.addEventListener("submit-done", onGetDeviceContentSubmitDone);
+			}
+			app.register(submission_2);
 			
 			app.supportMedia("all and (min-width: 1024px)", "default");
 			app.supportMedia("all and (min-width: 740px) and (max-width: 1023px)", "new-screen");
@@ -213,7 +347,7 @@
 					var xYLayout_4 = new cpr.controls.layouts.XYLayout();
 					group_4.setLayout(xYLayout_4);
 					(function(container){
-						var inputBox_2 = new cpr.controls.InputBox("ipb2");
+						var inputBox_2 = new cpr.controls.InputBox("input_productVersion");
 						inputBox_2.bind("value").toDataMap(app.lookup("product"), "product_version");
 						container.addChild(inputBox_2, {
 							"top": "0px",
@@ -238,7 +372,7 @@
 						"colIndex": 2,
 						"rowIndex": 0
 					});
-					var fileInput_1 = new cpr.controls.FileInput("product_image");
+					var fileInput_1 = new cpr.controls.FileInput("productImage");
 					fileInput_1.showClearButton = true;
 					fileInput_1.placeholder = "제품 이미지 선택";
 					fileInput_1.acceptFile = "image/*";
@@ -512,21 +646,21 @@
 						"colSpan": 1,
 						"rowSpan": 1
 					});
-					var inputBox_4 = new cpr.controls.InputBox("ipb4");
+					var inputBox_4 = new cpr.controls.InputBox("height");
 					inputBox_4.inputFilter = "[\\d,\\.]";
 					inputBox_4.bind("value").toDataMap(app.lookup("product_device"), "height");
 					container.addChild(inputBox_4, {
 						"colIndex": 3,
 						"rowIndex": 1
 					});
-					var inputBox_5 = new cpr.controls.InputBox("ipb5");
+					var inputBox_5 = new cpr.controls.InputBox("depth");
 					inputBox_5.inputFilter = "[\\d,\\.]";
 					inputBox_5.bind("value").toDataMap(app.lookup("product_device"), "depth");
 					container.addChild(inputBox_5, {
 						"colIndex": 5,
 						"rowIndex": 1
 					});
-					var inputBox_6 = new cpr.controls.InputBox("ipb3");
+					var inputBox_6 = new cpr.controls.InputBox("width");
 					inputBox_6.inputFilter = "[\\d,\\.]";
 					inputBox_6.style.css({
 						"background-color" : "#ffffff"
@@ -615,7 +749,7 @@
 						"colIndex": 0,
 						"rowIndex": 1
 					});
-					var output_10 = new cpr.controls.Output();
+					var output_10 = new cpr.controls.Output("input_server");
 					output_10.style.css({
 						"border-right-style" : "solid",
 						"border-top-width" : "1px",
@@ -667,7 +801,7 @@
 						"colIndex": 2,
 						"rowIndex": 1
 					});
-					var output_13 = new cpr.controls.Output();
+					var output_13 = new cpr.controls.Output("input_other");
 					output_13.style.css({
 						"border-right-style" : "solid",
 						"border-top-width" : "1px",
@@ -689,7 +823,7 @@
 						"colIndex": 2,
 						"rowIndex": 2
 					});
-					var linkedComboBox_1 = new cpr.controls.LinkedComboBox("lcb1");
+					var linkedComboBox_1 = new cpr.controls.LinkedComboBox("selectWi_fi");
 					linkedComboBox_1.preventInput = true;
 					linkedComboBox_1.style.css({
 						"border-bottom-color" : "#b4b4b4",
@@ -732,7 +866,7 @@
 						"width": "96px",
 						"height": "25px"
 					});
-					var inputBox_7 = new cpr.controls.InputBox("ipb8");
+					var inputBox_7 = new cpr.controls.InputBox("input_IpRatings");
 					inputBox_7.bind("value").toDataMap(app.lookup("product_device"), "ip_ratings");
 					container.addChild(inputBox_7, {
 						"top": "41px",
@@ -776,7 +910,7 @@
 						"width": "100px",
 						"height": "25px"
 					});
-					var textArea_1 = new cpr.controls.TextArea("txa1");
+					var textArea_1 = new cpr.controls.TextArea("explanation");
 					textArea_1.bind("value").toDataMap(app.lookup("product"), "explanation");
 					container.addChild(textArea_1, {
 						"width": "100px",
@@ -1023,6 +1157,9 @@
 					"background-image" : "none",
 					"border-top-style" : "none"
 				});
+				if(typeof onButtonClick2 == "function") {
+					button_2.addEventListener("click", onButtonClick2);
+				}
 				container.addChild(button_2, {
 					"top": "810px",
 					"left": "632px",

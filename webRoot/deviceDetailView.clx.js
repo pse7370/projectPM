@@ -7,6 +7,7 @@
 (function(){
 	var app = new cpr.core.App("deviceDetailView", {
 		onPrepare: function(loader){
+			loader.addCSS("theme/css/addProduct_style.css");
 			loader.addCSS("theme/css/main.css");
 		},
 		onCreate: function(/* cpr.core.AppInstance */ app, exports){
@@ -52,7 +53,7 @@
 				var product = app.lookup("product");
 				var product_device = app.lookup("product_device");
 				
-				app.lookup("productImage").src = product.getValue("save_path");
+				app.lookup("productImage").src = "../../deviceImage/" + product.getValue("save_image_name");
 				
 				app.lookup("productName").redraw();
 				app.lookup("productVersion").redraw();
@@ -83,7 +84,11 @@
 				var deleteButton = e.control;
 				
 				var confirmText = "제품 삭제시 등록한 커스터마이징 이력과 산출물들이 같이 삭제 됩니다.\n삭제하시겠습니까?";
+				
+				var product_id = app.lookup("product_id").getValue("product_id");
+				
 				if(confirm(confirmText)){
+					app.lookup("deleteDevice").action = "/productMangement/deleteDevice?" + product_id; 
 					app.lookup("deleteDevice").send();
 					console.log("deleteDevice 서브미션 실행");
 				}	
@@ -125,7 +130,9 @@
 				var deleteDevice = e.control;
 				
 				alert("제품을 삭제했습니다.");
-				window.location.reload();
+				app.getRootAppInstance().lookup("getSideMenu").send();
+				app.close();	
+				//window.location.reload();
 				
 				var resultCode = app.lookup("result").getValue("resultCode");
 				console.log(resultCode);
@@ -154,10 +161,7 @@
 				cpr.core.App.load("modifyDevice", function(loadedApp){
 						if(loadedApp){
 							embeddedApp.initValue = {
-								"product" : app.lookup("product"),
-								"authenticationList" : app.lookup("authenticationList"),
-								"product_device" : app.lookup("product_device"),
-								"developerList" : app.lookup("developerList")
+								"product_id" : app.lookup("product_id").getValue("product_id")
 							}
 				    		embeddedApp.app = loadedApp;	    		
 				  		}
@@ -233,6 +237,7 @@
 					{"name": "product_type"},
 					{"name": "product_name"},
 					{"name": "product_version"},
+					{"name": "save_image_name"},
 					{"name": "save_path"},
 					{"name": "explanation"}
 				]
@@ -269,8 +274,8 @@
 			app.register(submission_1);
 			
 			var submission_2 = new cpr.protocols.Submission("deleteDevice");
+			submission_2.method = "delete";
 			submission_2.action = "/productMangement/deleteDevice";
-			submission_2.addRequestData(dataMap_3);
 			submission_2.addResponseData(dataMap_4, false);
 			if(typeof onDeleteDeviceSubmitDone == "function") {
 				submission_2.addEventListener("submit-done", onDeleteDeviceSubmitDone);
