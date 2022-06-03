@@ -81,7 +81,7 @@
 						db = "MS-SQL"
 						break;
 					case 5 :
-						db = "MS-SQL / Oracle"
+						db = "Oracle / MS-SQL"
 						break;
 					case 6 :
 						db = "MySQL / MS-SQL"
@@ -105,7 +105,7 @@
 						db = "MS-SQL / MariaDB"
 						break;
 					case 13 :
-						db = "Oracle / MySQL / MariaDB"
+						db = "Oracle / MS-SQL / MariaDB"
 						break;
 					case 14 :
 						db = "MySQL / MS-SQL / MariaDB"
@@ -216,6 +216,30 @@
 				
 				var resultCode = app.lookup("result").getValue("resultCode");
 				console.log(resultCode);
+				
+			}
+			
+			
+			/*
+			 * "수정" 버튼에서 click 이벤트 발생 시 호출.
+			 * 사용자가 컨트롤을 클릭할 때 발생하는 이벤트.
+			 */
+			function onButtonClick2(/* cpr.events.CMouseEvent */ e){
+				/** 
+				 * @type cpr.controls.Button
+				 */
+				var button = e.control;
+				
+				var embeddedApp = app.getHost();
+				
+				cpr.core.App.load("modifySW", function(loadedApp){
+					if(loadedApp){
+						embeddedApp.initValue = {
+							"product_id" : app.lookup("product_id").getValue("product_id")
+						}
+			    		embeddedApp.app = loadedApp;	    		
+			  		}
+				});
 				
 			};
 			// End - User Script
@@ -749,6 +773,9 @@
 				"background-image" : "none",
 				"border-top-style" : "none"
 			});
+			if(typeof onButtonClick2 == "function") {
+				button_1.addEventListener("click", onButtonClick2);
+			}
 			container.addChild(button_1, {
 				"top": "681px",
 				"left": "534px",

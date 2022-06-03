@@ -25,7 +25,7 @@ func productMangementHandler(writer http.ResponseWriter, request *http.Request) 
 
 // 사이드 트리메뉴 구성하기
 func getSideMenuContent(writer http.ResponseWriter, request *http.Request) {
-	fmt.Println("getSideMenuContent()........")
+	fmt.Println("............getSideMenuContent()..........")
 	renderObj := render.New()
 	var err error // 에러를 담기 위한 변수
 
@@ -115,7 +115,7 @@ func getSideMenuContent(writer http.ResponseWriter, request *http.Request) {
 // 출입통제기 등록
 func addDevice(writer http.ResponseWriter, request *http.Request) {
 	request.ParseMultipartForm(100)
-	log.Println("addDevice()........")
+	log.Println("...............addDevice().............")
 
 	basePath, _ := os.Getwd()
 
@@ -427,7 +427,7 @@ func addDevice(writer http.ResponseWriter, request *http.Request) {
 // SW 등록하기
 func addSW(writer http.ResponseWriter, request *http.Request) {
 	request.ParseMultipartForm(100)
-	log.Println("addSW()........")
+	log.Println("...............addSW()..............")
 
 	basePath, _ := os.Getwd()
 
@@ -629,7 +629,7 @@ func addSW(writer http.ResponseWriter, request *http.Request) {
 
 // 출입통제기 상세 내역 가져오기
 func getDeviceContent(writer http.ResponseWriter, request *http.Request) {
-	fmt.Println("getDeviceContent()........")
+	fmt.Println("............getDeviceContent()...........")
 	request.ParseForm()
 
 	formData := request.Form
@@ -994,7 +994,7 @@ func getSWcontent(writer http.ResponseWriter, request *http.Request) {
 }
 
 func deleteDevice(writer http.ResponseWriter, request *http.Request) {
-	fmt.Println("deleteDevice()........")
+	fmt.Println("................deleteDevice()................")
 	/*
 		request.ParseForm()
 
@@ -1121,7 +1121,7 @@ func deleteDevice(writer http.ResponseWriter, request *http.Request) {
 }
 
 func deleteSW(writer http.ResponseWriter, request *http.Request) {
-	fmt.Println("deleteSW()........")
+	fmt.Println("..............deleteSW().............")
 	/*
 		request.ParseForm()
 
@@ -1239,10 +1239,396 @@ func deleteSW(writer http.ResponseWriter, request *http.Request) {
 }
 
 func modifyDevice(writer http.ResponseWriter, request *http.Request) {
-	fmt.Println("getDeviceContent()........")
+	fmt.Println("..........modifyDevice().........")
 	request.ParseMultipartForm(100)
 
+	basePath, _ := os.Getwd()
+
+	// 출입통제기 이미지 저장 위치
+	var deviceImageSaveDir string = basePath + "/deviceImage"
+
+	// 해당 경로에 폴더가 있는지 확인하고 없으면 생성하기
+	if _, err := os.Stat(deviceImageSaveDir); os.IsNotExist(err) {
+		err := os.Mkdir(deviceImageSaveDir, os.ModeDir)
+		if err != nil {
+			log.Println("------------폴더 생성 오류-------------")
+			log.Fatalln(err)
+		}
+		fmt.Printf("==========해당 경로에 폴더가 없어 새로 생성 : %s", deviceImageSaveDir)
+	}
+
 	multipartForm := request.MultipartForm
-	fmt.Println(multipartForm)
+	//fmt.Println(multipartForm)
+
+	var product Product
+
+	// 파일 저장하기
+	for key, _ := range multipartForm.File {
+		file, fileHeader, err := request.FormFile(key)
+		if err != nil {
+			fmt.Println("FormFile ERROR : ", err)
+			return
+		}
+
+		defer file.Close()
+		fmt.Printf("upload file : name [%s], size [%d], header [%#v]\n",
+			fileHeader.Filename, fileHeader.Size, fileHeader.Header)
+
+		var imageSavePath string = deviceImageSaveDir + "/" + fileHeader.Filename
+
+		fileUpLoad, err := os.Create(imageSavePath)
+		if err != nil {
+			fmt.Println("파일 열기 실패 : ", err, "\n", imageSavePath)
+			return
+		}
+		defer fileUpLoad.Close()
+
+		_, err = io.Copy(fileUpLoad, file)
+		if err != nil {
+			fmt.Println("파일 복사 실패 : ", err)
+			return
+		}
+
+		fmt.Println("파일 저장 성공!", fileHeader.Filename)
+
+		product.Real_image_name = fileHeader.Filename
+		product.Save_image_name = fileHeader.Filename
+		product.Save_path = imageSavePath
+
+	} // end for
+
+	formData := multipartForm.Value
+	fmt.Println(formData)
+
+	var product_device ProductDevice
+	var product_developerList Product_developerList
+	var authentication_detailsList Authentication_detailsList
+
+	for key, value := range formData {
+		//fmt.Println(key, "/", value)
+
+		splitRealKey := strings.Split(key, "#")
+
+		if len(splitRealKey) >= 2 {
+			//fmt.Println(splitRealKey)
+
+			switch splitRealKey[1] {
+			case "product_id":
+				temp, _ := strconv.ParseInt(value[0], 10, 32)
+				product.Product_id = int32(temp)
+
+			case "product_type":
+				product.Product_type = value[0]
+
+			case "product_name":
+				product.Product_name = value[0]
+
+			case "product_version":
+				product.Product_version = value[0]
+
+			case "explanation":
+				product.Explanation = value[0]
+
+			case "width":
+				product_device.Width, _ = strconv.ParseFloat(value[0], 64)
+
+			case "height":
+				product_device.Height, _ = strconv.ParseFloat(value[0], 64)
+
+			case "depth":
+				product_device.Depth, _ = strconv.ParseFloat(value[0], 64)
+
+			case "ip_ratings":
+				product_device.Ip_ratings = value[0]
+
+			case "server":
+				product_device.Server = value[0]
+
+			case "wi_fi":
+				product_device.Wi_fi = value[0]
+
+			case "other":
+				product_device.Other = value[0]
+
+			case "auth_type":
+				authentication_detailsList.Auth_type = value
+
+			case "one_to_one_max_user":
+				authentication_detailsList.One_to_one_max_user = value
+
+			case "one_to_many_max_user":
+				authentication_detailsList.One_to_many_max_user = value
+
+			case "one_to_one_max_template":
+				authentication_detailsList.One_to_one_max_template = value
+
+			case "one_to_many_max_template":
+				authentication_detailsList.One_to_many_max_template = value
+
+			case "department":
+				product_developerList.DepartmentList = value
+
+			case "employees_number":
+				product_developerList.Employees_numberList = value
+
+			case "employees_name":
+				product_developerList.Employees_nameList = value
+
+			case "start_date":
+				product_developerList.Start_dateList = value
+
+			case "end_date":
+				product_developerList.End_dateList = value
+
+			}
+
+		} // end if
+
+	} // end for
+
+	/*
+		fmt.Println("product : ", product)
+		fmt.Println("product_device : ", product_device)
+		fmt.Println("authentication_detailsList : ", authentication_detailsList)
+		fmt.Println("product_developerList : ", product_developerList)
+	*/
+
+	sliceLength_auth := len(authentication_detailsList.Auth_type)
+	fmt.Println("sliceLength_auth : ", sliceLength_auth)
+	var authentication_details = make([]Authentication_details, sliceLength_auth)
+	for i := 0; i < sliceLength_auth; i++ {
+		authentication_details[i].Auth_type = authentication_detailsList.Auth_type[i]
+
+		temp, _ := strconv.ParseInt(authentication_detailsList.One_to_one_max_user[i], 10, 32)
+		authentication_details[i].One_to_one_max_user = int32(temp)
+
+		temp2, _ := strconv.ParseInt(authentication_detailsList.One_to_many_max_user[i], 10, 32)
+		authentication_details[i].One_to_many_max_user = int32(temp2)
+
+		temp3, _ := strconv.ParseInt(authentication_detailsList.One_to_one_max_template[i], 10, 32)
+		authentication_details[i].One_to_one_max_template = int32(temp3)
+
+		temp4, _ := strconv.ParseInt(authentication_detailsList.One_to_many_max_template[i], 10, 32)
+		authentication_details[i].One_to_many_max_template = int32(temp4)
+
+	}
+
+	fmt.Println("authentication_details : ", authentication_details)
+
+	sliceLength_developer := len(product_developerList.Employees_numberList)
+	fmt.Println("sliceLength_developer : ", sliceLength_developer)
+	var product_developer = make([]Product_developer, sliceLength_developer)
+	for i := 0; i < sliceLength_developer; i++ {
+		product_developer[i].Department = product_developerList.DepartmentList[i]
+
+		temp, _ := strconv.ParseInt(product_developerList.Employees_numberList[i], 10, 32)
+		product_developer[i].Employees_number = int32(temp)
+
+		product_developer[i].Employees_name = product_developerList.Employees_nameList[i]
+		product_developer[i].Start_date = product_developerList.Start_dateList[i]
+		product_developer[i].End_date = product_developerList.End_dateList[i]
+	}
+
+	fmt.Println("product_developer : ", product_developer)
+
+	transaction, err := db.Begin()
+	if err != nil {
+		fmt.Println("--------트랜잭션 생성 오류---------")
+		log.Fatal(err)
+	}
+
+	// 에러 발생시 rollback 처리
+	defer transaction.Rollback()
+
+	var updateProductQuery string = `UPDATE product 
+											SET product_name = ?,
+												product_version = ?,
+												real_image_name = ?,
+												save_image_name = ?,
+												save_path = ?,
+												explanation = ?
+											WHERE product_id = ?`
+
+	var exceptImageUpdateProductQuery string = `UPDATE product 
+														SET product_name = ?,
+															product_version = ?,
+															explanation = ?
+														WHERE product_id = ?`
+
+	if product.Save_path != "" {
+		_, err := db.Exec(updateProductQuery,
+			product.Product_name, product.Product_version,
+			product.Real_image_name, product.Save_image_name,
+			product.Save_path, product.Explanation, product.Product_id)
+
+		if err != nil {
+			fmt.Printf("===========product 테이블 update 실패(이미지 포함), product_id는 %d============\n", product.Product_id)
+			log.Fatal(err)
+		}
+	} else {
+		_, err := db.Exec(exceptImageUpdateProductQuery,
+			product.Product_name, product.Product_version,
+			product.Explanation, product.Product_id)
+
+		if err != nil {
+			fmt.Printf("===========product 테이블 update 실패(이미지 제외), product_id는 %d============\n", product.Product_id)
+			log.Fatal(err)
+		}
+	}
+
+	var updateDeviceQuery string = `UPDATE product_device 
+													SET width = ?,
+														height = ?,
+														depth = ?,
+														ip_ratings = ?,
+														server = ?,
+														wi_fi = ?,
+														other = ?
+													WHERE product_id = ?`
+	_, err = db.Exec(updateDeviceQuery,
+		product_device.Width, product_device.Height,
+		product_device.Depth, product_device.Ip_ratings,
+		product_device.Server, product_device.Wi_fi,
+		product_device.Other, product.Product_id)
+
+	if err != nil {
+		fmt.Printf("===========product_device 테이블 update 실패, product_id는 %d============\n", product.Product_id)
+		log.Fatal(err)
+	}
+
+	var existAuthType int
+	var checkExistAuthTypeQuery string = `SELECT COUNT(auth_type) 
+												FROM authentication_details 
+												WHERE product_id = ? 
+												AND auth_type = ?`
+
+	for i := 0; i < len(authentication_details); i++ {
+		err := db.QueryRow(checkExistAuthTypeQuery, product.Product_id, authentication_details[i].Auth_type).Scan(&existAuthType)
+		if err != nil {
+			fmt.Println(authentication_details[i].Auth_type, "DB 확인 오류")
+			log.Fatalln(err)
+		}
+		//fmt.Println("existAuthType /", existAuthType, "/", authentication_details[i].Auth_type)
+
+		switch existAuthType {
+		case 0:
+			_, err := db.Exec(`INSERT INTO 
+									authentication_details(product_id, 
+															auth_type, 
+															one_to_one_max_user, 
+															one_to_many_max_user, 
+															one_to_one_max_template, 
+															one_to_many_max_template) 
+									VALUES (?, ?, ?, ?, ?, ?)`,
+				product.Product_id, authentication_details[i].Auth_type,
+				authentication_details[i].One_to_one_max_user,
+				authentication_details[i].One_to_many_max_user,
+				authentication_details[i].One_to_one_max_template,
+				authentication_details[i].One_to_many_max_template)
+			if err != nil {
+				fmt.Printf("===========authentication_details 테이블 insert 실패 [%d]================\n", i)
+				log.Fatal(err)
+			}
+			//fmt.Println("case 0 /", i)
+		case 1:
+			_, err := db.Exec(`UPDATE authentication_details 
+									SET one_to_one_max_user = ?,
+									one_to_many_max_user = ?,
+									one_to_one_max_template = ?,
+									one_to_many_max_template = ?
+								WHERE product_id = ?
+								AND auth_type = ?`,
+				authentication_details[i].One_to_one_max_user,
+				authentication_details[i].One_to_many_max_user,
+				authentication_details[i].One_to_one_max_template,
+				authentication_details[i].One_to_many_max_template,
+				product.Product_id,
+				authentication_details[i].Auth_type)
+			if err != nil {
+				fmt.Printf("===========authentication_details 테이블 update 실패 [%d]================\n", i)
+				log.Fatal(err)
+			}
+			//fmt.Println("case 1 /", i)
+		} // end switch
+	} // end for
+
+	var existDeveloper int
+	var checkExistDeveloperQuery string = `SELECT COUNT(employees_number) 
+												FROM product_developer 
+												WHERE product_id = ? 
+												AND employees_number = ?`
+
+	for i := 0; i < len(product_developer); i++ {
+		err := db.QueryRow(checkExistDeveloperQuery, product.Product_id, product_developer[i].Employees_number).Scan(&existDeveloper)
+		if err != nil {
+			fmt.Println(product.Product_id, "/", product_developer[i].Employees_number, "DB 확인 오류")
+			log.Fatalln(err)
+		}
+
+		switch existDeveloper {
+		case 0:
+			_, err := db.Exec(`INSERT INTO 
+									product_developer(product_id, 
+													department, 
+													employees_number, 
+													employees_name, 
+													start_date, 
+													end_date) 
+									VALUES (?, ?, ?, ?, ?, ?)`,
+				product.Product_id,
+				product_developer[i].Department,
+				product_developer[i].Employees_number,
+				product_developer[i].Employees_name,
+				product_developer[i].Start_date,
+				product_developer[i].End_date)
+
+			if err != nil {
+				fmt.Printf("===========product_developer 테이블 insert 실패 [%d]================\n", i)
+				log.Fatal(err)
+			}
+
+		case 1:
+			if product_developer[i].Employees_name == "" {
+				_, err := db.Exec(`DELETE FROM product_developer WHERE product_id = ? AND employees_number = ?`,
+					product.Product_id,
+					product_developer[i].Employees_number)
+
+				if err != nil {
+					fmt.Printf("===========product_developer 테이블 delete 실패 [%d]================\n", i)
+					log.Fatal(err)
+				}
+
+			} else {
+				_, err := db.Exec(`UPDATE product_developer
+									SET department = ?,
+										employees_name = ?,
+										start_date = ?,
+										end_date = ?
+									WHERE product_id = ? 
+									AND employees_number = ?`,
+					product_developer[i].Department,
+					product_developer[i].Employees_name,
+					product_developer[i].Start_date,
+					product_developer[i].End_date,
+					product.Product_id,
+					product_developer[i].Employees_number)
+
+				if err != nil {
+					fmt.Printf("===========product_developer 테이블 update 실패 [%d]================\n", i)
+					log.Fatal(err)
+				}
+
+			}
+
+		} // end switch
+
+	} // end for
+
+	var result Result
+	result.ResultCode = 1
+
+	renderObj := render.New()
+
+	renderObj.JSON(writer, http.StatusOK, result)
 
 }

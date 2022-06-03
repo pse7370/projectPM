@@ -151,6 +151,7 @@
 					});
 				}
 				
+				
 			
 			}	
 			
@@ -167,6 +168,7 @@
 				//console.log("앱 인스턴스 product type / " + product_type);
 				console.log("앱 인스턴스  product id / " + product_id);
 				
+				// 현재 실행되고 있는 모든 앱 가져오기
 				var vaRunningAppInstances =  cpr.core.Platform.INSTANCE.getAllRunningAppInstances();
 				
 				vaRunningAppInstances.forEach(function(appInstance){

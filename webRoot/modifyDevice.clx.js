@@ -52,6 +52,34 @@
 				
 			}
 			
+			/*
+			 * 담당 개발자 "-" 버튼에서 click 이벤트 발생 시 호출.
+			 * 사용자가 컨트롤을 클릭할 때 발생하는 이벤트.
+			 */
+			function onButtonClick3(/* cpr.events.CMouseEvent */ e){
+				/** 
+				 * @type cpr.controls.Button
+				 */
+				var button = e.control;
+				
+				var gridDeveloper = app.lookup("grid_developer");
+				gridDeveloper.showDeletedRow = false;
+				
+				var endRowIndex = gridDeveloper.getViewingEndRowIndex();
+				gridDeveloper.deleteRow(endRowIndex);
+				// 제일 마지막 행 삭제
+					
+				var developerList = app.lookup("developerList");
+				
+				var endRowDeveloperNum = developerList.getValue(endRowIndex, "employees_number");
+				if(endRowDeveloperNum == 0 || endRowDeveloperNum == null) {
+					developerList.deleteRow(endRowIndex);
+				}
+				else {
+					developerList.setValue(endRowIndex, "employees_name", "");
+				}
+			}
+			
 			
 			/*
 			 * getDeviceContent 서브미션에서 submit-done 이벤트 발생 시 호출.
@@ -72,6 +100,7 @@
 				app.lookup("depth").redraw();
 				app.lookup("input_server").redraw();
 				app.lookup("selectWi_fi").value = app.lookup("product_device").getValue("wi_fi");
+				//app.lookup("selectWi_fi").selectItemByValue(app.lookup("product_device").getValue("wi_fi"));
 				app.lookup("input_other").redraw();
 				app.lookup("input_IpRatings").redraw();
 				app.lookup("explanation").redraw();		
@@ -128,11 +157,8 @@
 								break;
 						}			
 						
-					}			
-				}
-				
-				
-				
+					} // end if			
+				} // end for	
 				
 			}
 			
@@ -154,8 +180,53 @@
 					console.log("출입통제기 파일 타입" + product_image.file.type);
 				}
 				
+				var authenticationList = app.lookup("authenticationList");
+				
+				var i
+				var authentication = app.lookup("authentication");
+				for (i = 0; i < authentication.rowCount; i++) {
+					if(authentication.isCheckedRow(i) == false){
+						authenticationList.deleteRow(i);
+						
+						//authentication.deleteRow(i);
+						console.log("Delete " + i + " Row");
+					}
+				}
+				
+				if(app.lookup("selectWi_fi").isSelected(0)) {
+					app.lookup("product_device").setValue("wi_fi", "O");
+				}
+				
+				 if(app.lookup("selectWi_fi").isSelected(1)) {
+					app.lookup("product_device").setValue("wi_fi", "X");
+				}
+				
+				
 				app.lookup("modifyDevice").send();
 				console.log("modifyDevice 서브미션 실행"); 
+				
+			}
+			
+			
+			/*
+			 * modifyDevice 서브미션에서 submit-done 이벤트 발생 시 호출.
+			 * 응답처리가 모두 종료되면 발생합니다.
+			 */
+			function onModifyDeviceSubmitDone(/* cpr.events.CSubmissionEvent */ e){
+				/** 
+				 * @type cpr.protocols.Submission
+				 */
+				var modifyDevice = e.control;
+				
+				var embeddedApp = app.getHost();
+				
+				cpr.core.App.load("deviceDetailView", function(loadedApp){
+					if(loadedApp){
+						
+			    		embeddedApp.app = loadedApp;	    		
+			  		}
+				});
+				
 				
 			};
 			// End - User Script
@@ -256,11 +327,15 @@
 			submission_1.method = "put";
 			submission_1.action = "/productMangement/modifyDevice";
 			submission_1.mediaType = "multipart/form-data";
+			submission_1.addRequestData(dataMap_4);
 			submission_1.addRequestData(dataMap_2);
 			submission_1.addRequestData(dataSet_1);
 			submission_1.addRequestData(dataMap_1);
 			submission_1.addRequestData(dataSet_2);
 			submission_1.addResponseData(dataMap_3, false);
+			if(typeof onModifyDeviceSubmitDone == "function") {
+				submission_1.addEventListener("submit-done", onModifyDeviceSubmitDone);
+			}
 			app.register(submission_1);
 			
 			var submission_2 = new cpr.protocols.Submission("getDeviceContent");
@@ -701,7 +776,7 @@
 				formLayout_3.leftMargin = "0px";
 				formLayout_3.horizontalSpacing = "0px";
 				formLayout_3.verticalSpacing = "0px";
-				formLayout_3.setColumns(["127px", "151px", "127px"]);
+				formLayout_3.setColumns(["127px", "150px", "127px"]);
 				formLayout_3.setRows(["1fr", "1fr", "1fr"]);
 				group_6.setLayout(formLayout_3);
 				(function(container){
@@ -749,43 +824,21 @@
 						"colIndex": 0,
 						"rowIndex": 1
 					});
-					var output_10 = new cpr.controls.Output("input_server");
+					var output_10 = new cpr.controls.Output();
+					output_10.value = "Wireless LAN(Wi-Fi)";
 					output_10.style.css({
-						"border-right-style" : "solid",
-						"border-top-width" : "1px",
-						"border-bottom-color" : "#b4b4b4",
-						"border-right-width" : "1px",
-						"border-left-color" : "#b4b4b4",
-						"vertical-align" : "middle",
-						"border-right-color" : "#b4b4b4",
-						"border-left-width" : "1px",
-						"border-top-style" : "solid",
-						"border-left-style" : "solid",
-						"border-bottom-width" : "1px",
-						"border-top-color" : "#b4b4b4",
-						"border-bottom-style" : "solid",
-						"text-align" : "center"
-					});
-					output_10.bind("value").toDataMap(app.lookup("product_device"), "server");
-					container.addChild(output_10, {
-						"colIndex": 0,
-						"rowIndex": 2
-					});
-					var output_11 = new cpr.controls.Output();
-					output_11.value = "Wireless LAN(Wi-Fi)";
-					output_11.style.css({
 						"background-color" : "#eaf0ea",
 						"vertical-align" : "middle",
 						"background-image" : "none",
 						"text-align" : "center"
 					});
-					container.addChild(output_11, {
+					container.addChild(output_10, {
 						"colIndex": 1,
 						"rowIndex": 1
 					});
-					var output_12 = new cpr.controls.Output();
-					output_12.value = "Other";
-					output_12.style.css({
+					var output_11 = new cpr.controls.Output();
+					output_11.value = "Other";
+					output_11.style.css({
 						"border-right-style" : "solid",
 						"background-color" : "#eaf0ea",
 						"border-right-width" : "1px",
@@ -797,50 +850,39 @@
 						"border-left-width" : "1px",
 						"text-align" : "center"
 					});
-					container.addChild(output_12, {
+					container.addChild(output_11, {
 						"colIndex": 2,
 						"rowIndex": 1
 					});
-					var output_13 = new cpr.controls.Output("input_other");
-					output_13.style.css({
-						"border-right-style" : "solid",
-						"border-top-width" : "1px",
-						"border-bottom-color" : "#b4b4b4",
-						"border-right-width" : "1px",
-						"border-left-color" : "#b4b4b4",
-						"vertical-align" : "middle",
-						"border-right-color" : "#b4b4b4",
-						"border-left-width" : "1px",
-						"border-top-style" : "solid",
-						"border-left-style" : "solid",
-						"border-bottom-width" : "1px",
-						"border-top-color" : "#b4b4b4",
-						"border-bottom-style" : "solid",
-						"text-align" : "center"
-					});
-					output_13.bind("value").toDataMap(app.lookup("product_device"), "other");
-					container.addChild(output_13, {
-						"colIndex": 2,
-						"rowIndex": 2
-					});
 					var linkedComboBox_1 = new cpr.controls.LinkedComboBox("selectWi_fi");
 					linkedComboBox_1.preventInput = true;
-					linkedComboBox_1.style.css({
-						"border-bottom-color" : "#b4b4b4",
-						"border-bottom-width" : "1px",
-						"border-bottom-style" : "solid"
-					});
+					linkedComboBox_1.bind("value").toDataMap(app.lookup("product_device"), "wi_fi");
 					(function(linkedComboBox_1){
 						linkedComboBox_1.addItem(new cpr.controls.TreeItem("O", "O", null));
 						linkedComboBox_1.addItem(new cpr.controls.TreeItem("X", "X", null));
 					})(linkedComboBox_1);
 					linkedComboBox_1.placeholders = [
 					];
+					if(typeof onSelectWi_fiSelectionChange == "function") {
+						linkedComboBox_1.addEventListener("selection-change", onSelectWi_fiSelectionChange);
+					}
 					container.addChild(linkedComboBox_1, {
 						"colIndex": 1,
 						"rowIndex": 2,
 						"colSpan": 1,
 						"rowSpan": 1
+					});
+					var inputBox_7 = new cpr.controls.InputBox("input_server");
+					inputBox_7.bind("value").toDataMap(app.lookup("product_device"), "server");
+					container.addChild(inputBox_7, {
+						"colIndex": 0,
+						"rowIndex": 2
+					});
+					var inputBox_8 = new cpr.controls.InputBox("input_other");
+					inputBox_8.bind("value").toDataMap(app.lookup("product_device"), "other");
+					container.addChild(inputBox_8, {
+						"colIndex": 2,
+						"rowIndex": 2
 					});
 				})(group_6);
 				container.addChild(group_6, {
@@ -854,21 +896,21 @@
 				var xYLayout_5 = new cpr.controls.layouts.XYLayout();
 				group_7.setLayout(xYLayout_5);
 				(function(container){
-					var output_14 = new cpr.controls.Output();
-					output_14.value = "방수/방진";
-					output_14.style.css({
+					var output_12 = new cpr.controls.Output();
+					output_12.value = "방수/방진";
+					output_12.style.css({
 						"vertical-align" : "middle",
 						"text-align" : "center"
 					});
-					container.addChild(output_14, {
+					container.addChild(output_12, {
 						"top": "41px",
 						"left": "20px",
 						"width": "96px",
 						"height": "25px"
 					});
-					var inputBox_7 = new cpr.controls.InputBox("input_IpRatings");
-					inputBox_7.bind("value").toDataMap(app.lookup("product_device"), "ip_ratings");
-					container.addChild(inputBox_7, {
+					var inputBox_9 = new cpr.controls.InputBox("input_IpRatings");
+					inputBox_9.bind("value").toDataMap(app.lookup("product_device"), "ip_ratings");
+					container.addChild(inputBox_9, {
 						"top": "41px",
 						"left": "115px",
 						"width": "150px",
@@ -881,16 +923,16 @@
 					"width": "267px",
 					"height": "73px"
 				});
-				var output_15 = new cpr.controls.Output();
-				output_15.value = "방수/방진 등급을 작성해 주세요.\r\n해당되지 않을 경우 공란으로 유지";
-				output_15.style.css({
+				var output_13 = new cpr.controls.Output();
+				output_13.value = "방수/방진 등급을 작성해 주세요.\r\n해당되지 않을 경우 공란으로 유지";
+				output_13.style.css({
 					"color" : "#dd4545",
 					"padding-left" : "10px",
 					"vertical-align" : "middle",
 					"font-size" : "9pt",
 					"text-align" : "left"
 				});
-				container.addChild(output_15, {
+				container.addChild(output_13, {
 					"top": "295px",
 					"left": "463px",
 					"width": "254px",
@@ -901,12 +943,12 @@
 				var verticalLayout_1 = new cpr.controls.layouts.VerticalLayout();
 				group_8.setLayout(verticalLayout_1);
 				(function(container){
-					var output_16 = new cpr.controls.Output();
-					output_16.value = "설명";
-					output_16.style.css({
+					var output_14 = new cpr.controls.Output();
+					output_14.value = "설명";
+					output_14.style.css({
 						"padding-left" : "10px"
 					});
-					container.addChild(output_16, {
+					container.addChild(output_14, {
 						"width": "100px",
 						"height": "25px"
 					});
@@ -932,37 +974,18 @@
 				formLayout_4.leftMargin = "0px";
 				formLayout_4.horizontalSpacing = "0px";
 				formLayout_4.verticalSpacing = "8px";
-				formLayout_4.setColumns(["16fr", "34px"]);
+				formLayout_4.setColumns(["16fr", "34px", "34px"]);
 				formLayout_4.setRows(["25px", "1fr"]);
 				group_9.setLayout(formLayout_4);
 				(function(container){
-					var output_17 = new cpr.controls.Output();
-					output_17.value = "담당 개발자";
-					output_17.style.css({
+					var output_15 = new cpr.controls.Output();
+					output_15.value = "담당 개발자";
+					output_15.style.css({
 						"padding-left" : "10px"
 					});
-					container.addChild(output_17, {
+					container.addChild(output_15, {
 						"colIndex": 0,
 						"rowIndex": 0
-					});
-					var button_1 = new cpr.controls.Button();
-					button_1.value = "+";
-					button_1.style.css({
-						"background-color" : "#eaf0ea",
-						"border-bottom-color" : "#c2c2c2",
-						"border-left-color" : "#c2c2c2",
-						"border-top-color" : "#c2c2c2",
-						"border-right-color" : "#c2c2c2",
-						"background-image" : "none"
-					});
-					if(typeof onButtonClick == "function") {
-						button_1.addEventListener("click", onButtonClick);
-					}
-					container.addChild(button_1, {
-						"colIndex": 1,
-						"rowIndex": 0,
-						"colSpan": 1,
-						"rowSpan": 1
 					});
 					var grid_2 = new cpr.controls.Grid("grid_developer");
 					grid_2.init({
@@ -1077,9 +1100,9 @@
 									"configurator": function(cell){
 										cell.columnName = "department";
 										cell.control = (function(){
-											var inputBox_8 = new cpr.controls.InputBox("ipb9");
-											inputBox_8.bind("value").toDataColumn("department");
-											return inputBox_8;
+											var inputBox_10 = new cpr.controls.InputBox("ipb9");
+											inputBox_10.bind("value").toDataColumn("department");
+											return inputBox_10;
 										})();
 									}
 								},
@@ -1100,9 +1123,9 @@
 									"configurator": function(cell){
 										cell.columnName = "employees_name";
 										cell.control = (function(){
-											var inputBox_9 = new cpr.controls.InputBox("ipb10");
-											inputBox_9.bind("value").toDataColumn("employees_name");
-											return inputBox_9;
+											var inputBox_11 = new cpr.controls.InputBox("ipb10");
+											inputBox_11.bind("value").toDataColumn("employees_name");
+											return inputBox_11;
 										})();
 									}
 								},
@@ -1136,8 +1159,42 @@
 					container.addChild(grid_2, {
 						"colIndex": 0,
 						"rowIndex": 1,
-						"colSpan": 2,
+						"colSpan": 3,
 						"rowSpan": 1
+					});
+					var button_1 = new cpr.controls.Button();
+					button_1.value = "+";
+					button_1.style.css({
+						"background-color" : "#eaf0ea",
+						"border-bottom-color" : "#c2c2c2",
+						"border-left-color" : "#c2c2c2",
+						"border-top-color" : "#c2c2c2",
+						"border-right-color" : "#c2c2c2",
+						"background-image" : "none"
+					});
+					if(typeof onButtonClick == "function") {
+						button_1.addEventListener("click", onButtonClick);
+					}
+					container.addChild(button_1, {
+						"colIndex": 1,
+						"rowIndex": 0
+					});
+					var button_2 = new cpr.controls.Button();
+					button_2.value = "-";
+					button_2.style.css({
+						"background-color" : "#eaf0ea",
+						"border-bottom-color" : "#c2c2c2",
+						"border-left-color" : "#c2c2c2",
+						"border-top-color" : "#c2c2c2",
+						"border-right-color" : "#c2c2c2",
+						"background-image" : "none"
+					});
+					if(typeof onButtonClick3 == "function") {
+						button_2.addEventListener("click", onButtonClick3);
+					}
+					container.addChild(button_2, {
+						"colIndex": 2,
+						"rowIndex": 0
 					});
 				})(group_9);
 				container.addChild(group_9, {
@@ -1146,9 +1203,9 @@
 					"width": "704px",
 					"height": "225px"
 				});
-				var button_2 = new cpr.controls.Button();
-				button_2.value = "수정";
-				button_2.style.css({
+				var button_3 = new cpr.controls.Button();
+				button_3.value = "수정";
+				button_3.style.css({
 					"background-color" : "#daf2da",
 					"border-right-style" : "none",
 					"border-radius" : "10px",
@@ -1158,9 +1215,9 @@
 					"border-top-style" : "none"
 				});
 				if(typeof onButtonClick2 == "function") {
-					button_2.addEventListener("click", onButtonClick2);
+					button_3.addEventListener("click", onButtonClick2);
 				}
-				container.addChild(button_2, {
+				container.addChild(button_3, {
 					"top": "810px",
 					"left": "632px",
 					"width": "85px",
