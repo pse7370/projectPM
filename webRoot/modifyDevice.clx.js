@@ -66,18 +66,27 @@
 				gridDeveloper.showDeletedRow = false;
 				
 				var endRowIndex = gridDeveloper.getViewingEndRowIndex();
-				gridDeveloper.deleteRow(endRowIndex);
-				// 제일 마지막 행 삭제
+				
 					
 				var developerList = app.lookup("developerList");
+				var deleteDeveloperList = app.lookup("deleteDeveloperList");
+				console.log(developerList.getColumnData("employees_number"));
 				
 				var endRowDeveloperNum = developerList.getValue(endRowIndex, "employees_number");
 				if(endRowDeveloperNum == 0 || endRowDeveloperNum == null) {
 					developerList.deleteRow(endRowIndex);
 				}
-				else {
-					developerList.setValue(endRowIndex, "employees_name", "");
+				else {		
+					console.log("endRowDeveloperNum : " + endRowDeveloperNum);
+					deleteDeveloperList.addRowData({"delete_employees_number" : endRowDeveloperNum});
+					var result = developerList.deleteRow(endRowIndex);
+					console.log(result);
 				}
+				
+				gridDeveloper.deleteRow(endRowIndex);
+				// 제일 마지막 행 삭제
+				
+				console.log(developerList.getColumnData("employees_number"));
 			}
 			
 			
@@ -181,17 +190,23 @@
 				}
 				
 				var authenticationList = app.lookup("authenticationList");
+				var deleteAuthenticationList = app.lookup("deleteAuthenticationList");
 				
 				var i
 				var authentication = app.lookup("authentication");
 				for (i = 0; i < authentication.rowCount; i++) {
 					if(authentication.isCheckedRow(i) == false){
-						authenticationList.deleteRow(i);
-						
+						deleteAuthenticationList.addRowData({"delete_auth_type" : authentication.getRow(i).getValue("auth_type")});
+						console.log("Delete " + authentication.getRow(i).getValue("auth_type"));
+				
 						//authentication.deleteRow(i);
-						console.log("Delete " + i + " Row");
+						//console.log("Delete " + i + " Row");
+							
 					}
 				}
+				
+				console.log(deleteAuthenticationList.getColumnData("auth_type"));
+					
 				
 				if(app.lookup("selectWi_fi").isSelected(0)) {
 					app.lookup("product_device").setValue("wi_fi", "O");
@@ -273,6 +288,19 @@
 				]
 			});
 			app.register(dataSet_2);
+			
+			var dataSet_3 = new cpr.data.DataSet("deleteAuthenticationList");
+			dataSet_3.parseData({
+				"columns": [{"name": "delete_auth_type"}],
+				"rows": []
+			});
+			app.register(dataSet_3);
+			
+			var dataSet_4 = new cpr.data.DataSet("deleteDeveloperList");
+			dataSet_4.parseData({
+				"columns" : [{"name": "delete_employees_number"}]
+			});
+			app.register(dataSet_4);
 			var dataMap_1 = new cpr.data.DataMap("product_device");
 			dataMap_1.parseData({
 				"columns" : [
@@ -332,6 +360,8 @@
 			submission_1.addRequestData(dataSet_1);
 			submission_1.addRequestData(dataMap_1);
 			submission_1.addRequestData(dataSet_2);
+			submission_1.addRequestData(dataSet_3);
+			submission_1.addRequestData(dataSet_4);
 			submission_1.addResponseData(dataMap_3, false);
 			if(typeof onModifyDeviceSubmitDone == "function") {
 				submission_1.addEventListener("submit-done", onModifyDeviceSubmitDone);

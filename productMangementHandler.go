@@ -903,6 +903,7 @@ func getSWcontent(writer http.ResponseWriter, request *http.Request) {
 										p.product_type, 
 										p.product_name, 
 										p.product_version, 
+										p.save_image_name,
 										p.save_path, 
 										p.explanation,
 										ps.simultaneous_connection, 
@@ -932,6 +933,7 @@ func getSWcontent(writer http.ResponseWriter, request *http.Request) {
 	for rows.Next() {
 		err := rows.Scan(&product.Product_id, &product.Product_type,
 			&product.Product_name, &product.Product_version,
+			&product.Save_image_name,
 			&product.Save_path, &product.Explanation,
 			&product_sw.Simultaneous, &product_sw.Available_db,
 			&product_sw.Available_os)
@@ -1631,4 +1633,27 @@ func modifyDevice(writer http.ResponseWriter, request *http.Request) {
 
 	renderObj.JSON(writer, http.StatusOK, result)
 
+}
+
+func modifySW(writer http.ResponseWriter, request *http.Request) {
+	fmt.Println("..........modifySW().........")
+	request.ParseMultipartForm(100)
+
+	basePath, _ := os.Getwd()
+
+	// 출입통제기 이미지 저장 위치
+	var deviceImageSaveDir string = basePath + "/SWimage"
+
+	// 해당 경로에 폴더가 있는지 확인하고 없으면 생성하기
+	if _, err := os.Stat(deviceImageSaveDir); os.IsNotExist(err) {
+		err := os.Mkdir(deviceImageSaveDir, os.ModeDir)
+		if err != nil {
+			log.Println("------------폴더 생성 오류-------------")
+			log.Fatalln(err)
+		}
+		fmt.Printf("==========해당 경로에 폴더가 없어 새로 생성 : %s", deviceImageSaveDir)
+	}
+
+	multipartForm := request.MultipartForm
+	fmt.Println(multipartForm)
 }

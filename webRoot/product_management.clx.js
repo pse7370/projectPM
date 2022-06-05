@@ -151,7 +151,32 @@
 					});
 				}
 				
-				
+				if(clickLable == "커스터마이징") {
+					app.dialogManager.openDialog("customizing/customizingManagement", "customizingManagement", {width : 780, height : 700}, function(dialog){
+					dialog.ready(function(dialogApp){
+						// 필요한 경우, 다이얼로그의 앱이 초기화 된 후, 앱 속성을 전달하십시오.
+						dialog.headerTitle = "커스터마이징 관리";
+						console.log(dialog.app.id);
+						/*
+						dialog.style.css("border","solid 1px #555555");
+						dialog.style.css("border-radius","10px");
+						dialog.style.body.css("background-color", "white");
+						dialog.style.header.css("background-color", "#008000");
+						dialog.style.header.css("color", "white");
+						dialog.style.header.css("font-size", "12pt");			
+						*/
+						dialog.addEventListener("close", function(e){
+							// 이곳에서 원하는 동작 처리
+							//window.location.reload();
+						});
+					});
+					}).then(function(returnValue){
+							if (returnValue == 1){
+								//window.location.reload();
+								
+							}
+						});
+				}
 			
 			}	
 			

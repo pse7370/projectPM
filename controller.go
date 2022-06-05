@@ -170,6 +170,8 @@ func StartServer() {
 	mux.HandleFunc("/productMangement/deleteSW", deleteSW)
 	// 출입통제기 수정
 	mux.HandleFunc("/productMangement/modifyDevice", modifyDevice)
+	// SW 수정
+	mux.HandleFunc("/productMangement/modifySW", modifySW)
 
 	// http.ListenAndServe(mainServerAddress, mux)
 	// 웹서버를 실제로 동작시키기 위한 함수, 서버가 동작할 포트 번호 지정

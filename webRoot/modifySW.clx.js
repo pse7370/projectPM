@@ -43,7 +43,7 @@
 				 * @type cpr.protocols.Submission
 				 */
 				var getSWcontent = e.control;
-				app.lookup("productImage").value = app.lookup("product").getValue("save_image_name");
+				app.lookup("productImage").value = app.lookup("product").getValue("save_image_namee");
 				
 				app.lookup("input_productName").redraw();
 				app.lookup("input_productVersion").redraw();
@@ -373,6 +373,8 @@
 					{"name": "product_type"},
 					{"name": "product_name"},
 					{"name": "product_version"},
+					{"name": "save_image_name"},
+					{"name": "save_path"},
 					{"name": "explanation"}
 				]
 			});
