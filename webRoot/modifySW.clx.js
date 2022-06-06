@@ -43,7 +43,7 @@
 				 * @type cpr.protocols.Submission
 				 */
 				var getSWcontent = e.control;
-				app.lookup("productImage").value = app.lookup("product").getValue("save_image_namee");
+				app.lookup("productImage").value = app.lookup("product").getValue("save_image_name");
 				
 				app.lookup("input_productName").redraw();
 				app.lookup("input_productVersion").redraw();
@@ -212,7 +212,7 @@
 				 */
 				var button = e.control;
 				var grid_developer = app.lookup("grid_developer");
-				var insertRow = grid_developer.insertRow(1, true);
+				var insertRow = grid_developer.insertRow(grid_developer.getViewingEndRowIndex(), true);
 				// + 버튼 클릭시 그리드 행 추가
 			}
 			
@@ -230,8 +230,34 @@
 				var gridDeveloper = app.lookup("grid_developer");
 				gridDeveloper.showDeletedRow = false;
 				
-				gridDeveloper.deleteRow(gridDeveloper.getViewingEndRowIndex());
+				var endRowIndex = gridDeveloper.getViewingEndRowIndex();
+				
+					
+				var developerList = app.lookup("developerList");
+				var deleteDeveloperList = app.lookup("deleteDeveloperList");
+				console.log(developerList.getColumnData("employees_number"));
+				
+				var endRowDeveloperNum = developerList.getValue(endRowIndex, "employees_number");
+				if(endRowDeveloperNum == 0 || endRowDeveloperNum == null) {
+					developerList.deleteRow(endRowIndex);
+				}
+				else {		
+					console.log("endRowDeveloperNum : " + endRowDeveloperNum);
+					deleteDeveloperList.addRowData(
+						{
+							"delete_employees_number" : endRowDeveloperNum,
+							"delete_start_date" : developerList.getValue(endRowIndex, "start_date"),
+							"delete_end_date" : developerList.getValue(endRowIndex, "end_date")
+						}
+					);
+					var result = developerList.deleteRow(endRowIndex);
+					console.log(result);
+				}
+				
+				gridDeveloper.deleteRow(endRowIndex);
 				// 제일 마지막 행 삭제
+				
+				console.log(developerList.getColumnData("employees_number"));
 			}
 			
 			
@@ -367,6 +393,16 @@
 				]
 			});
 			app.register(dataSet_3);
+			
+			var dataSet_4 = new cpr.data.DataSet("deleteDeveloperList");
+			dataSet_4.parseData({
+				"columns" : [
+					{"name": "delete_employees_number"},
+					{"name": "delete_start_date"},
+					{"name": "delete_end_date"}
+				]
+			});
+			app.register(dataSet_4);
 			var dataMap_1 = new cpr.data.DataMap("product");
 			dataMap_1.parseData({
 				"columns" : [
@@ -432,6 +468,7 @@
 			submission_2.addRequestData(dataMap_1);
 			submission_2.addRequestData(dataMap_2);
 			submission_2.addRequestData(dataSet_2);
+			submission_2.addRequestData(dataSet_4);
 			submission_2.addResponseData(dataMap_3, false);
 			if(typeof onModifySWSubmitDone == "function") {
 				submission_2.addEventListener("submit-done", onModifySWSubmitDone);

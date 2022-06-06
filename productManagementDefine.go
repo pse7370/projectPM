@@ -88,6 +88,7 @@ type Product_output struct {
 	Output_type    string `json:"output_type"`
 	Output_title   string `json:"output_title"`
 	Output_content string `json:"output_content"`
+	Write_date     string `json:"write_date"`
 }
 
 // 산출물 첨부파일 테이블 구조체
@@ -157,4 +158,21 @@ type SwContent struct {
 	Product       Product             `json:"product"`
 	Product_sw    ProductSW           `json:"product_sw"`
 	DeveloperList []Product_developer `json:"developerList"`
+}
+
+type DeleteAuthentication struct {
+	Delete_auth_type []string `json:"delete_auth_type"`
+}
+
+type DeleteDeveloper struct {
+	Delete_employees_number []string `json:"delete_employees_number"`
+	Delete_start_date       []string `json:"delete_start_date"`
+	Delete_end_date         []string `json:"delete_end_date"`
+}
+
+//====================커스터마이징==============================
+
+type CustomizingList struct {
+	Product                 Product               `json:"product"`
+	Product_customizingList []Product_customizing `json:"product_customizingList"`
 }

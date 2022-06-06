@@ -25,8 +25,33 @@
 			 * 앱이 최초 구성된후 최초 랜더링 직후에 발생하는 이벤트 입니다.
 			 */
 			function onBodyLoad(/* cpr.events.CEvent */ e){
+				var product_id = app.getRootAppInstance().getAppProperty("product_id"); // 부모화면 데이터 셋
+				console.log("product_id : " + product_id);
+				
+				var dataProduct_id = app.lookup("product_id");
+				dataProduct_id.setValue("product_id", Number(product_id));
+				console.log(dataProduct_id.getValue("product_id"));
+				
+				app.lookup("getCustomizingList").send();
+				console.log("getCustomizingList 서브미션 실행");
 				
 			}
+			
+			/*
+			 * getCustomizingList 서브미션에서 submit-done 이벤트 발생 시 호출.
+			 * 응답처리가 모두 종료되면 발생합니다.
+			 */
+			function onGetCustomizingListSubmitDone(/* cpr.events.CSubmissionEvent */ e){
+				/** 
+				 * @type cpr.protocols.Submission
+				 */
+				var getCustomizingList = e.control;
+				
+				app.lookup("productName").redraw();
+				app.lookup("grid_customizing").redraw();
+				
+			}
+			
 			
 			
 			/*
@@ -72,11 +97,7 @@
 					},
 					{"name": "end_date"}
 				],
-				"rows": [
-					{"customizing_version": "1.0.0.0", "customized_function": "기능1sdfsdfsadfasdfasdf111111", "department": "sw1", "employees_number": "1", "employees_name": "dd", "start_dates": "2019-10-28", "end_date": "2020-01-22"},
-					{"customizing_version": "1.0.1.0", "customized_function": "기능2", "department": "sw2", "employees_number": "2", "employees_name": "ff", "start_dates": "2020-05-30", "end_date": "2020-09-11"},
-					{"customizing_version": "1.0.1.0", "customized_function": "기능3", "department": "sw2", "employees_number": "3", "employees_name": "rr", "start_dates": "2020-05-22", "end_date": "2020-07-16"}
-				]
+				"rows": []
 			});
 			app.register(dataSet_1);
 			var dataMap_1 = new cpr.data.DataMap("product");
@@ -90,6 +111,24 @@
 				]
 			});
 			app.register(dataMap_1);
+			
+			var dataMap_2 = new cpr.data.DataMap("product_id");
+			dataMap_2.parseData({
+				"columns" : [{
+					"name": "product_id",
+					"dataType": "number"
+				}]
+			});
+			app.register(dataMap_2);
+			var submission_1 = new cpr.protocols.Submission("getCustomizingList");
+			submission_1.action = "/productMangement/getCustomizingList";
+			submission_1.addRequestData(dataMap_2);
+			submission_1.addResponseData(dataMap_1, false);
+			submission_1.addResponseData(dataSet_1, false);
+			if(typeof onGetCustomizingListSubmitDone == "function") {
+				submission_1.addEventListener("submit-done", onGetCustomizingListSubmitDone);
+			}
+			app.register(submission_1);
 			
 			app.supportMedia("all and (min-width: 1024px)", "default");
 			app.supportMedia("all and (min-width: 770px) and (max-width: 1023px)", "new-screen");
@@ -194,11 +233,12 @@
 				var verticalLayout_1 = new cpr.controls.layouts.VerticalLayout();
 				group_3.setLayout(verticalLayout_1);
 				(function(container){
-					var grid_1 = new cpr.controls.Grid("grid_developer");
+					var grid_1 = new cpr.controls.Grid("grid_customizing");
 					grid_1.readOnly = true;
 					grid_1.init({
 						"dataSet": app.lookup("product_customizing"),
 						"autoRowHeight": "1, 2, 3, 4, 5, 6",
+						"collapsible": true,
 						"columns": [
 							{"width": "25px"},
 							{"width": "31px"},
@@ -382,7 +422,9 @@
 									"configurator": function(cell){
 										cell.expr = "\"[버전]     \" + customizing_version";
 										cell.style.css({
-											"font-weight" : "bold"
+											"font-weight" : "bold",
+											"padding-left" : "15px",
+											"text-align" : "left"
 										});
 									}
 								}]
@@ -392,14 +434,14 @@
 					container.addChild(grid_1, {
 						"autoSize": "both",
 						"width": "739px",
-						"height": "488px"
+						"height": "475px"
 					});
 				})(group_3);
 				container.addChild(group_3, {
 					"top": "141px",
 					"left": "20px",
-					"width": "741px",
-					"height": "493px"
+					"width": "735px",
+					"height": "481px"
 				});
 				var button_1 = new cpr.controls.Button();
 				button_1.value = "추가/수정";
@@ -416,7 +458,7 @@
 					button_1.addEventListener("click", onButtonClick);
 				}
 				container.addChild(button_1, {
-					"top": "655px",
+					"top": "640px",
 					"left": "526px",
 					"width": "111px",
 					"height": "25px"
@@ -433,7 +475,7 @@
 					"border-top-style" : "none"
 				});
 				container.addChild(button_2, {
-					"top": "655px",
+					"top": "640px",
 					"left": "651px",
 					"width": "80px",
 					"height": "25px"
@@ -442,8 +484,8 @@
 			container.addChild(group_1, {
 				"top": "0px",
 				"left": "0px",
-				"width": "770px",
-				"height": "700px"
+				"width": "760px",
+				"height": "680px"
 			});
 			if(typeof onBodyLoad == "function"){
 				app.addEventListener("load", onBodyLoad);

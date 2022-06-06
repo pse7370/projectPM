@@ -1034,7 +1034,7 @@ func deleteDevice(writer http.ResponseWriter, request *http.Request) {
 	fmt.Println(deleteProductQuery)
 	_, err = db.Exec(deleteProductQuery, product_id)
 	if err != nil {
-		fmt.Printf("-------------product_id가 %d인 제품 삭제 실패--------------", product_id)
+		fmt.Printf("-------------product_id가 %d인 제품 product 테이블 삭제 실패--------------", product_id)
 		log.Fatal(err)
 	}
 
@@ -1042,7 +1042,7 @@ func deleteDevice(writer http.ResponseWriter, request *http.Request) {
 	fmt.Println(deleteDeviceQuery)
 	_, err = db.Exec(deleteDeviceQuery, product_id)
 	if err != nil {
-		fmt.Printf("-------------product_id가 %d인 제품 삭제 실패--------------", product_id)
+		fmt.Printf("-------------product_id가 %d인 제품 product_device 테이블 삭제 실패--------------", product_id)
 		log.Fatal(err)
 	}
 
@@ -1050,7 +1050,7 @@ func deleteDevice(writer http.ResponseWriter, request *http.Request) {
 	fmt.Println(deleteAuthenticationQuery)
 	_, err = db.Exec(deleteAuthenticationQuery, product_id)
 	if err != nil {
-		fmt.Printf("-------------product_id가 %d인 제품 삭제 실패--------------", product_id)
+		fmt.Printf("-------------product_id가 %d인 제품 authentication_details 테이블 삭제 실패--------------", product_id)
 		log.Fatal(err)
 	}
 
@@ -1058,7 +1058,7 @@ func deleteDevice(writer http.ResponseWriter, request *http.Request) {
 	fmt.Println(deleteDeveloperQuery)
 	_, err = db.Exec(deleteDeveloperQuery, product_id)
 	if err != nil {
-		fmt.Printf("-------------product_id가 %d인 제품 삭제 실패--------------", product_id)
+		fmt.Printf("-------------product_id가 %d인 제품 product_developer 테이블 삭제 실패--------------", product_id)
 		log.Fatal(err)
 	}
 
@@ -1066,7 +1066,7 @@ func deleteDevice(writer http.ResponseWriter, request *http.Request) {
 	fmt.Println(deleteCustomizingQuery)
 	_, err = db.Exec(deleteCustomizingQuery, product_id)
 	if err != nil {
-		fmt.Printf("-------------product_id가 %d인 제품 삭제 실패--------------", product_id)
+		fmt.Printf("-------------product_id가 %d인 제품 product_customizing 테이블 삭제 실패--------------", product_id)
 		log.Fatal(err)
 	}
 
@@ -1094,7 +1094,7 @@ func deleteDevice(writer http.ResponseWriter, request *http.Request) {
 	fmt.Println(deleteOutputQuery)
 	_, err = db.Exec(deleteOutputQuery, product_id)
 	if err != nil {
-		fmt.Printf("-------------product_id가 %d인 제품 삭제 실패--------------", product_id)
+		fmt.Printf("-------------product_id가 %d인 제품 product_output 테이블 삭제 실패--------------", product_id)
 		log.Fatal(err)
 	}
 
@@ -1103,7 +1103,7 @@ func deleteDevice(writer http.ResponseWriter, request *http.Request) {
 		fmt.Println(deleteAttachmentQuery)
 		_, err = db.Exec(deleteAttachmentQuery, outPutIdList[i])
 		if err != nil {
-			fmt.Printf("-------------product_id가 %d인 제품 삭제 실패--------------", product_id)
+			fmt.Printf("-------------product_id가 %d인 제품 output_attachment 테이블 삭제 실패--------------", product_id)
 			log.Fatal(err)
 		}
 	}
@@ -1305,6 +1305,8 @@ func modifyDevice(writer http.ResponseWriter, request *http.Request) {
 	var product_device ProductDevice
 	var product_developerList Product_developerList
 	var authentication_detailsList Authentication_detailsList
+	var deleteAuthentication DeleteAuthentication
+	var deleteDeveloper DeleteDeveloper
 
 	for key, value := range formData {
 		//fmt.Println(key, "/", value)
@@ -1382,6 +1384,18 @@ func modifyDevice(writer http.ResponseWriter, request *http.Request) {
 			case "end_date":
 				product_developerList.End_dateList = value
 
+			case "delete_auth_type":
+				deleteAuthentication.Delete_auth_type = value
+
+			case "delete_employees_number":
+				deleteDeveloper.Delete_employees_number = value
+
+			case "delete_start_date":
+				deleteDeveloper.Delete_start_date = value
+
+			case "delete_end_date":
+				deleteDeveloper.Delete_end_date = value
+
 			}
 
 		} // end if
@@ -1393,10 +1407,12 @@ func modifyDevice(writer http.ResponseWriter, request *http.Request) {
 		fmt.Println("product_device : ", product_device)
 		fmt.Println("authentication_detailsList : ", authentication_detailsList)
 		fmt.Println("product_developerList : ", product_developerList)
+		fmt.Println("deleteAuthentication : ", deleteAuthentication)
+		fmt.Println("deleteDeveloper : ", deleteDeveloper)
 	*/
 
 	sliceLength_auth := len(authentication_detailsList.Auth_type)
-	fmt.Println("sliceLength_auth : ", sliceLength_auth)
+	//fmt.Println("sliceLength_auth : ", sliceLength_auth)
 	var authentication_details = make([]Authentication_details, sliceLength_auth)
 	for i := 0; i < sliceLength_auth; i++ {
 		authentication_details[i].Auth_type = authentication_detailsList.Auth_type[i]
@@ -1417,8 +1433,17 @@ func modifyDevice(writer http.ResponseWriter, request *http.Request) {
 
 	fmt.Println("authentication_details : ", authentication_details)
 
+	sliceLength_delete_auth := len(deleteAuthentication.Delete_auth_type)
+	//fmt.Println("sliceLength_delete_auth : ", sliceLength_delete_auth)
+	var delete_authentication_details = make([]Authentication_details, sliceLength_delete_auth)
+	for i := 0; i < sliceLength_delete_auth; i++ {
+		delete_authentication_details[i].Auth_type = deleteAuthentication.Delete_auth_type[i]
+	}
+
+	fmt.Println("delete_authentication_details : ", delete_authentication_details)
+
 	sliceLength_developer := len(product_developerList.Employees_numberList)
-	fmt.Println("sliceLength_developer : ", sliceLength_developer)
+	//fmt.Println("sliceLength_developer : ", sliceLength_developer)
 	var product_developer = make([]Product_developer, sliceLength_developer)
 	for i := 0; i < sliceLength_developer; i++ {
 		product_developer[i].Department = product_developerList.DepartmentList[i]
@@ -1432,6 +1457,20 @@ func modifyDevice(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	fmt.Println("product_developer : ", product_developer)
+
+	sliceLength_delete_developer := len(deleteDeveloper.Delete_employees_number)
+	//fmt.Println("sliceLength_delete_developer : ", sliceLength_delete_developer)
+	var delete_product_developer = make([]Product_developer, sliceLength_delete_developer)
+	for i := 0; i < sliceLength_developer; i++ {
+
+		temp, _ := strconv.ParseInt(deleteDeveloper.Delete_employees_number[i], 10, 32)
+		delete_product_developer[i].Employees_number = int32(temp)
+
+		delete_product_developer[i].Start_date = deleteDeveloper.Delete_start_date[i]
+		delete_product_developer[i].End_date = deleteDeveloper.Delete_end_date[i]
+	}
+
+	fmt.Println("delete_product_developer : ", delete_product_developer)
 
 	transaction, err := db.Begin()
 	if err != nil {
@@ -1554,6 +1593,21 @@ func modifyDevice(writer http.ResponseWriter, request *http.Request) {
 		} // end switch
 	} // end for
 
+	if len(delete_authentication_details) > 0 {
+
+		for i := 0; i < len(delete_authentication_details); i++ {
+			var deleteAuthenticationQuery string = `DELETE FROM authentication_details WHERE product_id = ? AND auth_type = ?`
+
+			_, err = db.Exec(deleteAuthenticationQuery, product.Product_id, delete_authentication_details[i].Auth_type)
+			if err != nil {
+				fmt.Printf("-------------product_id가 %d이고 auth_type이 %s인 제품 authentication_details 삭제 실패--------------", product.Product_id, delete_authentication_details[i].Auth_type)
+				log.Fatal(err)
+			}
+
+		} // end for
+
+	} // end if
+
 	var existDeveloper int
 	var checkExistDeveloperQuery string = `SELECT COUNT(employees_number) 
 												FROM product_developer 
@@ -1590,41 +1644,49 @@ func modifyDevice(writer http.ResponseWriter, request *http.Request) {
 			}
 
 		case 1:
-			if product_developer[i].Employees_name == "" {
-				_, err := db.Exec(`DELETE FROM product_developer WHERE product_id = ? AND employees_number = ?`,
-					product.Product_id,
-					product_developer[i].Employees_number)
-
-				if err != nil {
-					fmt.Printf("===========product_developer 테이블 delete 실패 [%d]================\n", i)
-					log.Fatal(err)
-				}
-
-			} else {
-				_, err := db.Exec(`UPDATE product_developer
+			_, err := db.Exec(`UPDATE product_developer
 									SET department = ?,
 										employees_name = ?,
 										start_date = ?,
 										end_date = ?
 									WHERE product_id = ? 
 									AND employees_number = ?`,
-					product_developer[i].Department,
-					product_developer[i].Employees_name,
-					product_developer[i].Start_date,
-					product_developer[i].End_date,
-					product.Product_id,
-					product_developer[i].Employees_number)
+				product_developer[i].Department,
+				product_developer[i].Employees_name,
+				product_developer[i].Start_date,
+				product_developer[i].End_date,
+				product.Product_id,
+				product_developer[i].Employees_number)
 
-				if err != nil {
-					fmt.Printf("===========product_developer 테이블 update 실패 [%d]================\n", i)
-					log.Fatal(err)
-				}
-
+			if err != nil {
+				fmt.Printf("===========product_developer 테이블 update 실패 [%d]================\n", i)
+				log.Fatal(err)
 			}
 
 		} // end switch
 
 	} // end for
+
+	var deleteDeveloperQuery string = `DELETE FROM product_developer 
+											WHERE product_id = ? 
+											AND employees_number = ? 
+											AND start_date = ? 
+											AND end_date = ?`
+	if len(delete_product_developer) > 0 {
+
+		for i := 0; i < len(delete_product_developer); i++ {
+			_, err = db.Exec(deleteDeveloperQuery,
+				product.Product_id,
+				delete_product_developer[i].Employees_number,
+				delete_product_developer[i].Start_date,
+				delete_product_developer[i].End_date)
+			if err != nil {
+				fmt.Printf("-------------product_id가 %d인 제품 product_developer 테이블 삭제 실패--------------", product.Product_id)
+				log.Fatal(err)
+			}
+		}
+
+	}
 
 	var result Result
 	result.ResultCode = 1

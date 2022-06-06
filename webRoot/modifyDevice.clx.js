@@ -47,7 +47,7 @@
 				 */
 				var button = e.control;
 				var grid_developer = app.lookup("grid_developer");
-				var insertRow = grid_developer.insertRow(1, true);
+				var insertRow = grid_developer.insertRow(grid_developer.getViewingEndRowIndex(), true);
 				// + 버튼 클릭시 그리드 행 추가
 				
 			}
@@ -78,7 +78,13 @@
 				}
 				else {		
 					console.log("endRowDeveloperNum : " + endRowDeveloperNum);
-					deleteDeveloperList.addRowData({"delete_employees_number" : endRowDeveloperNum});
+					deleteDeveloperList.addRowData(
+						{
+							"delete_employees_number" : endRowDeveloperNum,
+							"delete_start_date" : developerList.getValue(endRowIndex, "start_date"),
+							"delete_end_date" : developerList.getValue(endRowIndex, "end_date")
+						}
+					);
 					var result = developerList.deleteRow(endRowIndex);
 					console.log(result);
 				}
@@ -298,7 +304,11 @@
 			
 			var dataSet_4 = new cpr.data.DataSet("deleteDeveloperList");
 			dataSet_4.parseData({
-				"columns" : [{"name": "delete_employees_number"}]
+				"columns" : [
+					{"name": "delete_employees_number"},
+					{"name": "delete_start_date"},
+					{"name": "delete_end_date"}
+				]
 			});
 			app.register(dataSet_4);
 			var dataMap_1 = new cpr.data.DataMap("product_device");

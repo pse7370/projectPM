@@ -16,7 +16,85 @@
 			 * Created at 2022. 6. 6. 오전 2:50:20.
 			 *
 			 * @author PSE
-			 ************************************************/;
+			 ************************************************/
+			
+			
+			/*
+			 * 루트 컨테이너에서 load 이벤트 발생 시 호출.
+			 * 앱이 최초 구성된후 최초 랜더링 직후에 발생하는 이벤트 입니다.
+			 */
+			function onBodyLoad(/* cpr.events.CEvent */ e){
+				
+				
+				
+			}
+			
+			
+			/*
+			 * "+" 버튼에서 click 이벤트 발생 시 호출.
+			 * 사용자가 컨트롤을 클릭할 때 발생하는 이벤트.
+			 */
+			function onButtonClick(/* cpr.events.CMouseEvent */ e){
+				/** 
+				 * @type cpr.controls.Button
+				 */
+				var button = e.control;
+				var grid_developer = app.lookup("grid_developer");
+				var insertRow = grid_developer.insertRow(grid_developer.getRowCount(), true);
+				// + 버튼 클릭시 그리드 행 추가
+				
+			}
+			
+			
+			/*
+			 * "-" 버튼에서 click 이벤트 발생 시 호출.
+			 * 사용자가 컨트롤을 클릭할 때 발생하는 이벤트.
+			 */
+			function onButtonClick2(/* cpr.events.CMouseEvent */ e){
+				/** 
+				 * @type cpr.controls.Button
+				 */
+				var button = e.control;
+				
+				var gridDeveloper = app.lookup("grid_developer");
+				gridDeveloper.showDeletedRow = false;
+				
+				gridDeveloper.deleteRow(gridDeveloper.getViewingEndRowIndex());
+				// 제일 마지막 행 삭제
+				
+			}
+			
+			
+			/*
+			 * "수정" 버튼에서 click 이벤트 발생 시 호출.
+			 * 사용자가 컨트롤을 클릭할 때 발생하는 이벤트.
+			 */
+			function onButtonClick3(/* cpr.events.CMouseEvent */ e){
+				/** 
+				 * @type cpr.controls.Button
+				 */
+				var button = e.control;
+				
+			}
+			
+			
+			/*
+			 * "Button" 버튼에서 click 이벤트 발생 시 호출.
+			 * 사용자가 컨트롤을 클릭할 때 발생하는 이벤트.
+			 */
+			function onButtonClick4(/* cpr.events.CMouseEvent */ e){
+				/** 
+				 * @type cpr.controls.Button
+				 */
+				var button = e.control;
+				
+				var button = e.control;
+				var grid_developer = app.lookup("grid_developer");
+			
+				var insertRow = grid_developer.insertRow(grid_developer.getRowCount(), true);
+				// + 버튼 클릭시 그리드 행 추가
+				
+			};
 			// End - User Script
 			
 			// Header
@@ -40,8 +118,8 @@
 				],
 				"rows": [
 					{"customizing_version": "1.0.0.0", "customized_function": "기능1sdfsdfsadfasdfasdf111111", "department": "sw1", "employees_number": "1", "employees_name": "dd", "start_dates": "2019-10-28", "end_date": "2020-01-22"},
-					{"customizing_version": "1.0.1.0", "customized_function": "기능2", "department": "sw2", "employees_number": "2", "employees_name": "ff", "start_dates": "2020-05-30", "end_date": "2020-09-11"},
-					{"customizing_version": "1.0.1.0", "customized_function": "기능3", "department": "sw2", "employees_number": "3", "employees_name": "rr", "start_dates": "2020-05-22", "end_date": "2020-07-16"}
+					{"customizing_version": "1.0.1.0", "customized_function": "기능3", "department": "sw2", "employees_number": "3", "employees_name": "rr", "start_dates": "2020-05-22", "end_date": "2020-07-16"},
+					{"customizing_version": "1.0.1.0", "customized_function": "기능2", "department": "sw2", "employees_number": "2", "employees_name": "ff", "start_dates": "2020-05-30", "end_date": "2020-09-11"}
 				]
 			});
 			app.register(dataSet_1);
@@ -157,8 +235,16 @@
 				});
 				var group_3 = new cpr.controls.Container();
 				// Layout
-				var verticalLayout_1 = new cpr.controls.layouts.VerticalLayout();
-				group_3.setLayout(verticalLayout_1);
+				var formLayout_2 = new cpr.controls.layouts.FormLayout();
+				formLayout_2.topMargin = "0px";
+				formLayout_2.rightMargin = "0px";
+				formLayout_2.bottomMargin = "0px";
+				formLayout_2.leftMargin = "0px";
+				formLayout_2.horizontalSpacing = "0px";
+				formLayout_2.verticalSpacing = "10px";
+				formLayout_2.setColumns(["1fr", "34px", "34px"]);
+				formLayout_2.setRows(["25px", "1fr"]);
+				group_3.setLayout(formLayout_2);
 				(function(container){
 					var grid_1 = new cpr.controls.Grid("grid_developer");
 					grid_1.init({
@@ -372,27 +458,113 @@
 									}
 								}
 							]
-						}
+						},
+						"rowGroup": [{
+							"groupCondition": "customizing_version",
+							"gheader": {
+								"rows": [{"height": "24px"}],
+								"cells": [
+									{
+										"constraint": {"rowIndex": 0, "colIndex": 0, "rowSpan": 1, "colSpan": 7},
+										"configurator": function(cell){
+											cell.expr = "\"[버전]    \" + customizing_version";
+										}
+									},
+									{
+										"constraint": {"rowIndex": 0, "colIndex": 7},
+										"configurator": function(cell){
+											cell.expr = "";
+											cell.control = (function(){
+												var button_1 = new cpr.controls.Button();
+												button_1.value = "+";
+												if(typeof onButtonClick4 == "function") {
+													button_1.addEventListener("click", onButtonClick4);
+												}
+												return button_1;
+											})();
+										}
+									}
+								]
+							}
+						}]
 					});
 					container.addChild(grid_1, {
-						"autoSize": "both",
-						"width": "706px",
-						"height": "487px"
+						"colIndex": 0,
+						"rowIndex": 1,
+						"colSpan": 3,
+						"rowSpan": 1
+					});
+					var button_2 = new cpr.controls.Button();
+					button_2.value = "+";
+					button_2.style.css({
+						"background-color" : "#eaf0ea",
+						"border-bottom-color" : "#c2c2c2",
+						"border-left-color" : "#c2c2c2",
+						"border-top-color" : "#c2c2c2",
+						"border-right-color" : "#c2c2c2",
+						"background-image" : "none"
+					});
+					if(typeof onButtonClick == "function") {
+						button_2.addEventListener("click", onButtonClick);
+					}
+					container.addChild(button_2, {
+						"colIndex": 1,
+						"rowIndex": 0
+					});
+					var button_3 = new cpr.controls.Button();
+					button_3.value = "-";
+					button_3.style.css({
+						"background-color" : "#eaf0ea",
+						"border-bottom-color" : "#c2c2c2",
+						"border-left-color" : "#c2c2c2",
+						"border-top-color" : "#c2c2c2",
+						"border-right-color" : "#c2c2c2",
+						"background-image" : "none"
+					});
+					if(typeof onButtonClick2 == "function") {
+						button_3.addEventListener("click", onButtonClick2);
+					}
+					container.addChild(button_3, {
+						"colIndex": 2,
+						"rowIndex": 0
 					});
 				})(group_3);
 				container.addChild(group_3, {
 					"top": "141px",
 					"left": "20px",
-					"width": "742px",
+					"width": "735px",
 					"height": "493px"
+				});
+				var button_4 = new cpr.controls.Button();
+				button_4.value = "수정";
+				button_4.style.css({
+					"background-color" : "#DAF2DA",
+					"border-right-style" : "none",
+					"border-radius" : "10px",
+					"border-left-style" : "none",
+					"border-bottom-style" : "none",
+					"background-image" : "none",
+					"border-top-style" : "none"
+				});
+				if(typeof onButtonClick3 == "function") {
+					button_4.addEventListener("click", onButtonClick3);
+				}
+				container.addChild(button_4, {
+					"top": "655px",
+					"left": "675px",
+					"width": "80px",
+					"height": "25px"
 				});
 			})(group_1);
 			container.addChild(group_1, {
 				"top": "0px",
 				"left": "0px",
-				"width": "770px",
+				"width": "765px",
 				"height": "700px"
 			});
+			if(typeof onBodyLoad == "function"){
+				app.addEventListener("load", onBodyLoad);
+			}
 		}
 	});
 	app.title = "modifyCustomizing";
