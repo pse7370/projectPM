@@ -26,7 +26,7 @@ func getCustomizingList(writer http.ResponseWriter, request *http.Request) {
 
 	var product_name string
 	var getProductNameQuery string = `SELECT product_name FROM product WHERE product_id = ?`
-	err := db.QueryRow(getProductNameQuery).Scan(&product_name)
+	err := db.QueryRow(getProductNameQuery, product_id).Scan(&product_name)
 	if err != nil {
 		log.Println("product_name 값 가져오기 오류", err)
 	}
@@ -50,7 +50,7 @@ func getCustomizingList(writer http.ResponseWriter, request *http.Request) {
 		log.Println(err)
 	}
 
-	fmt.Println(getCustomizingListQuery)
+	//fmt.Println(getCustomizingListQuery)
 	defer rows.Close()
 
 	var customizing_id int32
@@ -85,13 +85,14 @@ func getCustomizingList(writer http.ResponseWriter, request *http.Request) {
 
 	}
 
-	var customizinglist CustomizingList = CustomizingList{
+	var product_customizingList CustomizingList = CustomizingList{
 		Product:                 product,
 		Product_customizingList: customizingList,
 	}
+	fmt.Println(product_customizingList)
 
 	renderObj := render.New()
 
-	renderObj.JSON(writer, http.StatusOK, customizinglist)
+	renderObj.JSON(writer, http.StatusOK, product_customizingList)
 
 }

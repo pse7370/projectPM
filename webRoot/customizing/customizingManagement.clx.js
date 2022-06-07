@@ -48,6 +48,7 @@
 				var getCustomizingList = e.control;
 				
 				app.lookup("productName").redraw();
+				
 				app.lookup("grid_customizing").redraw();
 				
 			}
@@ -79,7 +80,7 @@
 			// End - User Script
 			
 			// Header
-			var dataSet_1 = new cpr.data.DataSet("product_customizing");
+			var dataSet_1 = new cpr.data.DataSet("product_customizingList");
 			dataSet_1.parseData({
 				"columns": [
 					{"name": "customizing_id"},
@@ -92,7 +93,7 @@
 					},
 					{"name": "employees_name"},
 					{
-						"name": "start_dates",
+						"name": "start_date",
 						"dataType": "string"
 					},
 					{"name": "end_date"}
@@ -102,13 +103,7 @@
 			app.register(dataSet_1);
 			var dataMap_1 = new cpr.data.DataMap("product");
 			dataMap_1.parseData({
-				"columns" : [
-					{
-						"name": "product_id",
-						"dataType": "number"
-					},
-					{"name": "product_name"}
-				]
+				"columns" : [{"name": "product_name"}]
 			});
 			app.register(dataMap_1);
 			
@@ -131,7 +126,8 @@
 			app.register(submission_1);
 			
 			app.supportMedia("all and (min-width: 1024px)", "default");
-			app.supportMedia("all and (min-width: 770px) and (max-width: 1023px)", "new-screen");
+			app.supportMedia("all and (min-width: 840px) and (max-width: 1023px)", "new-screen2");
+			app.supportMedia("all and (min-width: 770px) and (max-width: 839px)", "new-screen");
 			app.supportMedia("all and (min-width: 740px) and (max-width: 769px)", "dialog");
 			app.supportMedia("all and (min-width: 500px) and (max-width: 739px)", "tablet");
 			app.supportMedia("all and (max-width: 499px)", "mobile");
@@ -164,7 +160,7 @@
 					"text-align" : "left"
 				});
 				container.addChild(output_1, {
-					"top": "30px",
+					"top": "15px",
 					"left": "20px",
 					"width": "201px",
 					"height": "41px"
@@ -223,7 +219,7 @@
 					});
 				})(group_2);
 				container.addChild(group_2, {
-					"top": "93px",
+					"top": "65px",
 					"left": "20px",
 					"width": "284px",
 					"height": "38px"
@@ -236,16 +232,16 @@
 					var grid_1 = new cpr.controls.Grid("grid_customizing");
 					grid_1.readOnly = true;
 					grid_1.init({
-						"dataSet": app.lookup("product_customizing"),
+						"dataSet": app.lookup("product_customizingList"),
 						"autoRowHeight": "1, 2, 3, 4, 5, 6",
 						"collapsible": true,
 						"columns": [
 							{"width": "25px"},
 							{"width": "31px"},
-							{"width": "100px"},
-							{"width": "100px"},
-							{"width": "100px"},
-							{"width": "100px"},
+							{"width": "153px"},
+							{"width": "108px"},
+							{"width": "93px"},
+							{"width": "104px"},
 							{"width": "100px"},
 							{"width": "100px"}
 						],
@@ -328,7 +324,7 @@
 								{
 									"constraint": {"rowIndex": 1, "colIndex": 6},
 									"configurator": function(cell){
-										cell.targetColumnName = "start_dates";
+										cell.targetColumnName = "start_date";
 										cell.filterable = false;
 										cell.sortable = true;
 										cell.text = "시작일";
@@ -379,6 +375,18 @@
 									"constraint": {"rowIndex": 0, "colIndex": 2},
 									"configurator": function(cell){
 										cell.columnName = "customized_function";
+										cell.control = (function(){
+											var textArea_1 = new cpr.controls.TextArea("txa1");
+											textArea_1.readOnly = true;
+											textArea_1.style.css({
+												"padding-top" : "3px",
+												"padding-left" : "3px",
+												"padding-bottom" : "3px",
+												"padding-right" : "3px"
+											});
+											textArea_1.bind("value").toDataColumn("customized_function");
+											return textArea_1;
+										})();
 									}
 								},
 								{
@@ -402,13 +410,33 @@
 								{
 									"constraint": {"rowIndex": 0, "colIndex": 6},
 									"configurator": function(cell){
-										cell.columnName = "start_dates";
+										cell.columnName = "start_date";
+										cell.control = (function(){
+											var maskEditor_1 = new cpr.controls.MaskEditor("mse1");
+											maskEditor_1.readOnly = true;
+											maskEditor_1.mask = "0000-00-00";
+											maskEditor_1.style.css({
+												"text-align" : "center"
+											});
+											maskEditor_1.bind("value").toDataColumn("start_date");
+											return maskEditor_1;
+										})();
 									}
 								},
 								{
 									"constraint": {"rowIndex": 0, "colIndex": 7},
 									"configurator": function(cell){
 										cell.columnName = "end_date";
+										cell.control = (function(){
+											var maskEditor_2 = new cpr.controls.MaskEditor("mse2");
+											maskEditor_2.readOnly = true;
+											maskEditor_2.mask = "0000-00-00";
+											maskEditor_2.style.css({
+												"text-align" : "center"
+											});
+											maskEditor_2.bind("value").toDataColumn("end_date");
+											return maskEditor_2;
+										})();
 									}
 								}
 							]
@@ -438,9 +466,9 @@
 					});
 				})(group_3);
 				container.addChild(group_3, {
-					"top": "141px",
+					"top": "115px",
 					"left": "20px",
-					"width": "735px",
+					"width": "795px",
 					"height": "481px"
 				});
 				var button_1 = new cpr.controls.Button();
@@ -458,8 +486,8 @@
 					button_1.addEventListener("click", onButtonClick);
 				}
 				container.addChild(button_1, {
-					"top": "640px",
-					"left": "526px",
+					"top": "606px",
+					"left": "603px",
 					"width": "111px",
 					"height": "25px"
 				});
@@ -475,8 +503,8 @@
 					"border-top-style" : "none"
 				});
 				container.addChild(button_2, {
-					"top": "640px",
-					"left": "651px",
+					"top": "606px",
+					"left": "728px",
 					"width": "80px",
 					"height": "25px"
 				});
@@ -484,8 +512,8 @@
 			container.addChild(group_1, {
 				"top": "0px",
 				"left": "0px",
-				"width": "760px",
-				"height": "680px"
+				"width": "828px",
+				"height": "649px"
 			});
 			if(typeof onBodyLoad == "function"){
 				app.addEventListener("load", onBodyLoad);

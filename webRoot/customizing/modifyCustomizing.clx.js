@@ -116,11 +116,7 @@
 					},
 					{"name": "end_date"}
 				],
-				"rows": [
-					{"customizing_version": "1.0.0.0", "customized_function": "기능1sdfsdfsadfasdfasdf111111", "department": "sw1", "employees_number": "1", "employees_name": "dd", "start_dates": "2019-10-28", "end_date": "2020-01-22"},
-					{"customizing_version": "1.0.1.0", "customized_function": "기능3", "department": "sw2", "employees_number": "3", "employees_name": "rr", "start_dates": "2020-05-22", "end_date": "2020-07-16"},
-					{"customizing_version": "1.0.1.0", "customized_function": "기능2", "department": "sw2", "employees_number": "2", "employees_name": "ff", "start_dates": "2020-05-30", "end_date": "2020-09-11"}
-				]
+				"rows": []
 			});
 			app.register(dataSet_1);
 			var dataMap_1 = new cpr.data.DataMap("product");
@@ -136,9 +132,9 @@
 			app.register(dataMap_1);
 			
 			app.supportMedia("all and (min-width: 1024px)", "default");
-			app.supportMedia("all and (min-width: 770px) and (max-width: 1023px)", "new-screen2");
-			app.supportMedia("all and (min-width: 740px) and (max-width: 769px)", "new-screen");
-			app.supportMedia("all and (min-width: 500px) and (max-width: 739px)", "tablet");
+			app.supportMedia("all and (min-width: 840px) and (max-width: 1023px)", "new-screen");
+			app.supportMedia("all and (min-width: 770px) and (max-width: 839px)", "new-screen2");
+			app.supportMedia("all and (min-width: 500px) and (max-width: 769px)", "tablet");
 			app.supportMedia("all and (max-width: 499px)", "mobile");
 			
 			// Configure root container
@@ -169,7 +165,7 @@
 					"text-align" : "left"
 				});
 				container.addChild(output_1, {
-					"top": "30px",
+					"top": "15px",
 					"left": "20px",
 					"width": "201px",
 					"height": "41px"
@@ -228,36 +224,84 @@
 					});
 				})(group_2);
 				container.addChild(group_2, {
-					"top": "93px",
+					"top": "65px",
 					"left": "20px",
 					"width": "284px",
 					"height": "38px"
 				});
+				var button_1 = new cpr.controls.Button();
+				button_1.value = "수정";
+				button_1.style.css({
+					"background-color" : "#DAF2DA",
+					"border-right-style" : "none",
+					"border-radius" : "10px",
+					"border-left-style" : "none",
+					"border-bottom-style" : "none",
+					"background-image" : "none",
+					"border-top-style" : "none"
+				});
+				container.addChild(button_1, {
+					"top": "611px",
+					"left": "735px",
+					"width": "80px",
+					"height": "25px"
+				});
+				var button_2 = new cpr.controls.Button();
+				button_2.value = "+";
+				button_2.style.css({
+					"background-color" : "#eaf0ea",
+					"border-bottom-color" : "#c2c2c2",
+					"border-left-color" : "#c2c2c2",
+					"border-top-color" : "#c2c2c2",
+					"border-right-color" : "#c2c2c2",
+					"background-image" : "none"
+				});
+				if(typeof onButtonClick == "function") {
+					button_2.addEventListener("click", onButtonClick);
+				}
+				container.addChild(button_2, {
+					"top": "102px",
+					"left": "740px",
+					"width": "34px",
+					"height": "25px"
+				});
+				var button_3 = new cpr.controls.Button();
+				button_3.value = "-";
+				button_3.style.css({
+					"background-color" : "#eaf0ea",
+					"border-bottom-color" : "#c2c2c2",
+					"border-left-color" : "#c2c2c2",
+					"border-top-color" : "#c2c2c2",
+					"border-right-color" : "#c2c2c2",
+					"background-image" : "none"
+				});
+				if(typeof onButtonClick2 == "function") {
+					button_3.addEventListener("click", onButtonClick2);
+				}
+				container.addChild(button_3, {
+					"top": "102px",
+					"left": "774px",
+					"width": "34px",
+					"height": "25px"
+				});
 				var group_3 = new cpr.controls.Container();
 				// Layout
-				var formLayout_2 = new cpr.controls.layouts.FormLayout();
-				formLayout_2.topMargin = "0px";
-				formLayout_2.rightMargin = "0px";
-				formLayout_2.bottomMargin = "0px";
-				formLayout_2.leftMargin = "0px";
-				formLayout_2.horizontalSpacing = "0px";
-				formLayout_2.verticalSpacing = "10px";
-				formLayout_2.setColumns(["1fr", "34px", "34px"]);
-				formLayout_2.setRows(["25px", "1fr"]);
-				group_3.setLayout(formLayout_2);
+				var verticalLayout_1 = new cpr.controls.layouts.VerticalLayout();
+				group_3.setLayout(verticalLayout_1);
 				(function(container){
 					var grid_1 = new cpr.controls.Grid("grid_developer");
 					grid_1.init({
 						"dataSet": app.lookup("product_customizing"),
+						"collapsible": true,
 						"columns": [
 							{"width": "25px"},
-							{"width": "100px"},
-							{"width": "100px"},
-							{"width": "100px"},
-							{"width": "100px"},
-							{"width": "100px"},
-							{"width": "100px"},
-							{"width": "100px"}
+							{"width": "91px"},
+							{"width": "162px"},
+							{"width": "115px"},
+							{"width": "84px"},
+							{"width": "103px"},
+							{"width": "88px"},
+							{"width": "88px"}
 						],
 						"header": {
 							"rows": [
@@ -286,6 +330,13 @@
 										cell.style.css({
 											"background-color" : "#eaf0ea"
 										});
+										cell.control = (function(){
+											var output_4 = new cpr.controls.Output();
+											output_4.style.css({
+												"text-align" : "center"
+											});
+											return output_4;
+										})();
 									}
 								},
 								{
@@ -372,7 +423,7 @@
 							]
 						},
 						"detail": {
-							"rows": [{"height": "27px"}],
+							"rows": [{"height": "60px"}],
 							"cells": [
 								{
 									"constraint": {"rowIndex": 0, "colIndex": 0},
@@ -396,9 +447,9 @@
 									"configurator": function(cell){
 										cell.columnName = "customized_function";
 										cell.control = (function(){
-											var inputBox_2 = new cpr.controls.InputBox("ipb3");
-											inputBox_2.bind("value").toDataColumn("customized_function");
-											return inputBox_2;
+											var textArea_1 = new cpr.controls.TextArea("txa1");
+											textArea_1.bind("value").toDataColumn("customized_function");
+											return textArea_1;
 										})();
 									}
 								},
@@ -407,9 +458,9 @@
 									"configurator": function(cell){
 										cell.columnName = "department";
 										cell.control = (function(){
-											var inputBox_3 = new cpr.controls.InputBox("ipb4");
-											inputBox_3.bind("value").toDataColumn("department");
-											return inputBox_3;
+											var inputBox_2 = new cpr.controls.InputBox("ipb4");
+											inputBox_2.bind("value").toDataColumn("department");
+											return inputBox_2;
 										})();
 									}
 								},
@@ -429,9 +480,9 @@
 									"configurator": function(cell){
 										cell.columnName = "employees_name";
 										cell.control = (function(){
-											var inputBox_4 = new cpr.controls.InputBox("ipb5");
-											inputBox_4.bind("value").toDataColumn("employees_name");
-											return inputBox_4;
+											var inputBox_3 = new cpr.controls.InputBox("ipb5");
+											inputBox_3.bind("value").toDataColumn("employees_name");
+											return inputBox_3;
 										})();
 									}
 								},
@@ -462,105 +513,34 @@
 						"rowGroup": [{
 							"groupCondition": "customizing_version",
 							"gheader": {
-								"rows": [{"height": "24px"}],
-								"cells": [
-									{
-										"constraint": {"rowIndex": 0, "colIndex": 0, "rowSpan": 1, "colSpan": 7},
-										"configurator": function(cell){
-											cell.expr = "\"[버전]    \" + customizing_version";
-										}
-									},
-									{
-										"constraint": {"rowIndex": 0, "colIndex": 7},
-										"configurator": function(cell){
-											cell.expr = "";
-											cell.control = (function(){
-												var button_1 = new cpr.controls.Button();
-												button_1.value = "+";
-												if(typeof onButtonClick4 == "function") {
-													button_1.addEventListener("click", onButtonClick4);
-												}
-												return button_1;
-											})();
-										}
+								"rows": [{"height": "30px"}],
+								"cells": [{
+									"constraint": {"rowIndex": 0, "colIndex": 0, "rowSpan": 1, "colSpan": 8},
+									"configurator": function(cell){
+										cell.expr = "\"[버전]    \" + customizing_version";
 									}
-								]
+								}]
 							}
 						}]
 					});
 					container.addChild(grid_1, {
-						"colIndex": 0,
-						"rowIndex": 1,
-						"colSpan": 3,
-						"rowSpan": 1
-					});
-					var button_2 = new cpr.controls.Button();
-					button_2.value = "+";
-					button_2.style.css({
-						"background-color" : "#eaf0ea",
-						"border-bottom-color" : "#c2c2c2",
-						"border-left-color" : "#c2c2c2",
-						"border-top-color" : "#c2c2c2",
-						"border-right-color" : "#c2c2c2",
-						"background-image" : "none"
-					});
-					if(typeof onButtonClick == "function") {
-						button_2.addEventListener("click", onButtonClick);
-					}
-					container.addChild(button_2, {
-						"colIndex": 1,
-						"rowIndex": 0
-					});
-					var button_3 = new cpr.controls.Button();
-					button_3.value = "-";
-					button_3.style.css({
-						"background-color" : "#eaf0ea",
-						"border-bottom-color" : "#c2c2c2",
-						"border-left-color" : "#c2c2c2",
-						"border-top-color" : "#c2c2c2",
-						"border-right-color" : "#c2c2c2",
-						"background-image" : "none"
-					});
-					if(typeof onButtonClick2 == "function") {
-						button_3.addEventListener("click", onButtonClick2);
-					}
-					container.addChild(button_3, {
-						"colIndex": 2,
-						"rowIndex": 0
+						"autoSize": "none",
+						"width": "720px",
+						"height": "458px"
 					});
 				})(group_3);
 				container.addChild(group_3, {
-					"top": "141px",
+					"top": "137px",
 					"left": "20px",
-					"width": "735px",
-					"height": "493px"
-				});
-				var button_4 = new cpr.controls.Button();
-				button_4.value = "수정";
-				button_4.style.css({
-					"background-color" : "#DAF2DA",
-					"border-right-style" : "none",
-					"border-radius" : "10px",
-					"border-left-style" : "none",
-					"border-bottom-style" : "none",
-					"background-image" : "none",
-					"border-top-style" : "none"
-				});
-				if(typeof onButtonClick3 == "function") {
-					button_4.addEventListener("click", onButtonClick3);
-				}
-				container.addChild(button_4, {
-					"top": "655px",
-					"left": "675px",
-					"width": "80px",
-					"height": "25px"
+					"width": "795px",
+					"height": "464px"
 				});
 			})(group_1);
 			container.addChild(group_1, {
 				"top": "0px",
 				"left": "0px",
-				"width": "765px",
-				"height": "700px"
+				"width": "828px",
+				"height": "648px"
 			});
 			if(typeof onBodyLoad == "function"){
 				app.addEventListener("load", onBodyLoad);

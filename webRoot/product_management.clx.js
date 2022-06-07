@@ -136,8 +136,7 @@
 				
 				if(clickParent == "출입통제기"){		
 					cpr.core.App.load("deviceDetailView", function(loadedApp){
-						if(loadedApp){
-							
+						if(loadedApp){			
 				    		embeddedApp.app = loadedApp;	    		
 				  		}
 					});
@@ -152,7 +151,7 @@
 				}
 				
 				if(clickLable == "커스터마이징") {
-					app.dialogManager.openDialog("customizing/customizingManagement", "customizingManagement", {width : 780, height : 700}, function(dialog){
+					app.dialogManager.openDialog("customizing/customizingManagement", "customizingManagement", {width : 850, height : 700}, function(dialog){
 					dialog.ready(function(dialogApp){
 						// 필요한 경우, 다이얼로그의 앱이 초기화 된 후, 앱 속성을 전달하십시오.
 						dialog.headerTitle = "커스터마이징 관리";
@@ -179,6 +178,7 @@
 				}
 				
 				if(clickLable == "산출물"){
+					app.setAppProperty("product_name", clickParent);
 					cpr.core.App.load("output/outputManagement", function(loadedApp){
 						if(loadedApp){
 				    		embeddedApp.app = loadedApp;
@@ -212,6 +212,11 @@
 					}
 					
 					if (appInstance.app.id == "swDetailView"){
+						appInstance.close();
+						appInstance.run();	
+					}
+					
+					if (appInstance.app.id == "output/outputManagement"){
 						appInstance.close();
 						appInstance.run();	
 					}

@@ -20,13 +20,36 @@
 			 ************************************************/
 			
 			
-			
 			/*
 			 * 루트 컨테이너에서 load 이벤트 발생 시 호출.
 			 * 앱이 최초 구성된후 최초 랜더링 직후에 발생하는 이벤트 입니다.
 			 */
 			function onBodyLoad(/* cpr.events.CEvent */ e){
 				app.lookup("search").src = "./image/search.png";
+				
+				var product_id = app.getRootAppInstance().getAppProperty("product_id"); // 부모화면 데이터 셋
+				console.log("product_id : " + product_id);
+				
+				var dataProduct_id = app.lookup("product_id");
+				dataProduct_id.setValue("product_id", Number(product_id));
+				console.log(dataProduct_id.getValue("product_id"));
+				
+				app.lookup("getOutputList").send();
+				console.log("getOutputList 서브미션 실행");
+			}
+			
+			/*
+			 * 서브미션에서 submit-done 이벤트 발생 시 호출.
+			 * 응답처리가 모두 종료되면 발생합니다.
+			 */
+			function onGetOutputListSubmitDone(/* cpr.events.CSubmissionEvent */ e){
+				/** 
+				 * @type cpr.protocols.Submission
+				 */
+				var getOutputList = e.control;
+				
+				app.lookup("grid_output").redraw();
+				
 			}
 			
 			
@@ -40,11 +63,19 @@
 				 */
 				var grid_output = e.control;
 				
-				app.dialogManager.openDialog("output/outputContentView", "outputContentView", {width : 760, height : 700}, function(dialog){
+				var clickRowIndex = e.rowIndex
+				console.log("clickRowIndex : " + clickRowIndex);
+				var output_id = app.lookup("product_outputList").getValue(clickRowIndex, "output_id");
+				console.log(output_id);
+				
+				app.getRootAppInstance().dialogManager.openDialog("output/outputContentView", "outputContentView", {width : 760, height : 700}, function(dialog){
 					dialog.ready(function(dialogApp){
 						// 필요한 경우, 다이얼로그의 앱이 초기화 된 후, 앱 속성을 전달하십시오.
-						dialog.headerTitle = "산출물 등록";
+						dialog.headerTitle = "산출물 조회";
 						console.log(dialog.app.id);
+						dialogApp.initValue = {
+							"output_id" : output_id
+						};
 						/*
 						dialog.style.css("border","solid 1px #555555");
 						dialog.style.css("border-radius","10px");
@@ -53,10 +84,6 @@
 						dialog.style.header.css("color", "white");
 						dialog.style.header.css("font-size", "12pt");			
 						*/
-						dialog.addEventListener("close", function(e){
-							// 이곳에서 원하는 동작 처리
-							//window.location.reload();
-						});
 					});
 				}).then(function(returnValue){
 						if (returnValue == 1){
@@ -65,6 +92,10 @@
 						}
 					});
 				
+			}
+			
+			function sendGetOutputListSubmit(){
+				app.lookup("getOutputList").send();
 			}
 			
 			
@@ -78,7 +109,7 @@
 				 */
 				var button = e.control;
 				
-				app.dialogManager.openDialog("output/wirteOutput", "wirteOutput", {width : 760, height : 700}, function(dialog){
+				app.getRootAppInstance().dialogManager.openDialog("output/wirteOutput", "wirteOutput", {width : 760, height : 700}, function(dialog){
 					dialog.ready(function(dialogApp){
 						// 필요한 경우, 다이얼로그의 앱이 초기화 된 후, 앱 속성을 전달하십시오.
 						dialog.headerTitle = "산출물 등록";
@@ -91,15 +122,11 @@
 						dialog.style.header.css("color", "white");
 						dialog.style.header.css("font-size", "12pt");			
 						*/
-						dialog.addEventListener("close", function(e){
-							// 이곳에서 원하는 동작 처리
-							//window.location.reload();
-						});
 					});
 				}).then(function(returnValue){
 						if (returnValue == 1){
 							//window.location.reload();
-							
+							app.getHost().callAppMethod(sendGetOutputListSubmit());
 						}
 					});
 				
@@ -107,15 +134,11 @@
 			// End - User Script
 			
 			// Header
-			var dataSet_1 = new cpr.data.DataSet("outputList");
+			var dataSet_1 = new cpr.data.DataSet("product_outputList");
 			dataSet_1.parseData({
 				"columns": [
 					{
 						"name": "output_id",
-						"dataType": "number"
-					},
-					{
-						"name": "product_id",
 						"dataType": "number"
 					},
 					{
@@ -128,25 +151,25 @@
 						"dataType": "string"
 					}
 				],
-				"rows": [
-					{"output_id": "1", "product_id": "1", "output_type": "output_type1", "output_title": "output_title1", "write_date": "write_date1"},
-					{"output_id": "2", "product_id": "2", "output_type": "output_type2", "output_title": "output_title2", "write_date": "write_date2"},
-					{"output_id": "3", "product_id": "3", "output_type": "output_type3", "output_title": "output_title3", "write_date": "write_date3"},
-					{"output_id": "4", "product_id": "4", "output_type": "output_type4", "output_title": "output_title4", "write_date": "write_date4"},
-					{"output_id": "5", "product_id": "5", "output_type": "output_type5", "output_title": "output_title5", "write_date": "write_date5"},
-					{"output_id": "6", "product_id": "6", "output_type": "output_type6", "output_title": "output_title6", "write_date": "write_date6"},
-					{"output_id": "7", "product_id": "7", "output_type": "output_type7", "output_title": "output_title7", "write_date": "write_date7"},
-					{"output_id": "8", "product_id": "8", "output_type": "output_type8", "output_title": "output_title8", "write_date": "write_date8"},
-					{"output_id": "9", "product_id": "9", "output_type": "output_type9", "output_title": "output_title9", "write_date": "write_date9"},
-					{"output_id": "10", "product_id": "10", "output_type": "output_type10", "output_title": "output_title10", "write_date": "write_date10"},
-					{"output_id": "11", "product_id": "11", "output_type": "output_type11", "output_title": "output_title11", "write_date": "write_date11"},
-					{"output_id": "12", "product_id": "12", "output_type": "output_type12", "output_title": "output_title12", "write_date": "write_date12"},
-					{"output_id": "13", "product_id": "13", "output_type": "output_type13", "output_title": "output_title13", "write_date": "write_date13"},
-					{"output_id": "14", "product_id": "14", "output_type": "output_type14", "output_title": "output_title14", "write_date": "write_date14"},
-					{"output_id": "15", "product_id": "15", "output_type": "output_type15", "output_title": "output_title15", "write_date": "write_date15"}
-				]
+				"rows": []
 			});
 			app.register(dataSet_1);
+			var dataMap_1 = new cpr.data.DataMap("product_id");
+			dataMap_1.parseData({
+				"columns" : [{
+					"name": "product_id",
+					"dataType": "number"
+				}]
+			});
+			app.register(dataMap_1);
+			var submission_1 = new cpr.protocols.Submission("getOutputList");
+			submission_1.action = "/productMangement/getOutputList";
+			submission_1.addRequestData(dataMap_1);
+			submission_1.addResponseData(dataSet_1, false);
+			if(typeof onGetOutputListSubmitDone == "function") {
+				submission_1.addEventListener("submit-done", onGetOutputListSubmitDone);
+			}
+			app.register(submission_1);
 			
 			app.supportMedia("all and (min-width: 1024px)", "default");
 			app.supportMedia("all and (min-width: 748px) and (max-width: 1023px)", "new-screen");
@@ -237,13 +260,13 @@
 				(function(container){
 					var grid_1 = new cpr.controls.Grid("grid_output");
 					grid_1.init({
-						"dataSet": app.lookup("outputList"),
+						"dataSet": app.lookup("product_outputList"),
 						"columns": [
 							{"width": "25px"},
 							{"width": "25px"},
 							{"width": "104px"},
-							{"width": "186px"},
-							{"width": "91px"}
+							{"width": "213px"},
+							{"width": "67px"}
 						],
 						"header": {
 							"rows": [{"height": "28px"}],
@@ -339,6 +362,16 @@
 									"constraint": {"rowIndex": 0, "colIndex": 4},
 									"configurator": function(cell){
 										cell.columnName = "write_date";
+										cell.control = (function(){
+											var maskEditor_1 = new cpr.controls.MaskEditor("mse1");
+											maskEditor_1.readOnly = true;
+											maskEditor_1.mask = "0000-00-00";
+											maskEditor_1.style.css({
+												"text-align" : "center"
+											});
+											maskEditor_1.bind("value").toDataColumn("write_date");
+											return maskEditor_1;
+										})();
 									}
 								}
 							]
@@ -354,15 +387,15 @@
 					});
 				})(group_3);
 				container.addChild(group_3, {
-					"top": "90px",
+					"top": "80px",
 					"left": "20px",
 					"width": "698px",
-					"height": "462px"
+					"height": "460px"
 				});
 				var pageIndexer_1 = new cpr.controls.PageIndexer();
 				pageIndexer_1.init(1, 1, 1);
 				container.addChild(pageIndexer_1, {
-					"top": "570px",
+					"top": "545px",
 					"left": "200px",
 					"width": "338px",
 					"height": "40px"
@@ -409,7 +442,7 @@
 				"top": "0px",
 				"left": "0px",
 				"width": "739px",
-				"height": "636px"
+				"height": "600px"
 			});
 			if(typeof onBodyLoad == "function"){
 				app.addEventListener("load", onBodyLoad);

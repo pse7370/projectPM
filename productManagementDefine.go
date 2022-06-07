@@ -76,7 +76,7 @@ type Product_customizing struct {
 	Customized_function string `json:"customized_function"`
 	Department          string `json:"department"`
 	Employees_number    int32  `json:"employees_number"`
-	Employees_name      string `json:"Employees_name"`
+	Employees_name      string `json:"employees_name"`
 	Start_date          string `json:"start_date"`
 	End_date            string `json:"end_date"`
 }
@@ -93,11 +93,12 @@ type Product_output struct {
 
 // 산출물 첨부파일 테이블 구조체
 type Output_attachment struct {
-	Attachment_id  int32  `json:"attachment_id"`
-	Output_id      int32  `json:"output_id"`
-	Real_file_name string `json:"real_file_name"`
-	Save_file_name string `json:"save_file_name"`
-	Save_path      string `json:"save_path"`
+	Attachment_id  int32   `json:"attachment_id"`
+	Output_id      int32   `json:"output_id"`
+	Real_file_name string  `json:"real_file_name"`
+	Save_file_name string  `json:"save_file_name"`
+	Save_path      string  `json:"save_path"`
+	File_size      float64 `json:"file_size"`
 }
 
 //============ResultCode 전달 구조체================
@@ -175,4 +176,16 @@ type DeleteDeveloper struct {
 type CustomizingList struct {
 	Product                 Product               `json:"product"`
 	Product_customizingList []Product_customizing `json:"product_customizingList"`
+}
+
+//====================산출물==============================
+
+type OutputList struct {
+	Product_outputList []Product_output `json:"product_outputList"`
+}
+
+type OutputContent struct {
+	Product        Product             `json:"product"`
+	Product_output Product_output      `json:"product_output"`
+	AttachmentList []Output_attachment `json:"attachmentList"`
 }

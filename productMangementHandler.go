@@ -114,7 +114,7 @@ func getSideMenuContent(writer http.ResponseWriter, request *http.Request) {
 
 // 출입통제기 등록
 func addDevice(writer http.ResponseWriter, request *http.Request) {
-	request.ParseMultipartForm(100)
+	request.ParseMultipartForm(8 << 20)
 	log.Println("...............addDevice().............")
 
 	basePath, _ := os.Getwd()
@@ -426,7 +426,7 @@ func addDevice(writer http.ResponseWriter, request *http.Request) {
 
 // SW 등록하기
 func addSW(writer http.ResponseWriter, request *http.Request) {
-	request.ParseMultipartForm(100)
+	request.ParseMultipartForm(8 << 20)
 	log.Println("...............addSW()..............")
 
 	basePath, _ := os.Getwd()
@@ -1013,7 +1013,7 @@ func deleteDevice(writer http.ResponseWriter, request *http.Request) {
 	// /productMangement/deleteDevice/(product_id) 형태
 
 	splitURL := strings.Split(requestURL, "?")
-	// '/'로 문자열 분리
+	// '?'로 문자열 분리
 
 	var product_id int32
 	// 분리한 문자열 배열 중 제일 마지막 값 가져오기
@@ -1461,7 +1461,7 @@ func modifyDevice(writer http.ResponseWriter, request *http.Request) {
 	sliceLength_delete_developer := len(deleteDeveloper.Delete_employees_number)
 	//fmt.Println("sliceLength_delete_developer : ", sliceLength_delete_developer)
 	var delete_product_developer = make([]Product_developer, sliceLength_delete_developer)
-	for i := 0; i < sliceLength_developer; i++ {
+	for i := 0; i < sliceLength_delete_developer; i++ {
 
 		temp, _ := strconv.ParseInt(deleteDeveloper.Delete_employees_number[i], 10, 32)
 		delete_product_developer[i].Employees_number = int32(temp)
@@ -1704,18 +1704,313 @@ func modifySW(writer http.ResponseWriter, request *http.Request) {
 	basePath, _ := os.Getwd()
 
 	// 출입통제기 이미지 저장 위치
-	var deviceImageSaveDir string = basePath + "/SWimage"
+	var swImageSaveDir string = basePath + "/SWimage"
 
 	// 해당 경로에 폴더가 있는지 확인하고 없으면 생성하기
-	if _, err := os.Stat(deviceImageSaveDir); os.IsNotExist(err) {
-		err := os.Mkdir(deviceImageSaveDir, os.ModeDir)
+	if _, err := os.Stat(swImageSaveDir); os.IsNotExist(err) {
+		err := os.Mkdir(swImageSaveDir, os.ModeDir)
 		if err != nil {
 			log.Println("------------폴더 생성 오류-------------")
 			log.Fatalln(err)
 		}
-		fmt.Printf("==========해당 경로에 폴더가 없어 새로 생성 : %s", deviceImageSaveDir)
+		fmt.Printf("==========해당 경로에 폴더가 없어 새로 생성 : %s", swImageSaveDir)
 	}
 
 	multipartForm := request.MultipartForm
 	fmt.Println(multipartForm)
+
+	var product Product
+
+	// 파일 저장하기
+	for key, _ := range multipartForm.File {
+		file, fileHeader, err := request.FormFile(key)
+		if err != nil {
+			fmt.Println("FormFile ERROR : ", err)
+			return
+		}
+
+		defer file.Close()
+		fmt.Printf("upload file : name [%s], size [%d], header [%#v]\n",
+			fileHeader.Filename, fileHeader.Size, fileHeader.Header)
+
+		var imageSavePath string = swImageSaveDir + "/" + fileHeader.Filename
+
+		fileUpLoad, err := os.Create(imageSavePath)
+		if err != nil {
+			fmt.Println("파일 열기 실패 : ", err, "\n", imageSavePath)
+			return
+		}
+		defer fileUpLoad.Close()
+
+		_, err = io.Copy(fileUpLoad, file)
+		if err != nil {
+			fmt.Println("파일 복사 실패 : ", err)
+			return
+		}
+
+		fmt.Println("파일 저장 성공!", fileHeader.Filename)
+
+		product.Real_image_name = fileHeader.Filename
+		product.Save_image_name = fileHeader.Filename
+		product.Save_path = imageSavePath
+
+	} // end for
+
+	formData := multipartForm.Value
+	//fmt.Println(formData)
+
+	var product_sw ProductSW
+	var product_developerList Product_developerList
+	var deleteDeveloper DeleteDeveloper
+
+	for key, value := range formData {
+		//fmt.Println(key, "/", value)
+
+		splitRealKey := strings.Split(key, "#")
+
+		if len(splitRealKey) >= 2 {
+			//fmt.Println(splitRealKey)
+
+			switch splitRealKey[1] {
+			case "product_id":
+				temp, _ := strconv.ParseInt(value[0], 10, 32)
+				product.Product_id = int32(temp)
+
+			case "product_type":
+				product.Product_type = value[0]
+
+			case "product_name":
+				product.Product_name = value[0]
+
+			case "product_version":
+				product.Product_version = value[0]
+
+			case "explanation":
+				product.Explanation = value[0]
+
+			case "simultaneous":
+				temp, _ := strconv.ParseInt(value[0], 10, 32)
+				product_sw.Simultaneous = int32(temp)
+
+			case "available_db":
+				temp, _ := strconv.ParseInt(value[0], 10, 32)
+				product_sw.Available_db = int32(temp)
+
+			case "available_os":
+				temp, _ := strconv.ParseInt(value[0], 10, 32)
+				product_sw.Available_os = int32(temp)
+
+			case "department":
+				product_developerList.DepartmentList = value
+
+			case "employees_number":
+				product_developerList.Employees_numberList = value
+
+			case "employees_name":
+				product_developerList.Employees_nameList = value
+
+			case "start_date":
+				product_developerList.Start_dateList = value
+
+			case "end_date":
+				product_developerList.End_dateList = value
+
+			case "delete_employees_number":
+				deleteDeveloper.Delete_employees_number = value
+
+			case "delete_start_date":
+				deleteDeveloper.Delete_start_date = value
+
+			case "delete_end_date":
+				deleteDeveloper.Delete_end_date = value
+
+			}
+
+		} // end if
+
+	} // end for
+
+	fmt.Println("product : ", product)
+	fmt.Println("product_sw : ", product_sw)
+	fmt.Println("product_developerList : ", product_developerList)
+	fmt.Println("deleteDeveloper : ", deleteDeveloper)
+
+	sliceLength_developer := len(product_developerList.Employees_numberList)
+	//fmt.Println("sliceLength_developer : ", sliceLength_developer)
+	var product_developer = make([]Product_developer, sliceLength_developer)
+	for i := 0; i < sliceLength_developer; i++ {
+		product_developer[i].Department = product_developerList.DepartmentList[i]
+
+		temp, _ := strconv.ParseInt(product_developerList.Employees_numberList[i], 10, 32)
+		product_developer[i].Employees_number = int32(temp)
+
+		product_developer[i].Employees_name = product_developerList.Employees_nameList[i]
+		product_developer[i].Start_date = product_developerList.Start_dateList[i]
+		product_developer[i].End_date = product_developerList.End_dateList[i]
+	}
+
+	fmt.Println("product_developer : ", product_developer)
+
+	sliceLength_delete_developer := len(deleteDeveloper.Delete_employees_number)
+	//fmt.Println("sliceLength_delete_developer : ", sliceLength_delete_developer)
+	var delete_product_developer = make([]Product_developer, sliceLength_delete_developer)
+	for i := 0; i < sliceLength_delete_developer; i++ {
+
+		temp, _ := strconv.ParseInt(deleteDeveloper.Delete_employees_number[i], 10, 32)
+		delete_product_developer[i].Employees_number = int32(temp)
+
+		delete_product_developer[i].Start_date = deleteDeveloper.Delete_start_date[i]
+		delete_product_developer[i].End_date = deleteDeveloper.Delete_end_date[i]
+	}
+
+	fmt.Println("delete_product_developer : ", delete_product_developer)
+
+	transaction, err := db.Begin()
+	if err != nil {
+		fmt.Println("--------트랜잭션 생성 오류---------")
+		log.Fatal(err)
+	}
+
+	// 에러 발생시 rollback 처리
+	defer transaction.Rollback()
+
+	var updateProductQuery string = `UPDATE product 
+											SET product_name = ?,
+												product_version = ?,
+												real_image_name = ?,
+												save_image_name = ?,
+												save_path = ?,
+												explanation = ?
+											WHERE product_id = ?`
+
+	var exceptImageUpdateProductQuery string = `UPDATE product 
+														SET product_name = ?,
+															product_version = ?,
+															explanation = ?
+														WHERE product_id = ?`
+
+	if product.Save_path != "" {
+		_, err := db.Exec(updateProductQuery,
+			product.Product_name, product.Product_version,
+			product.Real_image_name, product.Save_image_name,
+			product.Save_path, product.Explanation, product.Product_id)
+
+		if err != nil {
+			fmt.Printf("===========product 테이블 update 실패(이미지 포함), product_id는 %d============\n", product.Product_id)
+			log.Fatal(err)
+		}
+	} else {
+		_, err := db.Exec(exceptImageUpdateProductQuery,
+			product.Product_name, product.Product_version,
+			product.Explanation, product.Product_id)
+
+		if err != nil {
+			fmt.Printf("===========product 테이블 update 실패(이미지 제외), product_id는 %d============\n", product.Product_id)
+			log.Fatal(err)
+		}
+	}
+
+	var updateSWquery string = `UPDATE product_sw 
+										SET simultaneous_connection = ?,
+											available_db = ?,
+											available_os = ?
+										WHERE product_id = ?`
+	_, err = db.Exec(updateSWquery,
+		product_sw.Simultaneous,
+		product_sw.Available_db,
+		product_sw.Available_os,
+		product.Product_id)
+
+	if err != nil {
+		fmt.Printf("===========product_sw 테이블 update 실패, product_id는 %d============\n", product.Product_id)
+		log.Fatal(err)
+	}
+
+	var existDeveloper int
+	var checkExistDeveloperQuery string = `SELECT COUNT(employees_number) 
+												FROM product_developer 
+												WHERE product_id = ? 
+												AND employees_number = ?`
+
+	for i := 0; i < len(product_developer); i++ {
+		err := db.QueryRow(checkExistDeveloperQuery, product.Product_id, product_developer[i].Employees_number).Scan(&existDeveloper)
+		if err != nil {
+			fmt.Println(product.Product_id, "/", product_developer[i].Employees_number, "DB 확인 오류")
+			log.Fatalln(err)
+		}
+
+		switch existDeveloper {
+		case 0:
+			_, err := db.Exec(`INSERT INTO 
+									product_developer(product_id, 
+													department, 
+													employees_number, 
+													employees_name, 
+													start_date, 
+													end_date) 
+									VALUES (?, ?, ?, ?, ?, ?)`,
+				product.Product_id,
+				product_developer[i].Department,
+				product_developer[i].Employees_number,
+				product_developer[i].Employees_name,
+				product_developer[i].Start_date,
+				product_developer[i].End_date)
+
+			if err != nil {
+				fmt.Printf("===========product_developer 테이블 insert 실패 [%d]================\n", i)
+				log.Fatal(err)
+			}
+
+		case 1:
+			_, err := db.Exec(`UPDATE product_developer
+									SET department = ?,
+										employees_name = ?,
+										start_date = ?,
+										end_date = ?
+									WHERE product_id = ? 
+									AND employees_number = ?`,
+				product_developer[i].Department,
+				product_developer[i].Employees_name,
+				product_developer[i].Start_date,
+				product_developer[i].End_date,
+				product.Product_id,
+				product_developer[i].Employees_number)
+
+			if err != nil {
+				fmt.Printf("===========product_developer 테이블 update 실패 [%d]================\n", i)
+				log.Fatal(err)
+			}
+
+		} // end switch
+
+	} // end for
+
+	var deleteDeveloperQuery string = `DELETE FROM product_developer 
+											WHERE product_id = ? 
+											AND employees_number = ? 
+											AND start_date = ? 
+											AND end_date = ?`
+	if len(delete_product_developer) > 0 {
+
+		for i := 0; i < len(delete_product_developer); i++ {
+			_, err = db.Exec(deleteDeveloperQuery,
+				product.Product_id,
+				delete_product_developer[i].Employees_number,
+				delete_product_developer[i].Start_date,
+				delete_product_developer[i].End_date)
+			if err != nil {
+				fmt.Printf("-------------product_id가 %d인 제품 product_developer 테이블 삭제 실패--------------", product.Product_id)
+				log.Fatal(err)
+			}
+		}
+
+	}
+
+	var result Result
+	result.ResultCode = 1
+
+	renderObj := render.New()
+
+	renderObj.JSON(writer, http.StatusOK, result)
+
 }

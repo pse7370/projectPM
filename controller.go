@@ -177,6 +177,12 @@ func StartServer() {
 
 	// 산출물 목록 불러오기
 	mux.HandleFunc("/productMangement/getOutputList", getOutputList)
+	// 산출물 등록하기
+	mux.HandleFunc("/productMangement/addOutput", addOutput)
+	// 산출물 상세 조회
+	mux.HandleFunc("/productMangement/getOutputContent", getOutputContent)
+	// 산출물 삭제
+	mux.HandleFunc("/productMangement/deleteOutput", deleteOutput)
 
 	// http.ListenAndServe(mainServerAddress, mux)
 	// 웹서버를 실제로 동작시키기 위한 함수, 서버가 동작할 포트 번호 지정

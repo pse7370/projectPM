@@ -25,7 +25,43 @@
 			 */
 			function onBodyLoad(/* cpr.events.CEvent */ e){
 				
+				
+				app.lookup("output_id").setValue("output_id", app.getHost().initValue.output_id); 
+				console.log("output_id : " + app.lookup("output_id").getValue("output_id"));
+				
+				app.lookup("getOutputContent").send();
+				console.log("getOutputContent 서브미션 실행");
+				
 			}
+			
+			
+			/*
+			 * 서브미션에서 submit-done 이벤트 발생 시 호출.
+			 * 응답처리가 모두 종료되면 발생합니다.
+			 */
+			function onGetOutputContentSubmitDone(/* cpr.events.CSubmissionEvent */ e){
+				/** 
+				 * @type cpr.protocols.Submission
+				 */
+				var getOutputContent = e.control;
+				
+				app.lookup("productName").redraw();
+				app.lookup("outputType").redraw();
+				app.lookup("writeDate").redraw();
+				app.lookup("outputTitle").redraw();
+				app.lookup("outputContent").redraw();
+				
+				var attachmentList = app.lookup("attachmentList");
+				var i
+				for(i = 0; i < attachmentList.getRowCount(); i++) {
+					var fileName = attachmentList.getValue(i, "real_file_name");
+					var fileSize = attachmentList.getValue(i, "file_size");
+					app.lookup("file_upload").addUploadedFile({name : fileName, size : fileSize});
+				}
+				
+				
+			}
+			
 			
 			
 			/*
@@ -49,10 +85,37 @@
 			  		}
 				});
 				
+			}
+			
+			
+			/*
+			 * (다운로드)파일 업로드에서 sendbutton-click 이벤트 발생 시 호출.
+			 * 파일을 전송하는 button을 클릭 시 발생하는 이벤트. 서브미션을 통해 전송 버튼에 대한 구현이 필요합니다.
+			 */
+			function onFile_uploadSendbuttonClick(/* cpr.events.CEvent */ e){
+				/** 
+				 * @type cpr.controls.FileUpload
+				 */
+				var file_upload = e.control;
+				console.log("download");
+				
 			};
 			// End - User Script
 			
 			// Header
+			var dataSet_1 = new cpr.data.DataSet("attachmentList");
+			dataSet_1.parseData({
+				"columns" : [
+					{"name": "real_file_name"},
+					{"name": "save_file_name"},
+					{"name": "save_path"},
+					{
+						"name": "file_size",
+						"dataType": "number"
+					}
+				]
+			});
+			app.register(dataSet_1);
 			var dataMap_1 = new cpr.data.DataMap("product");
 			dataMap_1.parseData({
 				"columns" : [{"name": "product_name"}]
@@ -79,6 +142,34 @@
 				]
 			});
 			app.register(dataMap_2);
+			
+			var dataMap_3 = new cpr.data.DataMap("product_id");
+			dataMap_3.parseData({
+				"columns" : [{
+					"name": "product_id",
+					"dataType": "number"
+				}]
+			});
+			app.register(dataMap_3);
+			
+			var dataMap_4 = new cpr.data.DataMap("output_id");
+			dataMap_4.parseData({
+				"columns" : [{
+					"name": "output_id",
+					"dataType": "number"
+				}]
+			});
+			app.register(dataMap_4);
+			var submission_1 = new cpr.protocols.Submission("getOutputContent");
+			submission_1.action = "/productMangement/getOutputContent";
+			submission_1.addRequestData(dataMap_4);
+			submission_1.addResponseData(dataMap_1, false);
+			submission_1.addResponseData(dataMap_2, false);
+			submission_1.addResponseData(dataSet_1, false);
+			if(typeof onGetOutputContentSubmitDone == "function") {
+				submission_1.addEventListener("submit-done", onGetOutputContentSubmitDone);
+			}
+			app.register(submission_1);
 			
 			app.supportMedia("all and (min-width: 1024px)", "default");
 			app.supportMedia("all and (min-width: 745px) and (max-width: 1023px)", "new-screen");
@@ -197,7 +288,7 @@
 						"colIndex": 0,
 						"rowIndex": 0
 					});
-					var output_4 = new cpr.controls.Output();
+					var output_4 = new cpr.controls.Output("outputType");
 					output_4.style.css({
 						"border-right-style" : "solid",
 						"border-top-width" : "1px",
@@ -258,7 +349,7 @@
 						"colIndex": 0,
 						"rowIndex": 0
 					});
-					var output_6 = new cpr.controls.Output();
+					var output_6 = new cpr.controls.Output("outputTitle");
 					output_6.style.css({
 						"border-right-style" : "solid",
 						"border-top-width" : "1px",
@@ -319,21 +410,14 @@
 						"colIndex": 0,
 						"rowIndex": 0
 					});
-					var output_8 = new cpr.controls.Output();
-					output_8.style.css({
-						"border-right-style" : "solid",
-						"border-top-width" : "1px",
-						"border-bottom-color" : "#b4b4b4",
-						"border-right-width" : "1px",
-						"border-bottom-width" : "1px",
-						"border-top-color" : "#b4b4b4",
-						"border-bottom-style" : "solid",
-						"border-right-color" : "#b4b4b4",
-						"border-top-style" : "solid",
+					var maskEditor_1 = new cpr.controls.MaskEditor("writeDate");
+					maskEditor_1.readOnly = true;
+					maskEditor_1.mask = "0000-00-00";
+					maskEditor_1.style.css({
 						"text-align" : "center"
 					});
-					output_8.bind("value").toDataMap(app.lookup("product_output"), "write_date");
-					container.addChild(output_8, {
+					maskEditor_1.bind("value").toDataMap(app.lookup("product_output"), "write_date");
+					container.addChild(maskEditor_1, {
 						"colIndex": 1,
 						"rowIndex": 0
 					});
@@ -346,6 +430,7 @@
 				});
 				var fileUpload_1 = new cpr.controls.FileUpload("file_upload");
 				fileUpload_1.buttons = ["send"];
+				fileUpload_1.readOnly = true;
 				fileUpload_1.sendLabel = "다운로드";
 				fileUpload_1.maxFileCount = 5;
 				fileUpload_1.style.button.css({
@@ -361,6 +446,12 @@
 					"background-color" : "#eaf0ea",
 					"background-image" : "none"
 				});
+				if(typeof onFile_uploadDownloadClick == "function") {
+					fileUpload_1.addEventListener("download-click", onFile_uploadDownloadClick);
+				}
+				if(typeof onFile_uploadSendbuttonClick == "function") {
+					fileUpload_1.addEventListener("sendbutton-click", onFile_uploadSendbuttonClick);
+				}
 				container.addChild(fileUpload_1, {
 					"top": "174px",
 					"left": "19px",
@@ -372,16 +463,16 @@
 				var verticalLayout_1 = new cpr.controls.layouts.VerticalLayout();
 				group_6.setLayout(verticalLayout_1);
 				(function(container){
-					var output_9 = new cpr.controls.Output();
-					output_9.value = "내용";
-					output_9.style.css({
+					var output_8 = new cpr.controls.Output();
+					output_8.value = "내용";
+					output_8.style.css({
 						"padding-left" : "10px"
 					});
-					container.addChild(output_9, {
+					container.addChild(output_8, {
 						"width": "100px",
 						"height": "27px"
 					});
-					var textArea_1 = new cpr.controls.TextArea("txa1");
+					var textArea_1 = new cpr.controls.TextArea("outputContent");
 					textArea_1.readOnly = true;
 					textArea_1.style.css({
 						"padding-top" : "5px",
@@ -425,7 +516,7 @@
 			container.addChild(group_1, {
 				"top": "0px",
 				"left": "0px",
-				"width": "745px",
+				"width": "725px",
 				"height": "700px"
 			});
 			if(typeof onBodyLoad == "function"){
