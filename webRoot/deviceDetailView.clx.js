@@ -53,7 +53,7 @@
 				var product = app.lookup("product");
 				var product_device = app.lookup("product_device");
 				
-				app.lookup("productImage").src = "../../deviceImage/" + product.getValue("save_image_name");
+				app.lookup("productImage").src = "../deviceImage/" + product.getValue("save_image_name");
 				
 				app.lookup("productName").redraw();
 				app.lookup("productVersion").redraw();

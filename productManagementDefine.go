@@ -179,9 +179,13 @@ type CustomizingList struct {
 }
 
 //====================산출물==============================
+type OutputCount struct {
+	TotalOutputCount int32 `json:"totalOutputCount"`
+}
 
 type OutputList struct {
 	Product_outputList []Product_output `json:"product_outputList"`
+	TotalOutputCount   OutputCount      `json:"totalOutputCount"`
 }
 
 type OutputContent struct {

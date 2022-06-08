@@ -56,12 +56,18 @@
 				for(i = 0; i < attachmentList.getRowCount(); i++) {
 					var fileName = attachmentList.getValue(i, "real_file_name");
 					var fileSize = attachmentList.getValue(i, "file_size");
-					app.lookup("file_upload").addUploadedFile({name : fileName, size : fileSize});
+					var save_path = attachmentList.getValue(i, "save_path")
+					app.lookup("file_upload").addUploadedFile(
+						{
+							name : fileName, 
+							size : fileSize, 
+							properties : {svaePath : save_path}
+						}
+					);
 				}
 				
 				
 			}
-			
 			
 			
 			/*
@@ -79,7 +85,9 @@
 				cpr.core.App.load("output/modifyOutput", function(loadedApp){
 					if(loadedApp){
 						embeddedApp.initValue = {
-							
+							product_output : app.lookup("product_output"),
+							output_id : app.lookup("output_id").getValue("output_id"),
+							attchmentList : app.lookup("attachmentList")
 						}
 			    		embeddedApp.app = loadedApp;	    		
 			  		}
@@ -98,6 +106,74 @@
 				 */
 				var file_upload = e.control;
 				console.log("download");
+				
+			}
+			
+			/*
+			 * 파일 업로드에서 download-click 이벤트 발생 시 호출.
+			 * 파일을 다운받는 button을 클릭 시 발생하는 이벤트. 서브미션을 통해 다운로드 버튼에 대한 구현이 필요합니다.
+			 */
+			function onFile_uploadDownloadClick(/* cpr.events.CUploadedFileEvent */ e){
+				/** 
+				 * @type cpr.controls.FileUpload
+				 */
+				var file_upload = e.control;
+				
+				var clickFile = e.uploadedFile;
+				var clickFileName = clickFile.name;
+				//console.log("clickFileName : " + clickFileName);
+				var savePath = clickFile.getProperty("savePath");
+				app.lookup("file").setValue("file_name", clickFileName);
+				app.lookup("file").setValue("save_path", savePath);
+				
+				app.lookup("downloadAttachment").send();
+				
+			}
+			
+			/*
+			 * downloadAttachment 서브미션에서 submit-done 이벤트 발생 시 호출.
+			 * 응답처리가 모두 종료되면 발생합니다.
+			 */
+			function onDownloadAttachmentSubmitDone(/* cpr.events.CSubmissionEvent */ e){
+				/** 
+				 * @type cpr.protocols.Submission
+				 */
+				var downloadAttachment = e.control;
+				
+				blod
+				
+			}
+			
+			
+			/*
+			 * "삭제" 버튼에서 click 이벤트 발생 시 호출.
+			 * 사용자가 컨트롤을 클릭할 때 발생하는 이벤트.
+			 */
+			function onButtonClick2(/* cpr.events.CMouseEvent */ e){
+				/** 
+				 * @type cpr.controls.Button
+				 */
+				var button = e.control;
+				var output_id = app.lookup("output_id").getValue("output_id");
+				
+				app.lookup("deleteOutput").action = "/productMangement/deleteOutput?" + output_id;
+			
+				app.lookup("deleteOutput").send();
+				console.log("deleteOutput 서브미션 실행");
+				
+			}
+			
+			/*
+			 * deleteOutput 서브미션에서 submit-done 이벤트 발생 시 호출.
+			 * 응답처리가 모두 종료되면 발생합니다.
+			 */
+			function onDeleteOutputSubmitDone(/* cpr.events.CSubmissionEvent */ e){
+				/** 
+				 * @type cpr.protocols.Submission
+				 */
+				var deleteOutput = e.control;
+				
+				app.getRootAppInstance().dialogManager.getDialogByName("outputContentView").close(1);
 				
 			};
 			// End - User Script
@@ -160,6 +236,24 @@
 				}]
 			});
 			app.register(dataMap_4);
+			
+			var dataMap_5 = new cpr.data.DataMap("result");
+			dataMap_5.parseData({
+				"columns" : [{
+					"name": "resultCode",
+					"dataType": "number"
+				}]
+			});
+			app.register(dataMap_5);
+			
+			var dataMap_6 = new cpr.data.DataMap("file");
+			dataMap_6.parseData({
+				"columns" : [
+					{"name": "file_name"},
+					{"name": "save_path"}
+				]
+			});
+			app.register(dataMap_6);
 			var submission_1 = new cpr.protocols.Submission("getOutputContent");
 			submission_1.action = "/productMangement/getOutputContent";
 			submission_1.addRequestData(dataMap_4);
@@ -170,6 +264,24 @@
 				submission_1.addEventListener("submit-done", onGetOutputContentSubmitDone);
 			}
 			app.register(submission_1);
+			
+			var submission_2 = new cpr.protocols.Submission("deleteOutput");
+			submission_2.method = "delete";
+			submission_2.action = "/productMangement/deleteOutput";
+			submission_2.addResponseData(dataMap_5, false);
+			if(typeof onDeleteOutputSubmitDone == "function") {
+				submission_2.addEventListener("submit-done", onDeleteOutputSubmitDone);
+			}
+			app.register(submission_2);
+			
+			var submission_3 = new cpr.protocols.Submission("downloadAttachment");
+			submission_3.action = "/productMangement/downloadAttachment";
+			submission_3.responseType = "filedownload";
+			submission_3.addRequestData(dataMap_6);
+			if(typeof onDownloadAttachmentSubmitDone == "function") {
+				submission_3.addEventListener("submit-done", onDownloadAttachmentSubmitDone);
+			}
+			app.register(submission_3);
 			
 			app.supportMedia("all and (min-width: 1024px)", "default");
 			app.supportMedia("all and (min-width: 745px) and (max-width: 1023px)", "new-screen");
@@ -446,11 +558,11 @@
 					"background-color" : "#eaf0ea",
 					"background-image" : "none"
 				});
-				if(typeof onFile_uploadDownloadClick == "function") {
-					fileUpload_1.addEventListener("download-click", onFile_uploadDownloadClick);
-				}
 				if(typeof onFile_uploadSendbuttonClick == "function") {
 					fileUpload_1.addEventListener("sendbutton-click", onFile_uploadSendbuttonClick);
+				}
+				if(typeof onFile_uploadDownloadClick == "function") {
+					fileUpload_1.addEventListener("download-click", onFile_uploadDownloadClick);
 				}
 				container.addChild(fileUpload_1, {
 					"top": "174px",
@@ -507,6 +619,26 @@
 					button_1.addEventListener("click", onButtonClick);
 				}
 				container.addChild(button_1, {
+					"top": "660px",
+					"left": "540px",
+					"width": "80px",
+					"height": "25px"
+				});
+				var button_2 = new cpr.controls.Button();
+				button_2.value = "삭제";
+				button_2.style.css({
+					"border-right-style" : "none",
+					"background-color" : "#DAF2DA",
+					"border-radius" : "10px",
+					"border-left-style" : "none",
+					"border-bottom-style" : "none",
+					"background-image" : "none",
+					"border-top-style" : "none"
+				});
+				if(typeof onButtonClick2 == "function") {
+					button_2.addEventListener("click", onButtonClick2);
+				}
+				container.addChild(button_2, {
 					"top": "660px",
 					"left": "633px",
 					"width": "80px",

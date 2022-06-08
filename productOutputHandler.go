@@ -17,23 +17,38 @@ func getOutputList(writer http.ResponseWriter, request *http.Request) {
 	request.ParseForm()
 
 	formData := request.Form
-	fmt.Println(formData)
+	//fmt.Println(formData)
 
 	formDataKey := "@d1#" + "product_id"
 	product_id, _ := (strconv.ParseInt(formData[formDataKey][0], 10, 32))
 	fmt.Println("product_id : ", product_id)
+
+	formDataKey = "@d2#" + "pageNum"
+	pageNumber, _ := (strconv.ParseInt(formData[formDataKey][0], 10, 32))
+	fmt.Println("pageNumber : ", pageNumber)
+
+	var getTotalOutputCountQuery string = `SELECT COUNT(output_id) FROM product_output WHERE product_id = ?`
+	var outputCount int32
+	err := db.QueryRow(getTotalOutputCountQuery, product_id).Scan(&outputCount)
+	if err != nil {
+		log.Println("outputCount 값 가져오기 오류", err)
+	}
+
+	var totalOutputCount OutputCount = OutputCount{TotalOutputCount: outputCount}
 
 	var product_outputList []Product_output = []Product_output{}
 
 	var getOutputListQuery string = `SELECT output_id, 
 											output_type, 
 											output_title, 
-											output_content,
 											write_date 
 										FROM product_output
-										WHERE product_id = ?`
+										WHERE product_id = ?
+										ORDER BY output_id DESC
+										OFFSET (?-1)*15 ROWS
+										FETCH NEXT 15 ROWS ONLY`
 
-	rows, err := db.Query(getOutputListQuery, product_id)
+	rows, err := db.Query(getOutputListQuery, product_id, pageNumber)
 	if err != nil {
 		log.Fatalf("==========product_id = %d인 제품의 산출물 목록 가져오기 실패===========\n", product_id)
 		log.Println(err)
@@ -45,19 +60,17 @@ func getOutputList(writer http.ResponseWriter, request *http.Request) {
 	var output_id int32
 	var output_type string
 	var output_title string
-	var output_content string
 	var write_date string
 
 	for rows.Next() {
-		err := rows.Scan(&output_id, &output_type, &output_title, &output_content, &write_date)
+		err := rows.Scan(&output_id, &output_type, &output_title, &write_date)
 
 		product_outputList = append(product_outputList,
 			Product_output{
-				Output_id:      output_id,
-				Output_type:    output_type,
-				Output_title:   output_title,
-				Output_content: output_content,
-				Write_date:     write_date,
+				Output_id:    output_id,
+				Output_type:  output_type,
+				Output_title: output_title,
+				Write_date:   write_date,
 			},
 		)
 		if err != nil {
@@ -68,6 +81,7 @@ func getOutputList(writer http.ResponseWriter, request *http.Request) {
 
 	var outputList OutputList = OutputList{
 		Product_outputList: product_outputList,
+		TotalOutputCount:   totalOutputCount,
 	}
 
 	renderObj := render.New()
@@ -77,7 +91,7 @@ func getOutputList(writer http.ResponseWriter, request *http.Request) {
 }
 
 func addOutput(writer http.ResponseWriter, request *http.Request) {
-	request.ParseMultipartForm(1 << 30)
+	request.ParseMultipartForm(1 << 30) // 1GiB 메모리 할당
 	log.Println("...............addOutput().............")
 
 	multipartForm := request.MultipartForm
@@ -332,5 +346,203 @@ func deleteOutput(writer http.ResponseWriter, request *http.Request) {
 	requestURL := request.RequestURI
 
 	splitURL := strings.Split(requestURL, "?")
-	fmt.Println(splitURL)
+	//fmt.Println(splitURL)
+
+	var deleteOutputID []int32 = []int32{}
+	if len(splitURL) > 1 {
+
+		for i := 1; i < len(splitURL); i++ {
+			temp, _ := strconv.ParseInt(splitURL[i], 10, 32)
+			deleteOutputID = append(deleteOutputID, int32(temp))
+		}
+
+	}
+
+	transaction, err := db.Begin()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer transaction.Rollback()
+
+	var deleteOutputQuery string = `DELETE FROM product_output WHERE output_id = ?`
+	var deleteAttachmentQuery string = `DELETE FROM output_attachment WHERE output_id = ?`
+	for i := 0; i < len(deleteOutputID); i++ {
+
+		_, err := db.Exec(deleteOutputQuery, deleteOutputID[i])
+		if err != nil {
+			fmt.Printf("-------------output_id가 %d인 제품 product_output 테이블 삭제 실패--------------", deleteOutputID[i])
+			log.Fatal(err)
+		}
+
+		_, err = db.Exec(deleteAttachmentQuery, deleteOutputID[i])
+		if err != nil {
+			fmt.Printf("-------------output_id가 %d인 제품 output_attachment 테이블 삭제 실패--------------", deleteOutputID[i])
+			log.Fatal(err)
+		}
+
+	}
+
+	var result Result
+	result.ResultCode = 1
+
+	renderObj := render.New()
+
+	renderObj.JSON(writer, http.StatusOK, result)
+
+}
+
+func getSearchOutputList(writer http.ResponseWriter, request *http.Request) {
+	fmt.Println("............getSearchOutputList()...........")
+	request.ParseForm()
+
+	formData := request.Form
+	//fmt.Println(formData)
+
+	formDataKey := "@d1#" + "product_id"
+	product_id, _ := (strconv.ParseInt(formData[formDataKey][0], 10, 32))
+	fmt.Println("product_id : ", product_id)
+
+	formDataKey = "@d2#" + "searchCondition"
+	searchCondition := formData[formDataKey][0]
+	fmt.Println("searchCondition : ", searchCondition)
+
+	formDataKey = "@d2#" + "searchText"
+	searchText := "%" + formData[formDataKey][0] + "%"
+	fmt.Println("searchText : ", searchText)
+
+	var searchOutputQuery string
+	switch searchCondition {
+	case "산출물 종류":
+		searchOutputQuery = `SELECT 
+								po.output_id,
+								po.output_type,
+								po.output_title,
+								po.write_date,
+								c.*
+							FROM product_output AS po,
+							(SELECT COUNT(output_id) AS count FROM product_output WHERE product_id = ?
+							AND output_type LIKE ?) AS c
+							WHERE po.product_id = ?
+							AND po.output_type LIKE ?
+							ORDER BY po.output_id DESC`
+
+	case "제목":
+		searchOutputQuery = `SELECT 
+								po.output_id,
+								po.output_type,
+								po.output_title,
+								po.write_date,
+								c.*
+							FROM product_output AS po,
+							(SELECT COUNT(output_id) AS count FROM product_output WHERE product_id = ?
+							AND output_title LIKE ?) AS c
+							WHERE po.product_id = ?
+							AND po.output_title LIKE ?
+							ORDER BY po.output_id DESC`
+
+	case "내용":
+		searchOutputQuery = `SELECT 
+								po.output_id,
+								po.output_type,
+								po.output_title,
+								po.write_date,
+								c.*
+							FROM product_output AS po,
+							(SELECT COUNT(output_id) AS count FROM product_output WHERE product_id = ?
+							AND output_content LIKE ?) AS c
+							WHERE po.product_id = ?
+							AND po.output_content LIKE ?
+							ORDER BY po.output_id DESC`
+	}
+
+	rows, err := db.Query(searchOutputQuery, product_id, searchText, product_id, searchText)
+	if err != nil {
+		log.Fatalf("==========product_id = %d인 제품의 산출물 %s에서 %s 검색 실패===========\n", product_id, searchCondition, searchText)
+		log.Println(err)
+	}
+
+	defer rows.Close()
+
+	var totalOutputCount OutputCount
+
+	var product_outputList []Product_output = []Product_output{}
+
+	var outputCount int32
+	var output_id int32
+	var output_type string
+	var output_title string
+	var write_date string
+
+	for rows.Next() {
+		err := rows.Scan(&output_id, &output_type, &output_title, &write_date, &outputCount)
+
+		product_outputList = append(product_outputList,
+			Product_output{
+				Output_id:    output_id,
+				Output_type:  output_type,
+				Output_title: output_title,
+				Write_date:   write_date,
+			},
+		)
+
+		if totalOutputCount.TotalOutputCount == 0 {
+			totalOutputCount = OutputCount{TotalOutputCount: outputCount}
+		}
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+	}
+
+	var outputList OutputList = OutputList{
+		Product_outputList: product_outputList,
+		TotalOutputCount:   totalOutputCount,
+	}
+
+	renderObj := render.New()
+
+	renderObj.JSON(writer, http.StatusOK, outputList)
+
+}
+
+func downloadAttachment(writer http.ResponseWriter, request *http.Request) {
+	fmt.Println("............downloadAttachment()...........")
+
+	/*
+		request.ParseForm()
+
+		formData := request.Form
+		fmt.Println(formData)
+
+		formDataKey := "@d1#" + "file_name"
+		fileName := formData[formDataKey][0]
+
+		formDataKey = "@d2#" + "save_path"
+		saveFilePath := formData[formDataKey][0]
+
+		fmt.Println("fileName : ", fileName)
+		fmt.Println("saveFilePath : ", saveFilePath)
+
+		openfile, err := os.Open(saveFilePath)
+		defer openfile.Close()
+		if err != nil {
+			http.Error(writer, "File not found.", 404) //return 404 if file is not found
+			return
+		}
+
+		tempBuffer := make([]byte, 512)
+		openfile.Read(tempBuffer)
+		fileContentType := http.DetectContentType(tempBuffer)
+
+		fileStat, _ := openfile.Stat()
+		fileSize := strconv.FormatInt(fileStat.Size(), 10)
+
+		writer.Header().Set("Content-Type", fileContentType+";"+fileName)
+		writer.Header().Set("Content-Length", fileSize)
+
+		openfile.Seek(0, 0)
+		io.Copy(writer, openfile)
+	*/
+
 }

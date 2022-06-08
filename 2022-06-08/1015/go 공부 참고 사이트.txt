@@ -1,0 +1,67 @@
+<Golang 공부용 참고 사이트>
+
+https://jaeyung1001.tistory.com/259
+
+http://golang.site/
+https://codingnuri.com/golang-book/
+
+http://golang.site/Go/Basics
+
+- go 번역 사이트
+https://runebook.dev/ko/docs/go/-index-
+
+-------------------------------------------------------------------
+
+13장 13.7 서버
+https://codingnuri.com/golang-book/13.html
+
+--------------------------------------------------------------------
+[C언어]
+
+- c언어 포인터
+https://blog.naver.com/nsj6646/221486028315
+
+- c언어 입력/출력 타입
+https://opentutorials.org/module/3921/23557
+
+
+
+---------------------------------------------------------------------
+[Go 언어]
+
+- go : array와 slice 사용법 차이
+https://ponyozzang.tistory.com/458
+
+- deadlock 오류
+https://hoony-gunputer.tistory.com/entry/goroutine-deadlock
+
+- Go에서 컬렉션 정렬하는 방법 (Go Sort)
+https://blog.advenoh.pe.kr/go/Go%EC%97%90%EC%84%9C-%EC%BB%AC%EB%A0%89%EC%85%98-%EC%A0%95%EB%A0%AC%ED%95%98%EB%8A%94-%EB%B0%A9%EB%B2%95-Go-Sort/
+
+- Golang error 처리
+https://www.joinc.co.kr/w/man/12/golang/error
+
+- 정적파일 서버에 올리기 (http)
+https://j1mmyson.github.io/posts/ServingFiles/
+
+- FileServer 간단하게 만들기
+https://fenderist.tistory.com/281
+
+- Go net/http 패키지
+https://jeonghwan-kim.github.io/dev/2019/02/07/go-net-http.html
+
+---------------------------------------------------------------------
+[기본 개념]
+
+- TCP 프로토콜이란
+https://andjjip.tistory.com/281
+
+
+===============================================
+eXBuilder  로그인 
+아이디 : 1
+비밀번호 : 0000
+
+===============================================
+http://192.168.30.233:3000/
+프로젝트 주소

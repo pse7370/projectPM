@@ -25,7 +25,9 @@
 			 * 앱이 최초 구성된후 최초 랜더링 직후에 발생하는 이벤트 입니다.
 			 */
 			function onBodyLoad(/* cpr.events.CEvent */ e){
-				app.lookup("search").src = "./image/search.png";
+				//app.lookup("searchIcon").src = "./image/search.png";
+				app.lookup("searchCondition").selectItem(0, true);
+				
 				
 				var product_id = app.getRootAppInstance().getAppProperty("product_id"); // 부모화면 데이터 셋
 				console.log("product_id : " + product_id);
@@ -33,6 +35,8 @@
 				var dataProduct_id = app.lookup("product_id");
 				dataProduct_id.setValue("product_id", Number(product_id));
 				console.log(dataProduct_id.getValue("product_id"));
+				
+				app.lookup("pageNum").setValue("pageNum", 1);
 				
 				app.lookup("getOutputList").send();
 				console.log("getOutputList 서브미션 실행");
@@ -47,7 +51,14 @@
 				 * @type cpr.protocols.Submission
 				 */
 				var getOutputList = e.control;
+				var totalRowCount = app.lookup("totalOutputCount").getValue("totalOutputCount");
+				console.log("totalRowCount : " + totalRowCount);
+				app.lookup("pageIndexer").init(totalRowCount);
+				app.lookup("pageIndexer").pageRowCount = 15;
+				app.lookup("pageIndexer").viewPageCount = 5;
 				
+			
+				app.lookup("pageIndexer").redraw();
 				app.lookup("grid_output").redraw();
 				
 			}
@@ -63,35 +74,31 @@
 				 */
 				var grid_output = e.control;
 				
-				var clickRowIndex = e.rowIndex
-				console.log("clickRowIndex : " + clickRowIndex);
-				var output_id = app.lookup("product_outputList").getValue(clickRowIndex, "output_id");
-				console.log(output_id);
-				
-				app.getRootAppInstance().dialogManager.openDialog("output/outputContentView", "outputContentView", {width : 760, height : 700}, function(dialog){
-					dialog.ready(function(dialogApp){
-						// 필요한 경우, 다이얼로그의 앱이 초기화 된 후, 앱 속성을 전달하십시오.
-						dialog.headerTitle = "산출물 조회";
-						console.log(dialog.app.id);
-						dialogApp.initValue = {
-							"output_id" : output_id
-						};
-						/*
-						dialog.style.css("border","solid 1px #555555");
-						dialog.style.css("border-radius","10px");
-						dialog.style.body.css("background-color", "white");
-						dialog.style.header.css("background-color", "#008000");
-						dialog.style.header.css("color", "white");
-						dialog.style.header.css("font-size", "12pt");			
-						*/
-					});
-				}).then(function(returnValue){
-						if (returnValue == 1){
-							//window.location.reload();
-							
-						}
-					});
-				
+				if(e.cellIndex != 0){ // 체크박스 클릭시 창이 열리는 것을 방지하기 위한 처리
+					
+					var clickRowIndex = e.rowIndex
+					console.log("clickRowIndex : " + clickRowIndex);
+					var output_id = app.lookup("product_outputList").getValue(clickRowIndex, "output_id");
+					console.log(output_id);
+					
+					app.getRootAppInstance().dialogManager.openDialog("output/outputContentView", "outputContentView", {width : 760, height : 700}, function(dialog){
+						dialog.ready(function(dialogApp){
+							// 필요한 경우, 다이얼로그의 앱이 초기화 된 후, 앱 속성을 전달하십시오.
+							dialog.headerTitle = "산출물 조회";
+							console.log(dialog.app.id);
+							dialogApp.initValue = {
+								"output_id" : output_id
+							};
+			
+						});
+					}).then(function(returnValue){
+							if (returnValue == 1){
+								app.lookup("getOutputList").send();
+								console.log("getOutputList 서브미션 실행");					
+							}
+						});
+						
+				} // end if
 			}
 			
 			function sendGetOutputListSubmit(){
@@ -114,14 +121,6 @@
 						// 필요한 경우, 다이얼로그의 앱이 초기화 된 후, 앱 속성을 전달하십시오.
 						dialog.headerTitle = "산출물 등록";
 						console.log(dialog.app.id);
-						/*
-						dialog.style.css("border","solid 1px #555555");
-						dialog.style.css("border-radius","10px");
-						dialog.style.body.css("background-color", "white");
-						dialog.style.header.css("background-color", "#008000");
-						dialog.style.header.css("color", "white");
-						dialog.style.header.css("font-size", "12pt");			
-						*/
 					});
 				}).then(function(returnValue){
 						if (returnValue == 1){
@@ -129,6 +128,127 @@
 							app.getHost().callAppMethod(sendGetOutputListSubmit());
 						}
 					});
+				
+			}
+			
+			
+			/*
+			 * "삭제" 버튼에서 click 이벤트 발생 시 호출.
+			 * 사용자가 컨트롤을 클릭할 때 발생하는 이벤트.
+			 */
+			function onButtonClick2(/* cpr.events.CMouseEvent */ e){
+				/** 
+				 * @type cpr.controls.Button
+				 */
+				var button = e.control;
+				
+				var checkIndeices = app.lookup("grid_output").getCheckRowIndices();
+				var i
+				var baseURL = "/productMangement/deleteOutput";
+				for(i = 0; i < checkIndeices.length; i++) {
+					var deleteOutputId = "?" + app.lookup("product_outputList").getValue(i, "output_id");
+					baseURL += deleteOutputId;
+				}
+				
+				app.lookup("deleteOutput").action = baseURL
+				console.log(baseURL);
+			
+				app.lookup("deleteOutput").send();
+				console.log("deleteOutput 서브미션 실행");
+				
+			}
+			
+			
+			/*
+			 * deleteOutput 서브미션에서 submit-done 이벤트 발생 시 호출.
+			 * 응답처리가 모두 종료되면 발생합니다.
+			 */
+			function onDeleteOutputSubmitDone(/* cpr.events.CSubmissionEvent */ e){
+				/** 
+				 * @type cpr.protocols.Submission
+				 */
+				var deleteOutput = e.control;
+				
+				app.lookup("getOutputList").send();
+				console.log("getOutputList 서브미션 실행");
+				
+			}
+			
+			
+			/*
+			 * 페이지 인덱서에서 selection-change 이벤트 발생 시 호출.
+			 * Page index를 선택하여 선택된 페이지가 변경된 후에 발생하는 이벤트.
+			 */
+			function onPageIndexerSelectionChange(/* cpr.events.CSelectionEvent */ e){
+				/** 
+				 * @type cpr.controls.PageIndexer
+				 */
+				var pageIndexer = e.control;
+			
+				console.log("currentPageIndex : " + pageIndexer.currentPageIndex);
+				
+				app.lookup("pageNum").setValue("pageNum", pageIndexer.currentPageIndex);
+				
+				app.lookup("getOutputList").send();
+				console.log("getOutputList 서브미션 실행");
+			}
+			
+			
+			/*
+			 * 검색 조건 콤보 박스에서 selection-change 이벤트 발생 시 호출.
+			 * ComboBox Item을 선택하여 선택된 값이 저장된 후에 발생하는 이벤트.
+			 */
+			function onSearchConditionSelectionChange(/* cpr.events.CSelectionEvent */ e){
+				/** 
+				 * @type cpr.controls.ComboBox
+				 */
+				var searchCondition = e.control;
+				
+				var selectSearchCondition = searchCondition.value;
+				console.log("selectSearchCondition : " + selectSearchCondition);
+				
+				app.lookup("search").setValue("searchCondition", selectSearchCondition);
+				
+			}
+			
+			/*
+			 * 돋보기 이미지에서 click 이벤트 발생 시 호출.
+			 * 사용자가 컨트롤을 클릭할 때 발생하는 이벤트.
+			 */
+			function onSearchIconClick(/* cpr.events.CMouseEvent */ e){
+				/** 
+				 * @type cpr.controls.Image
+				 */
+				var searchIcon = e.control;
+				
+				var searchWord = app.lookup("input_searchWord").value
+				
+				app.lookup("search").setValue("searchText", searchWord);
+				app.lookup("getSearchOutputList").send();
+				console.log("getSearchOutputList 서브미션 실행");
+				
+			}
+			
+			
+			/*
+			 * getSearchOutputList 서브미션에서 submit-done 이벤트 발생 시 호출.
+			 * 응답처리가 모두 종료되면 발생합니다.
+			 */
+			function onGetSearchOutputListSubmitDone(/* cpr.events.CSubmissionEvent */ e){
+				/** 
+				 * @type cpr.protocols.Submission
+				 */
+				var getSearchOutputList = e.control;
+				
+				var totalRowCount = app.lookup("totalOutputCount").getValue("totalOutputCount");
+				console.log("totalRowCount : " + totalRowCount);
+				app.lookup("pageIndexer").init(totalRowCount);
+				app.lookup("pageIndexer").pageRowCount = 15;
+				app.lookup("pageIndexer").viewPageCount = 5;
+				
+			
+				app.lookup("pageIndexer").redraw();
+				app.lookup("grid_output").redraw();
 				
 			};
 			// End - User Script
@@ -154,6 +274,17 @@
 				"rows": []
 			});
 			app.register(dataSet_1);
+			
+			var dataSet_2 = new cpr.data.DataSet("search_condition");
+			dataSet_2.parseData({
+				"columns": [{"name": "search_condition"}],
+				"rows": [
+					{"search_condition": "산출물 종류"},
+					{"search_condition": "제목"},
+					{"search_condition": "내용"}
+				]
+			});
+			app.register(dataSet_2);
 			var dataMap_1 = new cpr.data.DataMap("product_id");
 			dataMap_1.parseData({
 				"columns" : [{
@@ -162,14 +293,72 @@
 				}]
 			});
 			app.register(dataMap_1);
+			
+			var dataMap_2 = new cpr.data.DataMap("result");
+			dataMap_2.parseData({
+				"columns" : [{
+					"name": "resultCode",
+					"dataType": "number"
+				}]
+			});
+			app.register(dataMap_2);
+			
+			var dataMap_3 = new cpr.data.DataMap("totalOutputCount");
+			dataMap_3.parseData({
+				"columns" : [{
+					"name": "totalOutputCount",
+					"dataType": "number"
+				}]
+			});
+			app.register(dataMap_3);
+			
+			var dataMap_4 = new cpr.data.DataMap("pageNum");
+			dataMap_4.parseData({
+				"columns" : [{
+					"name": "pageNum",
+					"dataType": "number"
+				}]
+			});
+			app.register(dataMap_4);
+			
+			var dataMap_5 = new cpr.data.DataMap("search");
+			dataMap_5.parseData({
+				"columns" : [
+					{"name": "searchCondition"},
+					{"name": "searchText"}
+				]
+			});
+			app.register(dataMap_5);
 			var submission_1 = new cpr.protocols.Submission("getOutputList");
 			submission_1.action = "/productMangement/getOutputList";
 			submission_1.addRequestData(dataMap_1);
+			submission_1.addRequestData(dataMap_4);
 			submission_1.addResponseData(dataSet_1, false);
+			submission_1.addResponseData(dataMap_3, false);
 			if(typeof onGetOutputListSubmitDone == "function") {
 				submission_1.addEventListener("submit-done", onGetOutputListSubmitDone);
 			}
 			app.register(submission_1);
+			
+			var submission_2 = new cpr.protocols.Submission("deleteOutput");
+			submission_2.method = "delete";
+			submission_2.action = "/productMangement/deleteOutput";
+			submission_2.addResponseData(dataMap_2, false);
+			if(typeof onDeleteOutputSubmitDone == "function") {
+				submission_2.addEventListener("submit-done", onDeleteOutputSubmitDone);
+			}
+			app.register(submission_2);
+			
+			var submission_3 = new cpr.protocols.Submission("getSearchOutputList");
+			submission_3.action = "/productMangement/getSearchOutputList";
+			submission_3.addRequestData(dataMap_1);
+			submission_3.addRequestData(dataMap_5);
+			submission_3.addResponseData(dataMap_3, false);
+			submission_3.addResponseData(dataSet_1, false);
+			if(typeof onGetSearchOutputListSubmitDone == "function") {
+				submission_3.addEventListener("submit-done", onGetSearchOutputListSubmitDone);
+			}
+			app.register(submission_3);
 			
 			app.supportMedia("all and (min-width: 1024px)", "default");
 			app.supportMedia("all and (min-width: 748px) and (max-width: 1023px)", "new-screen");
@@ -208,19 +397,32 @@
 				formLayout_1.setRows(["32px"]);
 				group_2.setLayout(formLayout_1);
 				(function(container){
-					var comboBox_1 = new cpr.controls.ComboBox("cmb1");
+					var comboBox_1 = new cpr.controls.ComboBox("searchCondition");
+					comboBox_1.placeholder = "검색 조건";
+					comboBox_1.preventInput = true;
+					comboBox_1.style.css({
+						"text-align" : "center"
+					});
 					(function(comboBox_1){
+						comboBox_1.setItemSet(app.lookup("search_condition"), {
+							"label": "search_condition",
+							"value": "search_condition"
+						})
 					})(comboBox_1);
+					if(typeof onSearchConditionSelectionChange == "function") {
+						comboBox_1.addEventListener("selection-change", onSearchConditionSelectionChange);
+					}
 					container.addChild(comboBox_1, {
 						"colIndex": 0,
 						"rowIndex": 0
 					});
-					var inputBox_1 = new cpr.controls.InputBox("ipb1");
+					var inputBox_1 = new cpr.controls.InputBox("input_searchWord");
 					container.addChild(inputBox_1, {
 						"colIndex": 1,
 						"rowIndex": 0
 					});
-					var image_1 = new cpr.controls.Image("search");
+					var image_1 = new cpr.controls.Image("searchIcon");
+					image_1.src = "image/search.png";
 					image_1.style.css({
 						"border-right-style" : "solid",
 						"padding-top" : "4px",
@@ -242,13 +444,16 @@
 					});
 					(function(image_1){
 					})(image_1);
+					if(typeof onSearchIconClick == "function") {
+						image_1.addEventListener("click", onSearchIconClick);
+					}
 					container.addChild(image_1, {
 						"colIndex": 2,
 						"rowIndex": 0
 					});
 				})(group_2);
 				container.addChild(group_2, {
-					"top": "30px",
+					"top": "25px",
 					"left": "20px",
 					"width": "461px",
 					"height": "39px"
@@ -387,15 +592,21 @@
 					});
 				})(group_3);
 				container.addChild(group_3, {
-					"top": "80px",
+					"top": "75px",
 					"left": "20px",
 					"width": "698px",
 					"height": "460px"
 				});
-				var pageIndexer_1 = new cpr.controls.PageIndexer();
+				var pageIndexer_1 = new cpr.controls.PageIndexer("pageIndexer");
+				pageIndexer_1.pageRowCount = 15;
+				pageIndexer_1.viewPageCount = 1;
+				pageIndexer_1.bind("totalRowCount").toDataMap(app.lookup("totalOutputCount"), "totalOutputCount");
 				pageIndexer_1.init(1, 1, 1);
+				if(typeof onPageIndexerSelectionChange == "function") {
+					pageIndexer_1.addEventListener("selection-change", onPageIndexerSelectionChange);
+				}
 				container.addChild(pageIndexer_1, {
-					"top": "545px",
+					"top": "540px",
 					"left": "200px",
 					"width": "338px",
 					"height": "40px"
@@ -415,7 +626,7 @@
 					button_1.addEventListener("click", onButtonClick);
 				}
 				container.addChild(button_1, {
-					"top": "35px",
+					"top": "30px",
 					"left": "507px",
 					"width": "120px",
 					"height": "26px"
@@ -431,8 +642,11 @@
 					"background-image" : "none",
 					"border-top-style" : "none"
 				});
+				if(typeof onButtonClick2 == "function") {
+					button_2.addEventListener("click", onButtonClick2);
+				}
 				container.addChild(button_2, {
-					"top": "35px",
+					"top": "30px",
 					"left": "638px",
 					"width": "80px",
 					"height": "26px"
@@ -442,7 +656,7 @@
 				"top": "0px",
 				"left": "0px",
 				"width": "739px",
-				"height": "600px"
+				"height": "595px"
 			});
 			if(typeof onBodyLoad == "function"){
 				app.addEventListener("load", onBodyLoad);

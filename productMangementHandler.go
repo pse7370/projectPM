@@ -114,7 +114,7 @@ func getSideMenuContent(writer http.ResponseWriter, request *http.Request) {
 
 // 출입통제기 등록
 func addDevice(writer http.ResponseWriter, request *http.Request) {
-	request.ParseMultipartForm(8 << 20)
+	request.ParseMultipartForm(8 << 20) // 8MiB 메모리 할당
 	log.Println("...............addDevice().............")
 
 	basePath, _ := os.Getwd()
@@ -705,7 +705,7 @@ func getDeviceContent(writer http.ResponseWriter, request *http.Request) {
 		log.Println(err)
 	}
 
-	fmt.Println(getDeviceDetailsQuery)
+	//fmt.Println(getDeviceDetailsQuery)
 	defer rows.Close()
 
 	var auth_type string
@@ -1242,7 +1242,7 @@ func deleteSW(writer http.ResponseWriter, request *http.Request) {
 
 func modifyDevice(writer http.ResponseWriter, request *http.Request) {
 	fmt.Println("..........modifyDevice().........")
-	request.ParseMultipartForm(100)
+	request.ParseMultipartForm(8 << 20)
 
 	basePath, _ := os.Getwd()
 
@@ -1699,7 +1699,7 @@ func modifyDevice(writer http.ResponseWriter, request *http.Request) {
 
 func modifySW(writer http.ResponseWriter, request *http.Request) {
 	fmt.Println("..........modifySW().........")
-	request.ParseMultipartForm(100)
+	request.ParseMultipartForm(8 << 20)
 
 	basePath, _ := os.Getwd()
 

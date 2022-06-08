@@ -1,0 +1,238 @@
+-- 출입통제기 더미데이터 쿼리
+BEGIN
+INSERT INTO product 
+	VALUES (
+		'출입통제기', 
+		'UBio-X Face', 
+		'0.0.0.1', 
+		'UBio-X Face_main.png', 
+		'UBio-X Face_main.png',
+		'C:\',
+		'비접촉식 얼굴 인식 시스템' + CHAR(10) +
+		'워크스루 방식의 얼굴인식 알고리즘 탑재' + CHAR(10) +
+		'라이브니스 검출 및 스푸핑 방지 기능 탑재' + CHAR(10) +
+		'다양한 설치 환경 지원'
+		);
+INSERT INTO authentication_details
+	VALUES (
+		IDENT_CURRENT('product'),
+		'카드',
+		'1:1',
+		500000,
+		0
+		),
+		(
+		IDENT_CURRENT('product'),
+		'카드',
+		'1:N',
+		500000,
+		0
+		),
+		(
+		IDENT_CURRENT('product'),
+		'얼굴',
+		'1:1',
+		20000,
+		20000
+		),
+		(
+		IDENT_CURRENT('product'),
+		'얼굴',
+		'1:N',
+		20000,
+		20000
+		);
+INSERT INTO product_device 
+	VALUES (
+		IDENT_CURRENT('product'),
+		96,
+		211,
+		35.3,
+		'IP55',
+		'TCP/IP',
+		'X',
+		'USB'
+		);
+INSERT INTO product_developer 
+	VALUES (
+		IDENT_CURRENT('product'),
+		'S/W 2팀',
+		202204003,
+		'박소은',
+		'2021-02-11',
+		'2021-09-28'
+		);
+END;
+
+BEGIN
+INSERT INTO product 
+	VALUES (
+		'출입통제기', 
+		'UBio-X Pro2', 
+		'0.0.0.1', 
+		'UBio-X Pro2_main.png', 
+		'UBio-X Pro2_main.png',
+		'C:\',
+		'비접촉식 얼굴 인식 시스템' + CHAR(10) +
+		'워크스루 방식의 얼굴인식 알고리즘 탑재' + CHAR(10) +
+		'라이브니스 검출 및 스푸핑 방지 기능 탑재' + CHAR(10) +
+		'열화상 카메라 연동 가능'
+		);
+INSERT INTO authentication_details
+	VALUES (
+		IDENT_CURRENT('product'),
+		'카드',
+		'1:1',
+		500000,
+		0
+		),
+		(
+		IDENT_CURRENT('product'),
+		'카드',
+		'1:N',
+		500000,
+		0
+		),
+		(
+		IDENT_CURRENT('product'),
+		'지문',
+		'1:1',
+		500000,
+		1000000
+		),
+		(
+		IDENT_CURRENT('product'),
+		'지문',
+		'1:N',
+		100000,
+		200000
+		),
+		(
+		IDENT_CURRENT('product'),
+		'얼굴',
+		'1:1',
+		20000,
+		20000
+		),
+		(
+		IDENT_CURRENT('product'),
+		'얼굴',
+		'1:N',
+		20000,
+		20000
+		);
+INSERT INTO product_device 
+	VALUES (
+		IDENT_CURRENT('product'),
+		96,
+		211,
+		35.3,
+		'IP55',
+		'TCP/IP',
+		'X',
+		'USB'
+		);
+INSERT INTO product_developer 
+	VALUES (
+		IDENT_CURRENT('product'),
+		'S/W 2팀',
+		202204003,
+		'박소은',
+		'2021-11-05',
+		'2022-04-11'
+		);
+END;
+
+BEGIN
+-- SW 더미데이터 쿼리
+INSERT INTO product 
+	VALUES (
+		'SW', 
+		'UBio Alpeta', 
+		'v0.1.0.0', 
+		'UBio Alpeta_main.png', 
+		'UBio Alpeta_main.png',
+		'C:\',
+		'표준 WEP API 제공' + CHAR(10) +
+		'UBio Alpeta eXbuilder 제공' + CHAR(10) +
+		'VMS, BMS 및 타 보안 시스템과 연동 용이' + CHAR(10) +
+		'52시간 근무에 적합한 근태관리 프로그램 제공'
+		);
+INSERT INTO product_sw
+	VALUES (
+		IDENT_CURRENT('product'),
+		2000,
+		4,
+		1
+		),
+		(
+		IDENT_CURRENT('product'),
+		2000,
+		8,
+		2
+		);
+INSERT INTO product_developer 
+	VALUES (
+		IDENT_CURRENT('product'),
+		'S/W 2팀',
+		202204003,
+		'박소은',
+		'2020-01-19',
+		'2020-07-30'
+		);
+END;
+
+BEGIN
+-- 커스터마이징 이력 더미
+INSERT INTO product_customizing
+	VALUES (
+		1,
+		'v1.0.0.0',
+		'단말기 삭제시 단말기 모니터링 화면의 단말기 리스트 연결 종료 및 리스트 삭제 기능 추가',
+		'S/W 2팀',
+		202204003,
+		'박소은',
+		'2020-01-19',
+		'2020-07-30'
+		);
+END
+
+-- 산출물 더미
+BEGIN
+INSERT INTO product_output
+	VALUES (
+		1,
+		'개발 계획서',
+		'UBio-X Face 개발 계획서',
+		'개발 계획서입니다.'
+		);
+INSERT INTO output_attachment	
+	VALUES (
+		IDENT_CURRENT('product_output'),
+		'개발 계획서.xlsx',
+		'개발 계획서.xlsx',
+		'C:\'
+	);
+END;
+
+
+
+DELETE FROM product;
+DELETE FROM product_device;
+DELETE FROM authentication_details;
+DELETE FROM product_customizing;
+DELETE FROM product_developer;
+DELETE FROM product_output;
+DELETE FROM product_sw;
+DELETE FROM output_attachment;
+
+SELECT p.*, pd.* FROM product AS p FULL OUTER JOIN product_device AS pd ON p.product_id = pd.product_id;
+
+DBCC CHECKIDENT(product, RESEED, 0);
+DBCC CHECKIDENT(product_device, RESEED, 0);
+DBCC CHECKIDENT(authentication_details, RESEED, 0);
+DBCC CHECKIDENT(product_customizing, RESEED, 0);
+DBCC CHECKIDENT(product_developer, RESEED, 0);
+DBCC CHECKIDENT(product_output, RESEED, 0);
+DBCC CHECKIDENT(product_sw, RESEED, 0);
+DBCC CHECKIDENT(output_attachment, RESEED, 0);

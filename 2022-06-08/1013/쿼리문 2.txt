@@ -1,0 +1,55 @@
+delete from product where product_id > 3;
+delete from product_device where product_id > 3;
+delete from authentication_details where product_id > 3;
+delete from product_developer where product_id > 3;
+
+select * from authentication_details;
+
+select * from product;
+
+select * from product_sw;
+
+SELECT * FROM product, authentication_details, product_device, product_developer WHERE product_id = 2;
+
+SELECT
+	p.product_id, p.product_type, p.product_name, 
+	p.product_version, p.save_path, p.explanation,
+	ad.auth_type, ad.one_to_one_max_user, ad.one_to_many_max_user,
+	ad.one_to_one_max_template, ad.one_to_many_max_template,
+	pd.width, pd.height, pd.depth, pd.ip_ratings, 
+	pd.server, pd.wi_fi, pd.other,
+	dev.developer_id, dev.department, dev.employees_number, 
+	dev.employees_name, convert(varchar(10), dev.start_date, 20) AS start_date, 
+	convert(varchar(10), dev.end_date, 20)
+FROM product p
+LEFT JOIN authentication_details ad
+ON p.product_id = ad.product_id
+LEFT JOIN product_device pd
+ON p.product_id = pd.product_id
+LEFT JOIN product_developer dev
+ON p.product_id = dev.product_id
+WHERE p.product_id = 2;
+
+SELECT
+	p.product_id, p.product_type, p.product_name, 
+	p.product_version, p.save_path, p.explanation,
+	ad.auth_type, ad.one_to_one_max_user, ad.one_to_many_max_user,
+	ad.one_to_one_max_template, ad.one_to_many_max_template,
+	pd.width, pd.height, pd.depth, pd.ip_ratings, 
+	pd.server, pd.wi_fi, pd.other
+FROM product p
+LEFT JOIN authentication_details ad
+ON p.product_id = ad.product_id
+LEFT JOIN product_device pd
+ON p.product_id = pd.product_id
+WHERE p.product_id = 1;
+
+SELECT
+	dev.developer_id, dev.department, dev.employees_number, 
+	dev.employees_name, convert(varchar(10), dev.start_date, 20) AS start_date, 
+	convert(varchar(10), dev.end_date, 20)
+FROM product_developer dev
+WHERE dev.product_id = 1;
+
+update authentication_details set one_to_one_max_template = 0, one_to_many_max_template = 0 where auth_type = 'Ä«µå';
+commit;
