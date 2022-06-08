@@ -186,8 +186,10 @@ func StartServer() {
 	// 산출물 검색
 	mux.HandleFunc("/productMangement/getSearchOutputList", getSearchOutputList)
 
-	// 첨부 파일 다운로드
+	// 산출물 첨부 파일 다운로드
 	mux.HandleFunc("/productMangement/downloadAttachment", downloadAttachment)
+	// 산출물 수정
+	mux.HandleFunc("/productMangement/modifyOutput", modifyOutput)
 
 	// http.ListenAndServe(mainServerAddress, mux)
 	// 웹서버를 실제로 동작시키기 위한 함수, 서버가 동작할 포트 번호 지정

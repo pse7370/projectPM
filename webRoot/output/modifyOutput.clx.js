@@ -23,13 +23,110 @@
 			 * 앱이 최초 구성된후 최초 랜더링 직후에 발생하는 이벤트 입니다.
 			 */
 			function onBodyLoad(/* cpr.events.CEvent */ e){
-				console.log(app.getHost().initValue.product_output);
-				console.log(app.getHost().initValue.output_id);
-				console.log(app.getHost().initValue.attachmentList);
+			
+				var outputID = app.getHost().initValue.output_id;
+				
+				app.lookup("output_id").setValue("output_id", outputID);
+				app.lookup("getOutputContent").send();
+				console.log("getOutputContent 서브미션 실행");
+				
+			}
+			
+			
+			/*
+			 * 서브미션에서 submit-done 이벤트 발생 시 호출.
+			 * 응답처리가 모두 종료되면 발생합니다.
+			 */
+			function onGetOutputContentSubmitDone(/* cpr.events.CSubmissionEvent */ e){
+				/** 
+				 * @type cpr.protocols.Submission
+				 */
+				var getOutputContent = e.control;
+				
+				app.lookup("productName").redraw();
+				app.lookup("input_outputType").redraw();
+				app.lookup("input_outputTitle").redraw();
+				app.lookup("outputContent").redraw();
+				
+				var attachmentList = app.lookup("attachmentList");
+				var i
+				for(i = 0; i < attachmentList.getRowCount(); i++) {
+					var fileName = attachmentList.getValue(i, "real_file_name");
+					var fileSize = attachmentList.getValue(i, "file_size");
+					var save_path = attachmentList.getValue(i, "save_path")
+					app.lookup("file_upload").addUploadedFile(
+						{
+							name : fileName, 
+							size : fileSize, 
+							properties : {svaePath : save_path}
+						}
+					);
+				}
+				
+			}
+			
+			
+			/*
+			 * "수정" 버튼에서 click 이벤트 발생 시 호출.
+			 * 사용자가 컨트롤을 클릭할 때 발생하는 이벤트.
+			 */
+			function onButtonClick(/* cpr.events.CMouseEvent */ e){
+				/** 
+				 * @type cpr.controls.Button
+				 */
+				var button = e.control;
+				
+				var attachmentList = app.lookup("attachmentList");
+				var files = app.lookup("file_upload").getFiles();
+				
+				if(files.length > 0){
+					var i
+					var j
+					for(i = 0; i < files.length; i++){
+						for(j = 0; j < attachmentList.getRowCount(); j++){
+							if(files[i].name != attachmentList.getValue(j, "real_file_name")){
+								app.lookup("modifyOutput").addFileParameter("file" + i, files[i]);
+								console.log("file" + i + " : " + files[i]);
+							}
+						}
+						
+					}
+					
+				}
+				
+				app.lookup("modifyOutput").send();
+				console.log("modifyOutput 서브미션 실행");
+				
+			}
+			
+			
+			/*
+			 * 서브미션에서 submit-done 이벤트 발생 시 호출.
+			 * 응답처리가 모두 종료되면 발생합니다.
+			 */
+			function onModifyOutputSubmitDone(/* cpr.events.CSubmissionEvent */ e){
+				/** 
+				 * @type cpr.protocols.Submission
+				 */
+				var modifyOutput = e.control;
+				
 			};
 			// End - User Script
 			
 			// Header
+			var dataSet_1 = new cpr.data.DataSet("attachmentList");
+			dataSet_1.parseData({
+				"columns" : [
+					{"name": "real_file_name"},
+					{"name": "save_file_name"},
+					{"name": "save_path"},
+					{
+						"name": "file_size",
+						"dataType": "number"
+					}
+				]
+			});
+			app.register(dataSet_1);
 			var dataMap_1 = new cpr.data.DataMap("product");
 			dataMap_1.parseData({
 				"columns" : [{"name": "product_name"}]
@@ -56,6 +153,42 @@
 				]
 			});
 			app.register(dataMap_2);
+			
+			var dataMap_3 = new cpr.data.DataMap("output_id");
+			dataMap_3.parseData({
+				"columns" : [{
+					"name": "output_id",
+					"dataType": "number"
+				}]
+			});
+			app.register(dataMap_3);
+			
+			var dataMap_4 = new cpr.data.DataMap("deleteFiles");
+			dataMap_4.parseData({
+				"columns" : [{"name": "delete_real_file_name"}]
+			});
+			app.register(dataMap_4);
+			var submission_1 = new cpr.protocols.Submission("modifyOutput");
+			submission_1.method = "put";
+			submission_1.action = "/productMangement/modifyOutput";
+			submission_1.mediaType = "multipart/form-data";
+			submission_1.addRequestData(dataMap_2);
+			submission_1.addRequestData(dataSet_1);
+			if(typeof onModifyOutputSubmitDone == "function") {
+				submission_1.addEventListener("submit-done", onModifyOutputSubmitDone);
+			}
+			app.register(submission_1);
+			
+			var submission_2 = new cpr.protocols.Submission("getOutputContent");
+			submission_2.action = "/productMangement/getOutputContent";
+			submission_2.addRequestData(dataMap_3);
+			submission_2.addResponseData(dataMap_1, false);
+			submission_2.addResponseData(dataMap_2, false);
+			submission_2.addResponseData(dataSet_1, false);
+			if(typeof onGetOutputContentSubmitDone == "function") {
+				submission_2.addEventListener("submit-done", onGetOutputContentSubmitDone);
+			}
+			app.register(submission_2);
 			
 			app.supportMedia("all and (min-width: 1024px)", "default");
 			app.supportMedia("all and (min-width: 745px) and (max-width: 1023px)", "new-screen");
@@ -103,7 +236,7 @@
 						"colIndex": 0,
 						"rowIndex": 0
 					});
-					var inputBox_1 = new cpr.controls.InputBox("ipb1");
+					var inputBox_1 = new cpr.controls.InputBox("input_outputType");
 					inputBox_1.bind("value").toDataMap(app.lookup("product_output"), "output_type");
 					container.addChild(inputBox_1, {
 						"colIndex": 1,
@@ -134,6 +267,12 @@
 					"background-color" : "#eaf0ea",
 					"background-image" : "none"
 				});
+				if(typeof onFile_uploadRemoveFile == "function") {
+					fileUpload_1.addEventListener("remove-file", onFile_uploadRemoveFile);
+				}
+				if(typeof onFile_uploadRemoveBeforeFile == "function") {
+					fileUpload_1.addEventListener("remove-before-file", onFile_uploadRemoveBeforeFile);
+				}
 				container.addChild(fileUpload_1, {
 					"top": "140px",
 					"left": "20px",
@@ -154,7 +293,7 @@
 						"width": "100px",
 						"height": "27px"
 					});
-					var textArea_1 = new cpr.controls.TextArea("txa1");
+					var textArea_1 = new cpr.controls.TextArea("outputContent");
 					textArea_1.bind("value").toDataMap(app.lookup("product_output"), "output_content");
 					container.addChild(textArea_1, {
 						"width": "100px",
@@ -178,6 +317,9 @@
 					"background-image" : "none",
 					"border-top-style" : "none"
 				});
+				if(typeof onButtonClick == "function") {
+					button_1.addEventListener("click", onButtonClick);
+				}
 				container.addChild(button_1, {
 					"top": "655px",
 					"left": "635px",
@@ -275,7 +417,7 @@
 					"colIndex": 0,
 					"rowIndex": 0
 				});
-				var inputBox_2 = new cpr.controls.InputBox("ipb2");
+				var inputBox_2 = new cpr.controls.InputBox("input_outputTitle");
 				inputBox_2.bind("value").toDataMap(app.lookup("product_output"), "output_title");
 				container.addChild(inputBox_2, {
 					"colIndex": 1,

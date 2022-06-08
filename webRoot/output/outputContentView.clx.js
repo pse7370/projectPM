@@ -85,9 +85,7 @@
 				cpr.core.App.load("output/modifyOutput", function(loadedApp){
 					if(loadedApp){
 						embeddedApp.initValue = {
-							product_output : app.lookup("product_output"),
-							output_id : app.lookup("output_id").getValue("output_id"),
-							attchmentList : app.lookup("attachmentList")
+							output_id : app.lookup("output_id").getValue("output_id")
 						}
 			    		embeddedApp.app = loadedApp;	    		
 			  		}
@@ -140,7 +138,7 @@
 				 */
 				var downloadAttachment = e.control;
 				
-				blod
+				
 				
 			}
 			

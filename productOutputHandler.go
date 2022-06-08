@@ -546,3 +546,12 @@ func downloadAttachment(writer http.ResponseWriter, request *http.Request) {
 	*/
 
 }
+
+func modifyOutput(writer http.ResponseWriter, request *http.Request) {
+	fmt.Println("............modifyOutput()...........")
+	request.ParseMultipartForm(2 << 30)
+
+	multipartForm := request.MultipartForm
+	fmt.Println(multipartForm)
+
+}
