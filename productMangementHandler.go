@@ -415,8 +415,10 @@ func addDevice(writer http.ResponseWriter, request *http.Request) {
 		log.Fatal(err)
 	}
 
-	var result Result
-	result.ResultCode = 1
+	var resultcode ResultCode
+	resultcode.ResultCode = 1
+
+	var result Result = Result{resultcode}
 
 	renderObj := render.New()
 
@@ -618,8 +620,10 @@ func addSW(writer http.ResponseWriter, request *http.Request) {
 		log.Fatal(err)
 	}
 
-	var result Result
-	result.ResultCode = 1
+	var resultcode ResultCode
+	resultcode.ResultCode = 1
+
+	var result Result = Result{resultcode}
 
 	renderObj := render.New()
 
@@ -1031,7 +1035,7 @@ func deleteDevice(writer http.ResponseWriter, request *http.Request) {
 	defer transaction.Rollback()
 
 	var deleteProductQuery string = `DELETE FROM product WHERE product_id = ?`
-	fmt.Println(deleteProductQuery)
+	//fmt.Println(deleteProductQuery)
 	_, err = db.Exec(deleteProductQuery, product_id)
 	if err != nil {
 		fmt.Printf("-------------product_id가 %d인 제품 product 테이블 삭제 실패--------------", product_id)
@@ -1039,7 +1043,7 @@ func deleteDevice(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	var deleteDeviceQuery string = `DELETE FROM product_device WHERE product_id = ?`
-	fmt.Println(deleteDeviceQuery)
+	//fmt.Println(deleteDeviceQuery)
 	_, err = db.Exec(deleteDeviceQuery, product_id)
 	if err != nil {
 		fmt.Printf("-------------product_id가 %d인 제품 product_device 테이블 삭제 실패--------------", product_id)
@@ -1047,7 +1051,7 @@ func deleteDevice(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	var deleteAuthenticationQuery string = `DELETE FROM authentication_details WHERE product_id = ?`
-	fmt.Println(deleteAuthenticationQuery)
+	//fmt.Println(deleteAuthenticationQuery)
 	_, err = db.Exec(deleteAuthenticationQuery, product_id)
 	if err != nil {
 		fmt.Printf("-------------product_id가 %d인 제품 authentication_details 테이블 삭제 실패--------------", product_id)
@@ -1055,7 +1059,7 @@ func deleteDevice(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	var deleteDeveloperQuery string = `DELETE FROM product_developer WHERE product_id = ?`
-	fmt.Println(deleteDeveloperQuery)
+	//fmt.Println(deleteDeveloperQuery)
 	_, err = db.Exec(deleteDeveloperQuery, product_id)
 	if err != nil {
 		fmt.Printf("-------------product_id가 %d인 제품 product_developer 테이블 삭제 실패--------------", product_id)
@@ -1113,8 +1117,10 @@ func deleteDevice(writer http.ResponseWriter, request *http.Request) {
 		log.Fatal(err)
 	}
 
-	var result Result
-	result.ResultCode = 1
+	var resultcode ResultCode
+	resultcode.ResultCode = 1
+
+	var result Result = Result{resultcode}
 
 	renderObj := render.New()
 
@@ -1232,8 +1238,10 @@ func deleteSW(writer http.ResponseWriter, request *http.Request) {
 		log.Fatal(err)
 	}
 
-	var result Result
-	result.ResultCode = 1
+	var resultcode ResultCode
+	resultcode.ResultCode = 1
+
+	var result Result = Result{resultcode}
 
 	renderObj := render.New()
 
@@ -1688,8 +1696,10 @@ func modifyDevice(writer http.ResponseWriter, request *http.Request) {
 
 	}
 
-	var result Result
-	result.ResultCode = 1
+	var resultcode ResultCode
+	resultcode.ResultCode = 1
+
+	var result Result = Result{resultcode}
 
 	renderObj := render.New()
 
@@ -2006,9 +2016,10 @@ func modifySW(writer http.ResponseWriter, request *http.Request) {
 
 	}
 
-	var result Result
-	result.ResultCode = 1
+	var resultcode ResultCode
+	resultcode.ResultCode = 1
 
+	var result Result = Result{resultcode}
 	renderObj := render.New()
 
 	renderObj.JSON(writer, http.StatusOK, result)

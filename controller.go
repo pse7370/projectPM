@@ -150,12 +150,18 @@ func StartServer() {
 	mux.Handle("/", http.StripPrefix("/", fileServer))
 	// http://localhost:5000/
 
+	/*
+		deviveImageServer := http.FileServer(http.Dir(basePath + "/deviceImage"))
+		mux.Handle("/deviceImage", http.StripPrefix("/", deviveImageServer))
+	*/
+
 	fmt.Println("====================Start Server======================")
 
 	//CustomHandleFunc("/productMangement/sideMenu", getSideMenuContent)
 
 	// 사이드 트리 메뉴 구성 값 가져오기
 	mux.HandleFunc("/productMangement/sideMenu", productMangementHandler)
+
 	// 출입통제기 등록하기
 	mux.HandleFunc("/productMangement/addDevice", addDevice)
 	// SW 등록하기
@@ -172,8 +178,13 @@ func StartServer() {
 	mux.HandleFunc("/productMangement/modifyDevice", modifyDevice)
 	// SW 수정
 	mux.HandleFunc("/productMangement/modifySW", modifySW)
+
 	// 커스터마이징 이력 목록 불러오기
 	mux.HandleFunc("/productMangement/getCustomizingList", getCustomizingList)
+	// 커스터마이징 이력 삭제
+	mux.HandleFunc("/productMangement/deleteCustomizing", deleteCustomizing)
+	// 커스터마이징 이력 추가/수정하기
+	mux.HandleFunc("/productMangement/modifyCustomizing", modifyCustomizing)
 
 	// 산출물 목록 불러오기
 	mux.HandleFunc("/productMangement/getOutputList", getOutputList)
@@ -185,9 +196,10 @@ func StartServer() {
 	mux.HandleFunc("/productMangement/deleteOutput", deleteOutput)
 	// 산출물 검색
 	mux.HandleFunc("/productMangement/getSearchOutputList", getSearchOutputList)
-
-	// 산출물 첨부 파일 다운로드
+	// 산출물 하나의 첨부 파일 다운로드
 	mux.HandleFunc("/productMangement/downloadAttachment", downloadAttachment)
+	// 산출물 복수의 첨부 파일 다운로드
+	mux.HandleFunc("/productMangement/downloadAttachmentList", downloadAttachmentList)
 	// 산출물 수정
 	mux.HandleFunc("/productMangement/modifyOutput", modifyOutput)
 

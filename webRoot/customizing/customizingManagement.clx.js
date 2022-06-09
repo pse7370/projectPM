@@ -70,11 +70,61 @@
 				cpr.core.App.load("customizing/modifyCustomizing", function(loadedApp){
 					if(loadedApp){
 						embeddedApp.initValue = {
-							
+							"product_id" : app.lookup("product_id").getValue("product_id")
 						}
 			    		embeddedApp.app = loadedApp;	    		
 			  		}
 				});
+				
+			}
+			
+			
+			/*
+			 * "삭제" 버튼에서 click 이벤트 발생 시 호출.
+			 * 사용자가 컨트롤을 클릭할 때 발생하는 이벤트.
+			 */
+			function onButtonClick2(/* cpr.events.CMouseEvent */ e){
+				/** 
+				 * @type cpr.controls.Button
+				 */
+				var button = e.control;
+				
+				var customizingList = app.lookup("grid_customizing");
+				customizingList.showDeletedRow = false;
+				var checkedRow = customizingList.getCheckRowIndices();
+				
+				console.log("checkedRow : " + checkedRow);
+				
+				var data_customizingList = app.lookup("product_customizingList");
+				
+				var i
+				var actionURL = "/productMangement/deleteCustomizing";
+				for(i = 0; i < checkedRow.length; i++){
+					
+					actionURL += "?" + app.lookup("product_customizingList").getValue(checkedRow[i], "customizing_id");		
+					
+					data_customizingList.deleteRow(checkedRow[i]);
+				}
+				
+				console.log(actionURL);
+				app.lookup("deleteCustomizing").action = actionURL;
+				
+				app.lookup("deleteCustomizing").send();
+				console.log("deleteCustomizing 서브미션 실행");
+			}
+			
+			
+			/*
+			 * 서브미션에서 submit-done 이벤트 발생 시 호출.
+			 * 응답처리가 모두 종료되면 발생합니다.
+			 */
+			function onDeleteCustomizingSubmitDone(/* cpr.events.CSubmissionEvent */ e){
+				/** 
+				 * @type cpr.protocols.Submission
+				 */
+				var deleteCustomizing = e.control;
+				
+				app.lookup("getCustomizingList").send();
 				
 			};
 			// End - User Script
@@ -115,6 +165,15 @@
 				}]
 			});
 			app.register(dataMap_2);
+			
+			var dataMap_3 = new cpr.data.DataMap("result");
+			dataMap_3.parseData({
+				"columns" : [{
+					"name": "resultCode",
+					"dataType": "number"
+				}]
+			});
+			app.register(dataMap_3);
 			var submission_1 = new cpr.protocols.Submission("getCustomizingList");
 			submission_1.action = "/productMangement/getCustomizingList";
 			submission_1.addRequestData(dataMap_2);
@@ -124,6 +183,15 @@
 				submission_1.addEventListener("submit-done", onGetCustomizingListSubmitDone);
 			}
 			app.register(submission_1);
+			
+			var submission_2 = new cpr.protocols.Submission("deleteCustomizing");
+			submission_2.method = "delete";
+			submission_2.action = "/productMangement/deleteCustomizing";
+			submission_2.addResponseData(dataMap_3, false);
+			if(typeof onDeleteCustomizingSubmitDone == "function") {
+				submission_2.addEventListener("submit-done", onDeleteCustomizingSubmitDone);
+			}
+			app.register(submission_2);
 			
 			app.supportMedia("all and (min-width: 1024px)", "default");
 			app.supportMedia("all and (min-width: 840px) and (max-width: 1023px)", "new-screen2");
@@ -238,12 +306,11 @@
 						"columns": [
 							{"width": "25px"},
 							{"width": "31px"},
-							{"width": "153px"},
-							{"width": "108px"},
+							{"width": "117px"},
 							{"width": "93px"},
-							{"width": "104px"},
-							{"width": "100px"},
-							{"width": "100px"}
+							{"width": "109px"},
+							{"width": "84px"},
+							{"width": "87px"}
 						],
 						"header": {
 							"rows": [
@@ -274,19 +341,7 @@
 									}
 								},
 								{
-									"constraint": {"rowIndex": 0, "colIndex": 2, "rowSpan": 2, "colSpan": 1},
-									"configurator": function(cell){
-										cell.targetColumnName = "customized_function";
-										cell.filterable = false;
-										cell.sortable = false;
-										cell.text = "기능";
-										cell.style.css({
-											"background-color" : "#eaf0ea"
-										});
-									}
-								},
-								{
-									"constraint": {"rowIndex": 1, "colIndex": 3},
+									"constraint": {"rowIndex": 1, "colIndex": 2},
 									"configurator": function(cell){
 										cell.targetColumnName = "department";
 										cell.filterable = false;
@@ -298,7 +353,7 @@
 									}
 								},
 								{
-									"constraint": {"rowIndex": 1, "colIndex": 4},
+									"constraint": {"rowIndex": 1, "colIndex": 3},
 									"configurator": function(cell){
 										cell.targetColumnName = "employees_number";
 										cell.filterable = false;
@@ -310,7 +365,7 @@
 									}
 								},
 								{
-									"constraint": {"rowIndex": 1, "colIndex": 5},
+									"constraint": {"rowIndex": 1, "colIndex": 4},
 									"configurator": function(cell){
 										cell.targetColumnName = "employees_name";
 										cell.filterable = false;
@@ -322,7 +377,7 @@
 									}
 								},
 								{
-									"constraint": {"rowIndex": 1, "colIndex": 6},
+									"constraint": {"rowIndex": 1, "colIndex": 5},
 									"configurator": function(cell){
 										cell.targetColumnName = "start_date";
 										cell.filterable = false;
@@ -334,7 +389,7 @@
 									}
 								},
 								{
-									"constraint": {"rowIndex": 1, "colIndex": 7},
+									"constraint": {"rowIndex": 1, "colIndex": 6},
 									"configurator": function(cell){
 										cell.targetColumnName = "end_date";
 										cell.filterable = false;
@@ -346,9 +401,9 @@
 									}
 								},
 								{
-									"constraint": {"rowIndex": 0, "colIndex": 3, "rowSpan": 1, "colSpan": 5},
+									"constraint": {"rowIndex": 0, "colIndex": 2, "rowSpan": 1, "colSpan": 5},
 									"configurator": function(cell){
-										cell.text = "담당 개발자";
+										cell.text = "기능별 담당 개발자";
 										cell.style.css({
 											"background-color" : "#eaf0ea"
 										});
@@ -357,58 +412,43 @@
 							]
 						},
 						"detail": {
-							"rows": [{"height": "27px"}],
+							"rows": [
+								{"height": "60px"},
+								{"height": "27px"}
+							],
 							"cells": [
 								{
-									"constraint": {"rowIndex": 0, "colIndex": 0},
+									"constraint": {"rowIndex": 0, "colIndex": 0, "rowSpan": 2, "colSpan": 1},
 									"configurator": function(cell){
 										cell.columnType = "checkbox";
 									}
 								},
 								{
-									"constraint": {"rowIndex": 0, "colIndex": 1},
+									"constraint": {"rowIndex": 0, "colIndex": 1, "rowSpan": 2, "colSpan": 1},
 									"configurator": function(cell){
 										cell.columnType = "rowindex";
 									}
 								},
 								{
-									"constraint": {"rowIndex": 0, "colIndex": 2},
-									"configurator": function(cell){
-										cell.columnName = "customized_function";
-										cell.control = (function(){
-											var textArea_1 = new cpr.controls.TextArea("txa1");
-											textArea_1.readOnly = true;
-											textArea_1.style.css({
-												"padding-top" : "3px",
-												"padding-left" : "3px",
-												"padding-bottom" : "3px",
-												"padding-right" : "3px"
-											});
-											textArea_1.bind("value").toDataColumn("customized_function");
-											return textArea_1;
-										})();
-									}
-								},
-								{
-									"constraint": {"rowIndex": 0, "colIndex": 3},
+									"constraint": {"rowIndex": 1, "colIndex": 2},
 									"configurator": function(cell){
 										cell.columnName = "department";
 									}
 								},
 								{
-									"constraint": {"rowIndex": 0, "colIndex": 4},
+									"constraint": {"rowIndex": 1, "colIndex": 3},
 									"configurator": function(cell){
 										cell.columnName = "employees_number";
 									}
 								},
 								{
-									"constraint": {"rowIndex": 0, "colIndex": 5},
+									"constraint": {"rowIndex": 1, "colIndex": 4},
 									"configurator": function(cell){
 										cell.columnName = "employees_name";
 									}
 								},
 								{
-									"constraint": {"rowIndex": 0, "colIndex": 6},
+									"constraint": {"rowIndex": 1, "colIndex": 5},
 									"configurator": function(cell){
 										cell.columnName = "start_date";
 										cell.control = (function(){
@@ -424,7 +464,7 @@
 									}
 								},
 								{
-									"constraint": {"rowIndex": 0, "colIndex": 7},
+									"constraint": {"rowIndex": 1, "colIndex": 6},
 									"configurator": function(cell){
 										cell.columnName = "end_date";
 										cell.control = (function(){
@@ -438,6 +478,23 @@
 											return maskEditor_2;
 										})();
 									}
+								},
+								{
+									"constraint": {"rowIndex": 0, "colIndex": 2, "rowSpan": 1, "colSpan": 5},
+									"configurator": function(cell){
+										cell.columnName = "customized_function";
+										cell.control = (function(){
+											var textArea_1 = new cpr.controls.TextArea("txa2");
+											textArea_1.style.css({
+												"padding-top" : "5px",
+												"padding-left" : "8px",
+												"padding-bottom" : "5px",
+												"padding-right" : "8px"
+											});
+											textArea_1.bind("value").toDataColumn("customized_function");
+											return textArea_1;
+										})();
+									}
 								}
 							]
 						},
@@ -446,7 +503,7 @@
 							"gheader": {
 								"rows": [{"height": "30px"}],
 								"cells": [{
-									"constraint": {"rowIndex": 0, "colIndex": 0, "rowSpan": 1, "colSpan": 8},
+									"constraint": {"rowIndex": 0, "colIndex": 0, "rowSpan": 1, "colSpan": 7},
 									"configurator": function(cell){
 										cell.expr = "\"[버전]     \" + customizing_version";
 										cell.style.css({
@@ -462,14 +519,14 @@
 					container.addChild(grid_1, {
 						"autoSize": "both",
 						"width": "739px",
-						"height": "475px"
+						"height": "527px"
 					});
 				})(group_3);
 				container.addChild(group_3, {
 					"top": "115px",
 					"left": "20px",
 					"width": "795px",
-					"height": "481px"
+					"height": "530px"
 				});
 				var button_1 = new cpr.controls.Button();
 				button_1.value = "추가/수정";
@@ -486,7 +543,7 @@
 					button_1.addEventListener("click", onButtonClick);
 				}
 				container.addChild(button_1, {
-					"top": "606px",
+					"top": "660px",
 					"left": "603px",
 					"width": "111px",
 					"height": "25px"
@@ -502,8 +559,11 @@
 					"background-image" : "none",
 					"border-top-style" : "none"
 				});
+				if(typeof onButtonClick2 == "function") {
+					button_2.addEventListener("click", onButtonClick2);
+				}
 				container.addChild(button_2, {
-					"top": "606px",
+					"top": "660px",
 					"left": "728px",
 					"width": "80px",
 					"height": "25px"
@@ -513,13 +573,10 @@
 				"top": "0px",
 				"left": "0px",
 				"width": "828px",
-				"height": "649px"
+				"height": "700px"
 			});
 			if(typeof onBodyLoad == "function"){
 				app.addEventListener("load", onBodyLoad);
-			}
-			if(typeof onBodyInit == "function"){
-				app.addEventListener("init", onBodyInit);
 			}
 		}
 	});

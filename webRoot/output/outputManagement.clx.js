@@ -81,7 +81,7 @@
 					var output_id = app.lookup("product_outputList").getValue(clickRowIndex, "output_id");
 					console.log(output_id);
 					
-					app.getRootAppInstance().dialogManager.openDialog("output/outputContentView", "outputContentView", {width : 760, height : 700}, function(dialog){
+					app.getRootAppInstance().dialogManager.openDialog("output/outputContentView", "outputContentView", {width : 760, height : 720}, function(dialog){
 						dialog.ready(function(dialogApp){
 							// 필요한 경우, 다이얼로그의 앱이 초기화 된 후, 앱 속성을 전달하십시오.
 							dialog.headerTitle = "산출물 조회";
@@ -116,7 +116,7 @@
 				 */
 				var button = e.control;
 				
-				app.getRootAppInstance().dialogManager.openDialog("output/wirteOutput", "wirteOutput", {width : 760, height : 700}, function(dialog){
+				app.getRootAppInstance().dialogManager.openDialog("output/wirteOutput", "wirteOutput", {width : 760, height : 730}, function(dialog){
 					dialog.ready(function(dialogApp){
 						// 필요한 경우, 다이얼로그의 앱이 초기화 된 후, 앱 속성을 전달하십시오.
 						dialog.headerTitle = "산출물 등록";
@@ -654,7 +654,7 @@
 			})(group_1);
 			container.addChild(group_1, {
 				"top": "0px",
-				"left": "0px",
+				"left": "10px",
 				"width": "739px",
 				"height": "595px"
 			});

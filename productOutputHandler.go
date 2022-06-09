@@ -242,8 +242,10 @@ func addOutput(writer http.ResponseWriter, request *http.Request) {
 		log.Fatal(err)
 	}
 
-	var result Result
-	result.ResultCode = 1
+	var resultcode ResultCode
+	resultcode.ResultCode = 1
+
+	var result Result = Result{resultcode}
 
 	renderObj := render.New()
 
@@ -382,8 +384,10 @@ func deleteOutput(writer http.ResponseWriter, request *http.Request) {
 
 	}
 
-	var result Result
-	result.ResultCode = 1
+	var resultcode ResultCode
+	resultcode.ResultCode = 1
+
+	var result Result = Result{resultcode}
 
 	renderObj := render.New()
 
@@ -509,49 +513,250 @@ func getSearchOutputList(writer http.ResponseWriter, request *http.Request) {
 func downloadAttachment(writer http.ResponseWriter, request *http.Request) {
 	fmt.Println("............downloadAttachment()...........")
 
-	/*
-		request.ParseForm()
+	request.ParseForm()
 
-		formData := request.Form
-		fmt.Println(formData)
+	formData := request.Form
+	//fmt.Println(formData)
 
-		formDataKey := "@d1#" + "file_name"
-		fileName := formData[formDataKey][0]
+	formDataKey := "@d1#" + "file_name"
+	fileName := formData[formDataKey][0]
 
-		formDataKey = "@d2#" + "save_path"
-		saveFilePath := formData[formDataKey][0]
+	formDataKey = "@d1#" + "save_path"
+	saveFilePath := formData[formDataKey][0]
 
-		fmt.Println("fileName : ", fileName)
-		fmt.Println("saveFilePath : ", saveFilePath)
+	fmt.Println("fileName : ", fileName)
+	fmt.Println("saveFilePath : ", saveFilePath)
 
-		openfile, err := os.Open(saveFilePath)
-		defer openfile.Close()
+	file, err := os.Open(saveFilePath)
+	if err != nil {
+		http.Error(writer, fileName+"의 파일을 찾을 수 없습니다.", 404)
+		return
+	}
+	defer file.Close()
+
+	fileHeader := make([]byte, 512)
+	file.Read(fileHeader)
+
+	fileStat, _ := file.Stat()
+
+	writer.Header().Set("Content-Disposition", "attachment; filename="+fileName)
+	writer.Header().Set("Content-Type", http.DetectContentType(fileHeader))
+	writer.Header().Set("Content-Length", strconv.FormatInt(fileStat.Size(), 10))
+
+	file.Seek(0, 0)
+	io.Copy(writer, file)
+
+}
+
+func downloadAttachmentList(writer http.ResponseWriter, request *http.Request) {
+	fmt.Println("............downloadAttachment()...........")
+
+	request.ParseForm()
+
+	formData := request.Form
+	fmt.Println(formData)
+
+	formDataKey := "@d1#" + "file_name"
+	fileNameList := formData[formDataKey]
+
+	formDataKey = "@d1#" + "save_path"
+	saveFilePathList := formData[formDataKey]
+
+	var file *os.File
+	var err error
+	for i := 0; i < len(fileNameList); i++ {
+		file, err = os.Open(saveFilePathList[i])
 		if err != nil {
-			http.Error(writer, "File not found.", 404) //return 404 if file is not found
+			http.Error(writer, fileNameList[i]+"의 파일을 찾을 수 없습니다.", 404)
 			return
 		}
 
-		tempBuffer := make([]byte, 512)
-		openfile.Read(tempBuffer)
-		fileContentType := http.DetectContentType(tempBuffer)
+		fileHeader := make([]byte, 512)
+		file.Read(fileHeader)
 
-		fileStat, _ := openfile.Stat()
-		fileSize := strconv.FormatInt(fileStat.Size(), 10)
+		fileStat, _ := file.Stat()
 
-		writer.Header().Set("Content-Type", fileContentType+";"+fileName)
-		writer.Header().Set("Content-Length", fileSize)
+		writer.Header().Set("Content-Disposition", "attachment; filename="+fileNameList[i])
+		writer.Header().Set("Content-Type", http.DetectContentType(fileHeader))
+		writer.Header().Set("Content-Length", strconv.FormatInt(fileStat.Size(), 10))
 
-		openfile.Seek(0, 0)
-		io.Copy(writer, openfile)
-	*/
+	}
+
+	defer file.Close()
+
+	file.Seek(0, 0)
+	io.Copy(writer, file)
 
 }
 
 func modifyOutput(writer http.ResponseWriter, request *http.Request) {
 	fmt.Println("............modifyOutput()...........")
-	request.ParseMultipartForm(2 << 30)
+	request.ParseMultipartForm(1 << 30)
 
 	multipartForm := request.MultipartForm
 	fmt.Println(multipartForm)
+
+	formData := multipartForm.Value
+
+	var product_output Product_output
+	var deleteFileList DeleteFileList
+	for key, value := range formData {
+
+		splitRealKey := strings.Split(key, "#")
+
+		if len(splitRealKey) >= 2 {
+			switch splitRealKey[1] {
+			case "output_id":
+				temp, _ := strconv.ParseInt(value[0], 10, 32)
+				product_output.Output_id = int32(temp)
+
+			case "product_id":
+				temp, _ := strconv.ParseInt(value[0], 10, 32)
+				product_output.Product_id = int32(temp)
+
+			case "output_type":
+				product_output.Output_type = value[0]
+
+			case "output_title":
+				product_output.Output_title = value[0]
+
+			case "output_content":
+				product_output.Output_content = value[0]
+
+			case "write_date":
+				product_output.Write_date = value[0]
+
+			case "delete_file_name":
+				deleteFileList.DeleteFileNameList = value
+
+			}
+
+		} // end if
+
+	} // end for
+
+	fmt.Println("product_output : ", product_output)
+	fmt.Println("deleteFileList : ", deleteFileList)
+
+	transaction, err := db.Begin()
+	if err != nil {
+		fmt.Println("--------트랜잭션 생성 오류---------")
+		log.Fatal(err)
+	}
+
+	defer transaction.Rollback()
+
+	_, err = db.Exec(`UPDATE product_output 
+							SET output_type = ?,
+								output_title = ?,
+								output_content = ?
+							WHERE output_id = ?`,
+		product_output.Output_type,
+		product_output.Output_title,
+		product_output.Output_content,
+		product_output.Output_id)
+	if err != nil {
+		fmt.Printf("===========product_output 테이블 output_id는 %d update 실패===========\n", product_output.Output_id)
+		log.Fatal(err)
+	}
+
+	for i := 0; i < len(deleteFileList.DeleteFileNameList); i++ {
+		_, err = db.Exec(`DELETE FROM output_attachment WHERE output_id = ? AND real_file_name = ?`,
+			product_output.Output_id, deleteFileList.DeleteFileNameList[i])
+
+		if err != nil {
+			fmt.Printf("===========output_attachment 테이블 output_id는 %d, real_file_name은 %s  delete 실패===========\n", product_output.Output_id, deleteFileList.DeleteFileNameList[i])
+			log.Fatal(err)
+		}
+	}
+
+	var output_attachmentList []Output_attachment = []Output_attachment{}
+
+	basePath, _ := os.Getwd()
+
+	splitWrite_date := strings.Split(product_output.Write_date, "T")[0]
+	var attachmentSaveDir string = fmt.Sprintf("%s/%s/%d", basePath, splitWrite_date, product_output.Output_id)
+
+	if _, err := os.Stat(attachmentSaveDir); os.IsNotExist(err) {
+		err := os.MkdirAll(attachmentSaveDir, os.ModeDir)
+		if err != nil {
+			log.Println("------------폴더 생성 오류-------------")
+			log.Fatalln(err)
+		}
+		fmt.Printf("==========해당 경로에 폴더가 없어 새로 생성 : %s", attachmentSaveDir)
+	}
+
+	fmt.Println(multipartForm.File)
+
+	// 파일 저장하기
+	for key, _ := range multipartForm.File {
+		file, fileHeader, err := request.FormFile(key)
+		if err != nil {
+			fmt.Println("FormFile ERROR : ", err)
+			return
+		}
+
+		defer file.Close()
+		fmt.Printf("upload file : name [%s], size [%d], header [%#v]\n",
+			fileHeader.Filename, fileHeader.Size, fileHeader.Header)
+
+		var attachmentSavePath string = attachmentSaveDir + "/" + fileHeader.Filename
+
+		fileUpLoad, err := os.Create(attachmentSavePath)
+		if err != nil {
+			fmt.Println("파일 열기 실패 : ", err, "\n", attachmentSavePath)
+			return
+		}
+		defer fileUpLoad.Close()
+
+		_, err = io.Copy(fileUpLoad, file)
+		if err != nil {
+			fmt.Println("파일 복사 실패 : ", err)
+			return
+		}
+
+		fmt.Println("파일 저장 성공!", fileHeader.Filename)
+		output_attachmentList = append(output_attachmentList,
+			Output_attachment{
+				Output_id:      product_output.Output_id,
+				Real_file_name: fileHeader.Filename,
+				Save_file_name: fileHeader.Filename,
+				Save_path:      attachmentSavePath,
+				File_size:      float64(fileHeader.Size),
+			},
+		)
+
+	} // end for
+
+	fmt.Println("output_attachmentList : ", output_attachmentList)
+
+	for i := 0; i < len(output_attachmentList); i++ {
+		_, err = db.Exec(`INSERT INTO output_attachment(output_id, real_file_name, save_file_name, save_path, file_size)
+		VALUES (?, ?, ?, ?, ?)`,
+			output_attachmentList[i].Output_id,
+			output_attachmentList[i].Real_file_name,
+			output_attachmentList[i].Save_file_name,
+			output_attachmentList[i].Save_path,
+			output_attachmentList[i].File_size)
+		if err != nil {
+			fmt.Println("===========output_attachment 테이블 insert 실패===========")
+			log.Fatal(err)
+		}
+	}
+
+	// 트랜잭션 종료
+	err = transaction.Commit()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var resultcode ResultCode
+	resultcode.ResultCode = 1
+
+	var result Result = Result{resultcode}
+
+	renderObj := render.New()
+
+	renderObj.JSON(writer, http.StatusOK, result)
 
 }

@@ -103,6 +103,10 @@ type Output_attachment struct {
 
 //============ResultCode 전달 구조체================
 type Result struct {
+	Result ResultCode `json:"result"`
+}
+
+type ResultCode struct {
 	ResultCode int `json:"resultCode"`
 }
 
@@ -178,6 +182,26 @@ type CustomizingList struct {
 	Product_customizingList []Product_customizing `json:"product_customizingList"`
 }
 
+type Product_customizingList struct {
+	Customizing_id      []string `json:"customizing_id"`
+	Product_id          []string `json:"product_id"`
+	Customizing_version []string `json:"customizing_version"`
+	Customized_function []string `json:"customized_function"`
+	Department          []string `json:"department"`
+	Employees_number    []string `json:"employees_number"`
+	Employees_name      []string `json:"employees_name"`
+	Start_date          []string `json:"start_date"`
+	End_date            []string `json:"end_date"`
+}
+
+type Delete_customizingIdList struct {
+	Delete_customizing_id []string `json:"delete_customizing_id"`
+}
+
+type Delete_customizingId struct {
+	Delete_customizing_id int32 `json:"delete_customizing_id"`
+}
+
 //====================산출물==============================
 type OutputCount struct {
 	TotalOutputCount int32 `json:"totalOutputCount"`
@@ -192,4 +216,12 @@ type OutputContent struct {
 	Product        Product             `json:"product"`
 	Product_output Product_output      `json:"product_output"`
 	AttachmentList []Output_attachment `json:"attachmentList"`
+}
+
+type DeleteFileList struct {
+	DeleteFileNameList []string `json:"deleteFileNameList"`
+}
+
+type DeleteFile struct {
+	DeleteFileName string `json:"deleteFileName"`
 }
