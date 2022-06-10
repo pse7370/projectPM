@@ -38,8 +38,6 @@ func getSideMenuContent(writer http.ResponseWriter, request *http.Request) {
 		log.Println("rowCount 값 가져오기 오류", err)
 	}
 
-	//var getSideMenuContentQuery string = "WITH TREE (label, value, parent, product_id) AS (SELECT DISTINCT product_type AS label, product_type AS value, '' AS parent, 0 AS product_id FROM product	UNION ALL SELECT p.product_name AS label, p.product_name AS value, p.product_type AS parent, p.product_id FROM product AS p) SELECT label, value, parent, product_id FROM TREE ORDER BY product_id DESC, parent ASC"
-	//var getSideMenuContentQuery string = "WITH TREE (label, value, parent, product_id) AS (SELECT DISTINCT product_type AS label, product_type AS value, '' AS parent, 0 AS product_id FROM product UNION ALL SELECT p.product_name AS label, p.product_name AS value, p.product_type AS parent, p.product_id FROM product AS p UNION ALL SELECT '커스터마이징' AS label, '커스터마이징' + CAST(product_id AS varchar) AS value, product_name AS parent, product_id FROM product UNION ALL SELECT '산출물' AS label, '산출물' + CAST(product_id AS varchar) AS value, product_name AS parent, product_id FROM product) SELECT label, value, parent, product_id FROM TREE ORDER BY product_id DESC, parent ASC"
 	var getSideMenuContentQuery string = `WITH TREE (label, value, parent, product_id) AS
 											(SELECT DISTINCT product_type AS label, product_type AS value, '' AS parent, 0 AS product_id
 												FROM product	
@@ -126,7 +124,7 @@ func addDevice(writer http.ResponseWriter, request *http.Request) {
 
 	// 해당 경로에 폴더가 있는지 확인하고 없으면 생성하기
 	if _, err := os.Stat(deviceImageSaveDir); os.IsNotExist(err) {
-		err := os.Mkdir(deviceImageSaveDir, os.ModeDir)
+		err := os.MkdirAll(deviceImageSaveDir, os.ModeDir)
 		if err != nil {
 			log.Println("------------폴더 생성 오류-------------")
 			log.Fatalln(err)
@@ -924,7 +922,7 @@ func getSWcontent(writer http.ResponseWriter, request *http.Request) {
 		log.Println(err)
 	}
 
-	fmt.Println(getSwDetailsQuery)
+	//fmt.Println(getSwDetailsQuery)
 	defer rows.Close()
 
 	var developer_id int32

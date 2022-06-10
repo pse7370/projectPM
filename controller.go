@@ -144,16 +144,13 @@ func StartServer() {
 	basePath, _ := os.Getwd()
 	fmt.Println(basePath)
 
+	// 저장한 제품 이미지 경로
+	imageFileServer := http.FileServer(http.Dir(basePath))
+	mux.Handle("/static/", http.StripPrefix("/static/", imageFileServer))
+
+	// 페이지 경로
 	fileServer := http.FileServer(http.Dir(basePath + "/webRoot"))
-	// eXbuilder 출판 경로 지정
-
 	mux.Handle("/", http.StripPrefix("/", fileServer))
-	// http://localhost:5000/
-
-	/*
-		deviveImageServer := http.FileServer(http.Dir(basePath + "/deviceImage"))
-		mux.Handle("/deviceImage", http.StripPrefix("/", deviveImageServer))
-	*/
 
 	fmt.Println("====================Start Server======================")
 

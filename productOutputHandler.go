@@ -9,6 +9,8 @@ import (
 	"strconv"
 	"strings"
 
+	"archive/zip" // 파일을 압축할 수 있는 패키지
+
 	"github.com/unrolled/render"
 )
 
@@ -562,28 +564,43 @@ func downloadAttachmentList(writer http.ResponseWriter, request *http.Request) {
 	formDataKey = "@d1#" + "save_path"
 	saveFilePathList := formData[formDataKey]
 
+	formDataKey = "@d2#" + "product_name"
+	product_name := formData[formDataKey][0]
+
+	formDataKey = "@d2#" + "output_title"
+	output_title := formData[formDataKey][0]
+
+	zipFileName := "[" + product_name + "]" + output_title + ".zip"
+
+	// 산출물에서 선택한 첨부파일들을 찾아 알집으로 압축하기
+	zipArchive, _ := os.Create(zipFileName)
+	defer zipArchive.Close()
+
+	zipWriter := zip.NewWriter(zipArchive)
+
 	var file *os.File
-	var err error
-	for i := 0; i < len(fileNameList); i++ {
-		file, err = os.Open(saveFilePathList[i])
-		if err != nil {
-			http.Error(writer, fileNameList[i]+"의 파일을 찾을 수 없습니다.", 404)
-			return
-		}
-
-		fileHeader := make([]byte, 512)
-		file.Read(fileHeader)
-
-		fileStat, _ := file.Stat()
-
-		writer.Header().Set("Content-Disposition", "attachment; filename="+fileNameList[i])
-		writer.Header().Set("Content-Type", http.DetectContentType(fileHeader))
-		writer.Header().Set("Content-Length", strconv.FormatInt(fileStat.Size(), 10))
-
+	var fileWriter io.Writer
+	for i := 0; i < len(saveFilePathList); i++ {
+		file, _ = os.Open(saveFilePathList[i])
+		fileWriter, _ = zipWriter.Create(fileNameList[i])
+		io.Copy(fileWriter, file)
 	}
 
-	defer file.Close()
+	zipWriter.Close()
 
+	// 위에서 압축한 알집을 브라우저로 전달 다운로드
+	var err error
+	file, err = os.Open(zipFileName)
+	if err != nil {
+		http.Error(writer, zipFileName+"의 파일을 찾을 수 없습니다.", 404)
+		return
+	}
+
+	fileHeader := make([]byte, 512)
+	file.Read(fileHeader)
+
+	writer.Header().Set("Content-Disposition", "attachment; filename="+zipFileName)
+	writer.Header().Set("Content-Type", "applicaiton/zip")
 	file.Seek(0, 0)
 	io.Copy(writer, file)
 
