@@ -556,7 +556,7 @@ func downloadAttachmentList(writer http.ResponseWriter, request *http.Request) {
 	request.ParseForm()
 
 	formData := request.Form
-	fmt.Println(formData)
+	//fmt.Println(formData)
 
 	formDataKey := "@d1#" + "file_name"
 	fileNameList := formData[formDataKey]
@@ -603,6 +603,34 @@ func downloadAttachmentList(writer http.ResponseWriter, request *http.Request) {
 	writer.Header().Set("Content-Type", "applicaiton/zip")
 	file.Seek(0, 0)
 	io.Copy(writer, file)
+
+	defer file.Close()
+
+}
+
+func deleteZipFile(writer http.ResponseWriter, request *http.Request) {
+	fmt.Println("............deleteZipFile()...........")
+
+	request.ParseForm()
+
+	formData := request.Form
+	fmt.Println(formData)
+
+	formDataKey := "@d1#" + "product_name"
+	product_name := formData[formDataKey][0]
+
+	formDataKey = "@d1#" + "output_title"
+	output_title := formData[formDataKey][0]
+
+	zipFileName := "[" + product_name + "]" + output_title + ".zip"
+
+	basePath, _ := os.Getwd()
+	zip_save_path := basePath + "/" + zipFileName
+
+	err := os.Remove(zip_save_path)
+	if err != nil {
+		fmt.Println("알집 파일 삭제 실패 ", err)
+	}
 
 }
 

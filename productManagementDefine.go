@@ -225,3 +225,7 @@ type DeleteFileList struct {
 type DeleteFile struct {
 	DeleteFileName string `json:"deleteFileName"`
 }
+
+type DeleteZipFile struct {
+	Zip_save_path string `json:"zip_save_path"`
+}
