@@ -110,6 +110,47 @@ func getSideMenuContent(writer http.ResponseWriter, request *http.Request) {
 
 }
 
+func checkProductName(writer http.ResponseWriter, request *http.Request) {
+	fmt.Println("............checkProductName()...........")
+	request.ParseForm()
+
+	formData := request.Form
+	//fmt.Println(formData)
+
+	formDataKey := "@d1#" + "product_name"
+	product_name := formData[formDataKey][0]
+	fmt.Println("product_name : ", product_name)
+
+	var count int
+	var checkProductNameQurey string = `SELECT COUNT(product_name) FROM product WHERE product_name = ?`
+
+	err := db.QueryRow(checkProductNameQurey, product_name).Scan(&count)
+
+	if err != nil {
+		log.Fatalf("==========product_name = %s인 제품의 찾기 실패===========\n", product_name)
+		log.Println(err)
+	}
+
+	fmt.Println("count : ", count)
+
+	var resultcode ResultCode
+
+	switch count {
+	case 0:
+		resultcode.ResultCode = 1
+
+	default:
+		resultcode.ResultCode = 2
+	}
+
+	var result Result = Result{resultcode}
+
+	renderObj := render.New()
+
+	renderObj.JSON(writer, http.StatusOK, result)
+
+}
+
 // 출입통제기 등록
 func addDevice(writer http.ResponseWriter, request *http.Request) {
 	request.ParseMultipartForm(8 << 20) // 8MiB 메모리 할당
@@ -380,13 +421,19 @@ func addDevice(writer http.ResponseWriter, request *http.Request) {
 	*/
 
 	for i := 0; i < sliceLength_auth; i++ {
-		_, err = db.Exec(`INSERT INTO authentication_details(product_id, auth_type, one_to_one_max_user, one_to_many_max_user, one_to_one_max_template, one_to_many_max_template) 
+
+		if authentication_details[i].Auth_type != "" {
+
+			_, err = db.Exec(`INSERT INTO authentication_details(product_id, auth_type, one_to_one_max_user, one_to_many_max_user, one_to_one_max_template, one_to_many_max_template) 
 						VALUES (?, ?, ?, ?, ?, ?)`,
-			product_id, authentication_details[i].Auth_type, authentication_details[i].One_to_one_max_user, authentication_details[i].One_to_many_max_user, authentication_details[i].One_to_one_max_template, authentication_details[i].One_to_one_max_template)
-		if err != nil {
-			fmt.Printf("===========authentication_details 테이블 insert 실패 '%d'================\n", i)
-			log.Fatal(err)
+				product_id, authentication_details[i].Auth_type, authentication_details[i].One_to_one_max_user, authentication_details[i].One_to_many_max_user, authentication_details[i].One_to_one_max_template, authentication_details[i].One_to_one_max_template)
+			if err != nil {
+				fmt.Printf("===========authentication_details 테이블 insert 실패 '%d'================\n", i)
+				log.Fatal(err)
+			}
+
 		}
+
 	} // end for
 
 	_, err = db.Exec(`INSERT INTO product_device(product_id, width, height, depth, ip_ratings, server, wi_fi, other) 
@@ -710,16 +757,16 @@ func getDeviceContent(writer http.ResponseWriter, request *http.Request) {
 	//fmt.Println(getDeviceDetailsQuery)
 	defer rows.Close()
 
-	var auth_type string
+	var auth_type sql.NullString
 	var one_to_one_max_user sql.NullInt32
 	var one_to_many_max_user sql.NullInt32
 	var one_to_one_max_template sql.NullInt32
 	var one_to_many_max_template sql.NullInt32
 
-	var developer_id int32
-	var department string
-	var employees_number int32
-	var employees_name string
+	var developer_id sql.NullInt32
+	var department sql.NullString
+	var employees_number sql.NullInt32
+	var employees_name sql.NullString
 	var start_date sql.NullString
 	var end_date sql.NullString
 
@@ -819,7 +866,7 @@ func getDeviceContent(writer http.ResponseWriter, request *http.Request) {
 		// slice에 순차적으로 저장
 		authenticationList = append(authenticationList,
 			Authentication_details{
-				Auth_type:                auth_type,
+				Auth_type:                auth_type.String,
 				One_to_one_max_user:      one_to_one_max_user.Int32,
 				One_to_many_max_user:     one_to_many_max_user.Int32,
 				One_to_one_max_template:  one_to_one_max_template.Int32,
@@ -854,10 +901,10 @@ func getDeviceContent(writer http.ResponseWriter, request *http.Request) {
 
 		developerList = append(developerList,
 			Product_developer{
-				Developer_id:     developer_id,
-				Department:       department,
-				Employees_number: employees_number,
-				Employees_name:   employees_name,
+				Developer_id:     developer_id.Int32,
+				Department:       department.String,
+				Employees_number: employees_number.Int32,
+				Employees_name:   employees_name.String,
 				Start_date:       start_date.String,
 				End_date:         end_date.String,
 			},
@@ -925,10 +972,10 @@ func getSWcontent(writer http.ResponseWriter, request *http.Request) {
 	//fmt.Println(getSwDetailsQuery)
 	defer rows.Close()
 
-	var developer_id int32
-	var department string
-	var employees_number int32
-	var employees_name string
+	var developer_id sql.NullInt32
+	var department sql.NullString
+	var employees_number sql.NullInt32
+	var employees_name sql.NullString
 	var start_date sql.NullString
 	var end_date sql.NullString
 
@@ -968,10 +1015,10 @@ func getSWcontent(writer http.ResponseWriter, request *http.Request) {
 
 		developerList = append(developerList,
 			Product_developer{
-				Developer_id:     developer_id,
-				Department:       department,
-				Employees_number: employees_number,
-				Employees_name:   employees_name,
+				Developer_id:     developer_id.Int32,
+				Department:       department.String,
+				Employees_number: employees_number.Int32,
+				Employees_name:   employees_name.String,
 				Start_date:       start_date.String,
 				End_date:         end_date.String,
 			},

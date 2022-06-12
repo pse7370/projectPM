@@ -159,6 +159,9 @@ func StartServer() {
 	// 사이드 트리 메뉴 구성 값 가져오기
 	mux.HandleFunc("/productMangement/sideMenu", productMangementHandler)
 
+	// 제품명 중복 체크
+	mux.HandleFunc("/productMangement/checkProductName", checkProductName)
+
 	// 출입통제기 등록하기
 	mux.HandleFunc("/productMangement/addDevice", addDevice)
 	// SW 등록하기

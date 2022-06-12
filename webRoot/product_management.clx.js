@@ -151,7 +151,7 @@
 				}
 				
 				if(clickLable == "커스터마이징") {
-					app.dialogManager.openDialog("customizing/customizingManagement", "customizingManagement", {width : 850, height : 750}, function(dialog){
+					app.dialogManager.openDialog("customizing/customizingManagement", "customizingManagement", {width : 850, height : 700}, function(dialog){
 					dialog.ready(function(dialogApp){
 						// 필요한 경우, 다이얼로그의 앱이 초기화 된 후, 앱 속성을 전달하십시오.
 						dialog.headerTitle = "커스터마이징 관리";
@@ -303,7 +303,7 @@
 				});
 			})(group_1);
 			container.addChild(group_1, {
-				"top": "20px",
+				"top": "18px",
 				"left": "19px",
 				"width": "216px",
 				"height": "727px"
@@ -341,7 +341,7 @@
 				});
 			})(group_2);
 			container.addChild(group_2, {
-				"top": "144px",
+				"top": "140px",
 				"left": "245px",
 				"width": "760px",
 				"height": "598px"
@@ -364,7 +364,7 @@
 				button_1.addEventListener("click", onButtonClick);
 			}
 			container.addChild(button_1, {
-				"top": "104px",
+				"top": "97px",
 				"left": "893px",
 				"width": "95px",
 				"height": "30px"
@@ -376,7 +376,7 @@
 				"font-size" : "30pt"
 			});
 			container.addChild(output_1, {
-				"top": "33px",
+				"top": "30px",
 				"left": "546px",
 				"width": "176px",
 				"height": "58px"

@@ -600,6 +600,7 @@
 						"rowIndex": 0
 					});
 					var numberEditor_1 = new cpr.controls.NumberEditor("input_simultaneous");
+					numberEditor_1.min = 0.0;
 					numberEditor_1.style.css({
 						"text-align" : "right",
 						"padding-right" : "5px"

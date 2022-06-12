@@ -113,7 +113,7 @@
 				var i;
 				for(i = 0; i < 4; i++){
 					if(authenGrid.isCheckedRow(i) == false){
-						authenticationList.deleteRow(i);
+						authenticationList.realDeleteRow(i);
 					}
 				}
 				
@@ -170,6 +170,45 @@
 				
 				//app.getRootAppInstance().dialogManager.getDialogByName("addProduct").close();
 				//app.getRootAppInstance()는 최상위 앱 호출
+				
+			}
+			
+			
+			/*
+			 * 제품명 인풋 박스에서 value-change 이벤트 발생 시 호출.
+			 * 변경된 value가 저장된 후에 발생하는 이벤트.
+			 */
+			function onInput_productNameValueChange(/* cpr.events.CValueChangeEvent */ e){
+				/** 
+				 * @type cpr.controls.InputBox
+				 */
+				var input_productName = e.control;
+				
+				app.lookup("product_name").setValue("product_name", app.lookup("input_productName").value);
+				
+				app.lookup("checkProductName").send();
+				
+			}
+			
+			
+			/*
+			 * checkProductName 서브미션에서 submit-done 이벤트 발생 시 호출.
+			 * 응답처리가 모두 종료되면 발생합니다.
+			 */
+			function onCheckProductNameSubmitDone(/* cpr.events.CSubmissionEvent */ e){
+				/** 
+				 * @type cpr.protocols.Submission
+				 */
+				var checkProductName = e.control;
+				
+				var resultCode = app.lookup("result").getValue("resultCode");
+				console.log("resultCode : " + resultCode);
+				
+				if(resultCode != 1){
+					alert("동일한 제품명은 사용할 수 없습니다. 다시 작성해 주세요.");
+					app.lookup("input_productName").clear();
+					app.lookup("input_productName").focus();
+				}
 				
 			};
 			// End - User Script
@@ -255,6 +294,12 @@
 				"columns" : [{"name": "resultCode"}]
 			});
 			app.register(dataMap_3);
+			
+			var dataMap_4 = new cpr.data.DataMap("product_name");
+			dataMap_4.parseData({
+				"columns" : [{"name": "product_name"}]
+			});
+			app.register(dataMap_4);
 			var submission_1 = new cpr.protocols.Submission("addDevice");
 			submission_1.action = "/productMangement/addDevice";
 			submission_1.mediaType = "multipart/form-data";
@@ -267,6 +312,15 @@
 				submission_1.addEventListener("submit-done", onAddDeviceSubmitDone);
 			}
 			app.register(submission_1);
+			
+			var submission_2 = new cpr.protocols.Submission("checkProductName");
+			submission_2.action = "/productMangement/checkProductName";
+			submission_2.addRequestData(dataMap_4);
+			submission_2.addResponseData(dataMap_3, false);
+			if(typeof onCheckProductNameSubmitDone == "function") {
+				submission_2.addEventListener("submit-done", onCheckProductNameSubmitDone);
+			}
+			app.register(submission_2);
 			
 			app.supportMedia("all and (min-width: 1024px)", "default");
 			app.supportMedia("all and (min-width: 707px) and (max-width: 1023px)", "dialog");
@@ -324,6 +378,9 @@
 						});
 						var inputBox_1 = new cpr.controls.InputBox("input_productName");
 						inputBox_1.bind("value").toDataMap(app.lookup("product"), "product_name");
+						if(typeof onInput_productNameValueChange == "function") {
+							inputBox_1.addEventListener("value-change", onInput_productNameValueChange);
+						}
 						container.addChild(inputBox_1, {
 							"top": "0px",
 							"left": "79px",
