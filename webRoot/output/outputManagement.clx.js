@@ -424,6 +424,9 @@
 						"rowIndex": 0
 					});
 					var inputBox_1 = new cpr.controls.InputBox("input_searchWord");
+					if(typeof onInput_searchWordSelect == "function") {
+						inputBox_1.addEventListener("select", onInput_searchWordSelect);
+					}
 					container.addChild(inputBox_1, {
 						"colIndex": 1,
 						"rowIndex": 0

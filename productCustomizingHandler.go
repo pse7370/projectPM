@@ -56,11 +56,11 @@ func getCustomizingList(writer http.ResponseWriter, request *http.Request) {
 	defer rows.Close()
 
 	var customizing_id int32
-	var customizing_version string
-	var function string
-	var department string
-	var employees_number int32
-	var employees_name string
+	var customizing_version sql.NullString
+	var function sql.NullString
+	var department sql.NullString
+	var employees_number sql.NullInt32
+	var employees_name sql.NullString
 	var start_date sql.NullString
 	var end_date sql.NullString
 
@@ -72,11 +72,11 @@ func getCustomizingList(writer http.ResponseWriter, request *http.Request) {
 		customizingList = append(customizingList,
 			Product_customizing{
 				Customizing_id:      customizing_id,
-				Customizing_version: customizing_version,
-				Customized_function: function,
-				Department:          department,
-				Employees_number:    employees_number,
-				Employees_name:      employees_name,
+				Customizing_version: customizing_version.String,
+				Customized_function: function.String,
+				Department:          department.String,
+				Employees_number:    employees_number.Int32,
+				Employees_name:      employees_name.String,
 				Start_date:          start_date.String,
 				End_date:            end_date.String,
 			},
@@ -262,15 +262,18 @@ func modifyCustomizing(writer http.ResponseWriter, request *http.Request) {
 func deleteCustomizing(writer http.ResponseWriter, request *http.Request) {
 	fmt.Println("............deleteCustomizing()...........")
 
-	requestURL := request.RequestURI
+	request.ParseForm()
 
-	splitURL := strings.Split(requestURL, "?")
+	formData := request.Form
+	fmt.Println(formData)
+	formDataKey := "@d1#" + "customizing_id"
+	data := formData[formDataKey]
 
 	var customizing_ids []int32 = []int32{}
-	if len(splitURL) > 1 {
+	if len(data) > 1 {
 
-		for i := 1; i < len(splitURL); i++ {
-			stringCustomizingID := splitURL[i]
+		for i := 1; i < len(data); i++ {
+			stringCustomizingID := data[i]
 			int64CustomizingID, _ := strconv.ParseInt(stringCustomizingID, 10, 32)
 			customizing_ids = append(customizing_ids, int32(int64CustomizingID))
 		}
@@ -278,6 +281,25 @@ func deleteCustomizing(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	fmt.Println("customizing_ids : ", customizing_ids)
+
+	/*
+		requestURL := request.RequestURI
+
+		splitURL := strings.Split(requestURL, "?")
+
+		var customizing_ids []int32 = []int32{}
+		if len(splitURL) > 1 {
+
+			for i := 1; i < len(splitURL); i++ {
+				stringCustomizingID := splitURL[i]
+				int64CustomizingID, _ := strconv.ParseInt(stringCustomizingID, 10, 32)
+				customizing_ids = append(customizing_ids, int32(int64CustomizingID))
+			}
+
+		}
+
+		fmt.Println("customizing_ids : ", customizing_ids)
+	*/
 
 	transaction, err := db.Begin()
 	if err != nil {

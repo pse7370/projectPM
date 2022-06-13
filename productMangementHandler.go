@@ -445,13 +445,19 @@ func addDevice(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	for i := 0; i < sliceLength_developer; i++ {
-		_, err = db.Exec(`INSERT INTO product_developer(product_id, department, employees_number, employees_name, start_date, end_date) 
+
+		if product_developer[i].Employees_number != 0 || product_developer[i].Employees_name != "" {
+
+			_, err = db.Exec(`INSERT INTO product_developer(product_id, department, employees_number, employees_name, start_date, end_date) 
 						VALUES (?, ?, ?, ?, ?, ?)`,
-			product_id, product_developer[i].Department, product_developer[i].Employees_number, product_developer[i].Employees_name, product_developer[i].Start_date, product_developer[i].End_date)
-		if err != nil {
-			fmt.Printf("===========product_developer 테이블 insert 실패 '%d'================\n", i)
-			log.Fatal(err)
+				product_id, product_developer[i].Department, product_developer[i].Employees_number, product_developer[i].Employees_name, product_developer[i].Start_date, product_developer[i].End_date)
+			if err != nil {
+				fmt.Printf("===========product_developer 테이블 insert 실패 '%d'================\n", i)
+				log.Fatal(err)
+			}
+
 		}
+
 	}
 
 	// 트랜잭션 종료

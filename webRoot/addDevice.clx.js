@@ -535,6 +535,7 @@
 									cell.columnName = "one_to_one_max_user";
 									cell.control = (function(){
 										var numberEditor_1 = new cpr.controls.NumberEditor("nbe1");
+										numberEditor_1.min = 0.0;
 										numberEditor_1.style.css({
 											"text-align" : "right",
 											"padding-right" : "5px"
@@ -550,6 +551,7 @@
 									cell.columnName = "one_to_many_max_user";
 									cell.control = (function(){
 										var numberEditor_2 = new cpr.controls.NumberEditor("nbe2");
+										numberEditor_2.min = 0.0;
 										numberEditor_2.style.css({
 											"text-align" : "right",
 											"padding-right" : "5px"
@@ -565,6 +567,7 @@
 									cell.columnName = "one_to_one_max_template";
 									cell.control = (function(){
 										var numberEditor_3 = new cpr.controls.NumberEditor("nbe3");
+										numberEditor_3.min = 0.0;
 										numberEditor_3.style.css({
 											"text-align" : "right",
 											"padding-right" : "5px"
@@ -580,6 +583,7 @@
 									cell.columnName = "one_to_many_max_template";
 									cell.control = (function(){
 										var numberEditor_4 = new cpr.controls.NumberEditor("nbe4");
+										numberEditor_4.min = 0.0;
 										numberEditor_4.style.css({
 											"text-align" : "right",
 											"padding-right" : "5px"

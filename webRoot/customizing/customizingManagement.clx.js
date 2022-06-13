@@ -101,13 +101,19 @@
 				var actionURL = "/productMangement/deleteCustomizing";
 				for(i = 0; i < checkedRow.length; i++){
 					
-					actionURL += "?" + app.lookup("product_customizingList").getValue(checkedRow[i], "customizing_id");		
+					//actionURL += "?" + app.lookup("product_customizingList").getValue(checkedRow[i], "customizing_id");		
+					var customizing_id = app.lookup("product_customizingList").getValue(checkedRow[i], "customizing_id");
+					console.log(customizing_id);
+					app.lookup("customizing_id").addRowData({"customizing_id" : app.lookup("product_customizingList").getValue(checkedRow[i], "customizing_id")});
+					console.log("customizing_id : " + app.lookup("customizing_id").getValue(i, "customizing_id"));
 					
 					data_customizingList.deleteRow(checkedRow[i]);
 				}
 				
+				/*
 				console.log(actionURL);
 				app.lookup("deleteCustomizing").action = actionURL;
+				*/
 				
 				app.lookup("deleteCustomizing").send();
 				console.log("deleteCustomizing 서브미션 실행");
@@ -151,6 +157,15 @@
 				"rows": []
 			});
 			app.register(dataSet_1);
+			
+			var dataSet_2 = new cpr.data.DataSet("customizing_id");
+			dataSet_2.parseData({
+				"columns" : [{
+					"name": "customizing_id",
+					"dataType": "number"
+				}]
+			});
+			app.register(dataSet_2);
 			var dataMap_1 = new cpr.data.DataMap("product");
 			dataMap_1.parseData({
 				"columns" : [{"name": "product_name"}]
@@ -187,6 +202,7 @@
 			var submission_2 = new cpr.protocols.Submission("deleteCustomizing");
 			submission_2.method = "delete";
 			submission_2.action = "/productMangement/deleteCustomizing";
+			submission_2.addRequestData(dataSet_2);
 			submission_2.addResponseData(dataMap_3, false);
 			if(typeof onDeleteCustomizingSubmitDone == "function") {
 				submission_2.addEventListener("submit-done", onDeleteCustomizingSubmitDone);
